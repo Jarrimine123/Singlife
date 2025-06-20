@@ -7,11 +7,11 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SingLife
+namespace Singlife
 {
 
 
-    public partial class Site1
+    public partial class Customer
     {
 
         /// <summary>

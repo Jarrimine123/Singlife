@@ -72,16 +72,48 @@
       <DependentUpon>Singlife.mdf</DependentUpon>
     </Content>
     <Content Include="Cart.aspx" />
+    <Content Include="Checkout.aspx" />
+    <Content Include="Claiming.aspx" />
     <Content Include="CreateAccount.aspx" />
+    <Content Include="EverCarePlan.aspx" />
+    <Content Include="EverCareQuote.aspx" />
+    <Content Include="HomePage.aspx" />
+    <Content Include="Medical.aspx" />
+    <Content Include="OncoshieldPlan.aspx" />
+    <Content Include="OncoShieldQuote.aspx" />
+    <Content Include="OncoShieldTimeClaim.aspx" />
+    <Content Include="StaffPurchase.aspx" />
+    <Content Include="startclaim.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Admin.Master.cs">
+      <DependentUpon>Admin.Master</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Admin.Master.designer.cs">
+      <DependentUpon>Admin.Master</DependentUpon>
+    </Compile>
     <Compile Include="Cart.aspx.cs">
       <DependentUpon>Cart.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Cart.aspx.designer.cs">
       <DependentUpon>Cart.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Checkout.aspx.cs">
+      <DependentUpon>Checkout.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Checkout.aspx.designer.cs">
+      <DependentUpon>Checkout.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Claiming.aspx.cs">
+      <DependentUpon>Claiming.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Claiming.aspx.designer.cs">
+      <DependentUpon>Claiming.aspx</DependentUpon>
     </Compile>
     <Compile Include="CreateAccount.aspx.cs">
       <DependentUpon>CreateAccount.aspx</DependentUpon>
@@ -97,10 +129,74 @@
     <Compile Include="Customer.Master.designer.cs">
       <DependentUpon>Customer.Master</DependentUpon>
     </Compile>
+    <Compile Include="EverCarePlan.aspx.cs">
+      <DependentUpon>EverCarePlan.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EverCarePlan.aspx.designer.cs">
+      <DependentUpon>EverCarePlan.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="EverCareQuote.aspx.cs">
+      <DependentUpon>EverCareQuote.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EverCareQuote.aspx.designer.cs">
+      <DependentUpon>EverCareQuote.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="HomePage.aspx.cs">
+      <DependentUpon>HomePage.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="HomePage.aspx.designer.cs">
+      <DependentUpon>HomePage.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Medical.aspx.cs">
+      <DependentUpon>Medical.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Medical.aspx.designer.cs">
+      <DependentUpon>Medical.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="OncoshieldPlan.aspx.cs">
+      <DependentUpon>OncoshieldPlan.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="OncoshieldPlan.aspx.designer.cs">
+      <DependentUpon>OncoshieldPlan.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="OncoShieldQuote.aspx.cs">
+      <DependentUpon>OncoShieldQuote.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="OncoShieldQuote.aspx.designer.cs">
+      <DependentUpon>OncoShieldQuote.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="OncoShieldTimeClaim.aspx.cs">
+      <DependentUpon>OncoShieldTimeClaim.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="OncoShieldTimeClaim.aspx.designer.cs">
+      <DependentUpon>OncoShieldTimeClaim.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StaffPurchase.aspx.cs">
+      <DependentUpon>StaffPurchase.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StaffPurchase.aspx.designer.cs">
+      <DependentUpon>StaffPurchase.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="startclaim.aspx.cs">
+      <DependentUpon>startclaim.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="startclaim.aspx.designer.cs">
+      <DependentUpon>startclaim.aspx</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Customer.Master" />
+    <Content Include="Admin.Master" />
     <None Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
