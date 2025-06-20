@@ -5,7 +5,7 @@
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder2" runat="server">
     <div class="container py-5">
-        <h2 class="text-center mb-4">🛒 Your Cart</h2>
+        <h2 class="text-center mb-4">🛒 Your Cart Here</h2>
 
         <asp:GridView ID="gvCart" runat="server" AutoGenerateColumns="False" CssClass="table table-bordered table-striped"
             DataKeyNames="CartID" OnRowCommand="gvCart_RowCommand" HeaderStyle-CssClass="table-primary" EmptyDataText="Your cart is empty.">
