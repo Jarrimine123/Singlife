@@ -57,7 +57,7 @@
                     </div>
                     <div class="claim-title">Submit a Claim</div>
                     <p class="claim-desc">Start a new claim submission and get connected with our experts to help process your claim efficiently.</p>
-                    <a href="SubmitClaim.aspx" class="btn btn-warning mt-3">Start Claim</a>
+                    <a href="ChooseClaim.aspx" class="btn btn-warning mt-3">Start Claim</a>
                 </div>
             </div>
 

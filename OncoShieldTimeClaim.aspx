@@ -68,7 +68,7 @@
 
             <!-- Button -->
             <div class="text-center mt-4">
-                <a href="OncoShieldClaimStep1.aspx" class="btn btn-danger btn-lg px-5">Get started</a>
+                <a href="Claiming.aspx" class="btn btn-danger btn-lg px-5">Get started</a>
             </div>
         </div>
     </div>

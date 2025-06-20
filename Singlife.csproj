@@ -73,6 +73,7 @@
     </Content>
     <Content Include="Cart.aspx" />
     <Content Include="Checkout.aspx" />
+    <Content Include="ChooseClaim.aspx" />
     <Content Include="Claiming.aspx" />
     <Content Include="ClaimService.aspx" />
     <Content Include="CreateAccount.aspx" />
@@ -123,6 +124,13 @@
     </Compile>
     <Compile Include="Checkout.aspx.designer.cs">
       <DependentUpon>Checkout.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ChooseClaim.aspx.cs">
+      <DependentUpon>ChooseClaim.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ChooseClaim.aspx.designer.cs">
+      <DependentUpon>ChooseClaim.aspx</DependentUpon>
     </Compile>
     <Compile Include="Claiming.aspx.cs">
       <DependentUpon>Claiming.aspx</DependentUpon>
