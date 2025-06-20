@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 
 namespace Singlife
 {
-    public partial class EverCareQuote : System.Web.UI.Page
+    public partial class EverCareQuote : Page
     {
         private const decimal BaseRate = 0.0070M; // 0.70%
         private const decimal PreExistingExtra = 0.0020M; // +0.20% if pre-existing conditions
@@ -18,6 +14,10 @@ namespace Singlife
 
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (!IsPostBack)
+            {
+                ResetForm();
+            }
         }
 
         protected void btnCalculate_Click(object sender, EventArgs e)
@@ -25,6 +25,12 @@ namespace Singlife
             lblValidationMessage.Visible = false;
             pnlResult.Visible = false;
             pnlActions.Visible = false;
+
+            if (Session["AccountID"] == null)
+            {
+                ShowValidationError("⚠️ Please log in to get a quote.");
+                return;
+            }
 
             decimal coverage;
             string preExisting = ddlPreExisting.SelectedValue;
@@ -48,13 +54,11 @@ namespace Singlife
                 return;
             }
 
+            int accountId = Convert.ToInt32(Session["AccountID"]);
+
             decimal finalRate = BaseRate;
-
-            if (preExisting == "Yes")
-                finalRate += PreExistingExtra;
-
-            if (criticalIllness == "Yes")
-                finalRate += CriticalIllnessExtra;
+            if (preExisting == "Yes") finalRate += PreExistingExtra;
+            if (criticalIllness == "Yes") finalRate += CriticalIllnessExtra;
 
             decimal annualPremium = coverage * finalRate;
             decimal monthlyPremium = annualPremium / 12;
@@ -70,56 +74,18 @@ namespace Singlife
             pnlResult.Visible = true;
             pnlActions.Visible = true;
 
-            int accountId;
-            if (Session["AccountID"] != null && int.TryParse(Session["AccountID"].ToString(), out accountId))
-            {
-                // Session ID present
-            }
-            else
-            {
-                accountId = new Random().Next(1000, 9999);
-                Session["AccountID"] = accountId;
-            }
-
             SaveQuoteToDatabase(accountId, coverage, preExisting, criticalIllness, annualPremium, monthlyPremium);
-        }
-
-        private void ShowValidationError(string message)
-        {
-            lblValidationMessage.Text = message;
-            lblValidationMessage.Visible = true;
-        }
-
-        private void SaveQuoteToDatabase(int accountId, decimal coverage, string preExisting, string criticalIllness, decimal annual, decimal monthly)
-        {
-            string connectionString = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                string query = @"INSERT INTO EverCareQuotes 
-                                (AccountID, CoverageAmount, PreExistingConditions, CriticalIllnessAddon, AnnualPremium, MonthlyPremium, QuoteDate)
-                                VALUES (@AccountID, @CoverageAmount, @PreExisting, @CriticalIllness, @AnnualPremium, @MonthlyPremium, GETDATE())";
-
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@AccountID", accountId);
-                    cmd.Parameters.AddWithValue("@CoverageAmount", coverage);
-                    cmd.Parameters.AddWithValue("@PreExisting", preExisting);
-                    cmd.Parameters.AddWithValue("@CriticalIllness", criticalIllness);
-                    cmd.Parameters.AddWithValue("@AnnualPremium", annual);
-                    cmd.Parameters.AddWithValue("@MonthlyPremium", monthly);
-
-                    conn.Open();
-                    cmd.ExecuteNonQuery();
-                    conn.Close();
-                }
-            }
         }
 
         protected void btnAddToCart_Click(object sender, EventArgs e)
         {
-            int accountId = Session["AccountID"] != null ? Convert.ToInt32(Session["AccountID"]) : new Random().Next(1000, 9999);
-            Session["AccountID"] = accountId;
+            if (Session["AccountID"] == null)
+            {
+                ShowValidationError("⚠️ Please log in to add to cart.");
+                return;
+            }
+
+            int accountId = Convert.ToInt32(Session["AccountID"]);
 
             decimal coverage = decimal.TryParse(txtCoverage.Text, out var cov) ? cov : 0;
             string preExisting = ddlPreExisting.SelectedValue;
@@ -151,17 +117,75 @@ namespace Singlife
 
                     conn.Open();
                     cmd.ExecuteNonQuery();
-                    conn.Close();
                 }
             }
 
+            ResetForm();
             Response.Redirect("Cart.aspx");
         }
 
         protected void btnBuyNow_Click(object sender, EventArgs e)
         {
-            Response.Redirect("Purchase.aspx?plan=EverCare");
+            decimal coverage = decimal.TryParse(txtCoverage.Text, out var cov) ? cov : 0;
+            string preExisting = ddlPreExisting.SelectedValue;
+            string criticalIllness = ddlCriticalIllness.SelectedValue;
+
+            decimal finalRate = BaseRate;
+            if (preExisting == "Yes") finalRate += PreExistingExtra;
+            if (criticalIllness == "Yes") finalRate += CriticalIllnessExtra;
+
+            decimal annualPremium = coverage * finalRate;
+            decimal monthlyPremium = annualPremium / 12;
+
+            // Build a query string with the quote details
+            string url = $"Checkout.aspx?product=EverCarePlan&coverage={coverage}&preExisting={preExisting}&criticalIllness={criticalIllness}&annual={annualPremium}&monthly={monthlyPremium}";
+
+            ResetForm();
+            Response.Redirect(url);
+        }
+
+
+        private void ShowValidationError(string message)
+        {
+            lblValidationMessage.Text = message;
+            lblValidationMessage.Visible = true;
+        }
+
+        private void SaveQuoteToDatabase(int accountId, decimal coverage, string preExisting, string criticalIllness, decimal annual, decimal monthly)
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                string query = @"INSERT INTO EverCareQuotes 
+                                (AccountID, CoverageAmount, PreExistingConditions, CriticalIllnessAddon, AnnualPremium, MonthlyPremium, QuoteDate)
+                                VALUES (@AccountID, @CoverageAmount, @PreExisting, @CriticalIllness, @AnnualPremium, @MonthlyPremium, GETDATE())";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@AccountID", accountId);
+                    cmd.Parameters.AddWithValue("@CoverageAmount", coverage);
+                    cmd.Parameters.AddWithValue("@PreExisting", preExisting);
+                    cmd.Parameters.AddWithValue("@CriticalIllness", criticalIllness);
+                    cmd.Parameters.AddWithValue("@AnnualPremium", annual);
+                    cmd.Parameters.AddWithValue("@MonthlyPremium", monthly);
+
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        private void ResetForm()
+        {
+            txtCoverage.Text = "";
+            ddlPreExisting.SelectedIndex = 0;
+            ddlCriticalIllness.SelectedIndex = 0;
+
+            lblResult.Text = "";
+            lblValidationMessage.Visible = false;
+            pnlResult.Visible = false;
+            pnlActions.Visible = false;
         }
     }
 }
-

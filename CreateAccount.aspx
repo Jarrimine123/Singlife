@@ -15,7 +15,7 @@
         <div class="form-group mb-3">
             <label>Email</label>
             <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" />
-            <asp:RequiredFieldValidator ID="rfvEmail" runat="server<a href="CreateAccount.aspx">CreateAccount.aspx</a>" ControlToValidate="txtEmail" ErrorMessage="Email is required." CssClass="text-danger" Display="Dynamic" />
+            <asp:RequiredFieldValidator ID="rfvEmail" runat="server" ControlToValidate="txtEmail" ErrorMessage="Email is required." CssClass="text-danger" Display="Dynamic" />
             <asp:RegularExpressionValidator ID="revEmail" runat="server" ControlToValidate="txtEmail"
                 ErrorMessage="Invalid email format." ValidationExpression="^[^@\s]+@[^@\s]+\.[^@\s]+$" CssClass="text-danger" Display="Dynamic" />
         </div>

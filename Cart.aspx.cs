@@ -1,5 +1,4 @@
-﻿using Singlife;
-using System;
+﻿using System;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
@@ -19,16 +18,13 @@ namespace Singlife
 
         private void LoadCart()
         {
-            int accountId;
-
-            if (Session["AccountID"] == null || !int.TryParse(Session["AccountID"].ToString(), out accountId))
+            if (Session["AccountID"] == null)
             {
-                // Temporary ID for testing (replace later with proper login system)
-                Random rnd = new Random();
-                accountId = rnd.Next(1000, 9999);
-                Session["AccountID"] = accountId;
+                Response.Redirect("Login.aspx");
+                return;
             }
 
+            int accountId = Convert.ToInt32(Session["AccountID"]);
             string connStr = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
 
             using (SqlConnection conn = new SqlConnection(connStr))
@@ -47,7 +43,6 @@ namespace Singlife
                     gvCart.DataSource = dt;
                     gvCart.DataBind();
 
-                    // Enable Checkout button only if cart has items
                     btnCheckout.Enabled = dt.Rows.Count > 0;
                 }
             }
@@ -70,7 +65,6 @@ namespace Singlife
                         cmd.Parameters.AddWithValue("@CartID", cartId);
                         conn.Open();
                         cmd.ExecuteNonQuery();
-                        conn.Close();
                     }
                 }
 

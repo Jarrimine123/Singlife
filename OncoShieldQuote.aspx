@@ -110,12 +110,12 @@
 
         <div class="form-group">
             <label for="txtCoverage">Coverage Amount (SGD):</label>
-            <asp:TextBox ID="txtCoverage" runat="server" Text="100000"></asp:TextBox>
+            <asp:TextBox ID="txtCoverage" runat="server"></asp:TextBox>
         </div>
 
         <div class="form-group">
             <label for="txtAge">Your Age:</label>
-            <asp:TextBox ID="txtAge" runat="server" Text="35"></asp:TextBox>
+            <asp:TextBox ID="txtAge" runat="server"></asp:TextBox>
         </div>
 
         <div class="form-group">
