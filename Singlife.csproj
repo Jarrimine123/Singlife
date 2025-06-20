@@ -76,6 +76,7 @@
     <Content Include="ChooseClaim.aspx" />
     <Content Include="Claiming.aspx" />
     <Content Include="ClaimService.aspx" />
+    <Content Include="ContinueDraft.aspx" />
     <Content Include="CreateAccount.aspx" />
     <Content Include="EverCarePlan.aspx" />
     <Content Include="EverCareQuote.aspx" />
@@ -99,8 +100,10 @@
     <Content Include="OncoShieldQuote.aspx" />
     <Content Include="OncoShieldTimeClaim.aspx" />
     <Content Include="SaveAsDraft.aspx" />
+    <Content Include="Staffclaim.aspx" />
     <Content Include="StaffPurchase.aspx" />
     <Content Include="startclaim.aspx" />
+    <Content Include="SubmitSucces.aspx" />
     <Content Include="ThankYou.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -146,6 +149,13 @@
     </Compile>
     <Compile Include="ClaimService.aspx.designer.cs">
       <DependentUpon>ClaimService.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ContinueDraft.aspx.cs">
+      <DependentUpon>ContinueDraft.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ContinueDraft.aspx.designer.cs">
+      <DependentUpon>ContinueDraft.aspx</DependentUpon>
     </Compile>
     <Compile Include="CreateAccount.aspx.cs">
       <DependentUpon>CreateAccount.aspx</DependentUpon>
@@ -225,6 +235,13 @@
     <Compile Include="SaveAsDraft.aspx.designer.cs">
       <DependentUpon>SaveAsDraft.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Staffclaim.aspx.cs">
+      <DependentUpon>Staffclaim.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Staffclaim.aspx.designer.cs">
+      <DependentUpon>Staffclaim.aspx</DependentUpon>
+    </Compile>
     <Compile Include="StaffPurchase.aspx.cs">
       <DependentUpon>StaffPurchase.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -238,6 +255,13 @@
     </Compile>
     <Compile Include="startclaim.aspx.designer.cs">
       <DependentUpon>startclaim.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="SubmitSucces.aspx.cs">
+      <DependentUpon>SubmitSucces.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="SubmitSucces.aspx.designer.cs">
+      <DependentUpon>SubmitSucces.aspx</DependentUpon>
     </Compile>
     <Compile Include="ThankYou.aspx.cs">
       <DependentUpon>ThankYou.aspx</DependentUpon>

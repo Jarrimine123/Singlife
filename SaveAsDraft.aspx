@@ -22,7 +22,7 @@
                         <div class="d-flex">
                             <asp:HyperLink ID="lnkContinue" runat="server"
                                 CssClass="btn btn-outline-danger me-2"
-                                NavigateUrl='<%# Eval("ClaimID", "~/SubmitClaim.aspx?claimId={0}") %>'>
+                                NavigateUrl='<%# Eval("ClaimID", "~/ContinueDraft.aspx?claimId={0}") %>'>
                                 Continue submission <i class="bi bi-arrow-right ms-1"></i>
                             </asp:HyperLink>
                             <asp:LinkButton ID="btnDelete" runat="server"

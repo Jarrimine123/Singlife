@@ -2,7 +2,6 @@
 using System.Configuration;
 using System.Data.SqlClient;
 using System.IO;
-using System.Web.UI;
 
 namespace Singlife
 {
@@ -60,22 +59,30 @@ namespace Singlife
                                 )";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
+
                 cmd.Parameters.AddWithValue("@AccountID", accountId);
                 cmd.Parameters.AddWithValue("@PlanName", "OncoShield Plan");
                 cmd.Parameters.AddWithValue("@DiagnosisDate", string.IsNullOrEmpty(diagnosisDate.Value) ? (object)DBNull.Value : diagnosisDate.Value);
-                cmd.Parameters.AddWithValue("@TreatmentCountry", treatmentCountry.Value);
-                cmd.Parameters.AddWithValue("@CancerType", cancerType.Value);
+                cmd.Parameters.AddWithValue("@TreatmentCountry", string.IsNullOrWhiteSpace(treatmentCountry.Value) ? (object)DBNull.Value : treatmentCountry.Value);
+                cmd.Parameters.AddWithValue("@CancerType", string.IsNullOrWhiteSpace(cancerType.Value) ? (object)DBNull.Value : cancerType.Value);
                 cmd.Parameters.AddWithValue("@IsFirstDiagnosis", firstYes.Checked);
                 cmd.Parameters.AddWithValue("@HasReceivedTreatment", treatmentYes.Checked);
                 cmd.Parameters.AddWithValue("@IsConfirmedBySpecialist", confirmedYes.Checked);
                 cmd.Parameters.AddWithValue("@TreatmentStartDate", string.IsNullOrEmpty(treatmentDate.Value) ? (object)DBNull.Value : treatmentDate.Value);
-                cmd.Parameters.AddWithValue("@HospitalName", hospital.Value);
-                cmd.Parameters.AddWithValue("@TherapyType", therapyType.Value);
+                cmd.Parameters.AddWithValue("@HospitalName", string.IsNullOrWhiteSpace(hospital.Value) ? (object)DBNull.Value : hospital.Value);
+                cmd.Parameters.AddWithValue("@TherapyType", string.IsNullOrWhiteSpace(therapyType.Value) ? (object)DBNull.Value : therapyType.Value);
                 cmd.Parameters.AddWithValue("@UsedFreeScreening", screeningYes.Checked);
                 cmd.Parameters.AddWithValue("@Declaration", declaration.Checked);
-                cmd.Parameters.AddWithValue("@FilePathTreatment", SaveFile(fileUploadTreatment));
-                cmd.Parameters.AddWithValue("@FilePathScreening", SaveFile(fileUploadScreening));
-                cmd.Parameters.AddWithValue("@FilePathOthers", SaveFile(fileUploadOthers));
+
+                // Save uploaded files and set paths or DBNull.Value if none uploaded
+                var treatmentPath = SaveFile(fileUploadTreatment);
+                var screeningPath = SaveFile(fileUploadScreening);
+                var othersPath = SaveFile(fileUploadOthers);
+
+                cmd.Parameters.AddWithValue("@FilePathTreatment", string.IsNullOrEmpty(treatmentPath) ? (object)DBNull.Value : treatmentPath);
+                cmd.Parameters.AddWithValue("@FilePathScreening", string.IsNullOrEmpty(screeningPath) ? (object)DBNull.Value : screeningPath);
+                cmd.Parameters.AddWithValue("@FilePathOthers", string.IsNullOrEmpty(othersPath) ? (object)DBNull.Value : othersPath);
+
                 cmd.Parameters.AddWithValue("@Status", status);
 
                 conn.Open();

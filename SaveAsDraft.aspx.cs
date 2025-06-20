@@ -17,7 +17,7 @@ namespace Singlife
 
         private void LoadDrafts()
         {
-            int accountId = GetLoggedInAccountID(); // Replace with actual logic
+            int accountId = GetLoggedInAccountID(); // Replace with actual logic to get user AccountID from session
 
             string connStr = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
 
@@ -42,7 +42,7 @@ namespace Singlife
             if (e.CommandName == "Delete")
             {
                 int claimId = Convert.ToInt32(e.CommandArgument);
-                string connStr = ConfigurationManager.ConnectionStrings["YourDB"].ConnectionString;
+                string connStr = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
 
                 using (SqlConnection conn = new SqlConnection(connStr))
                 {
@@ -52,14 +52,22 @@ namespace Singlife
                     cmd.ExecuteNonQuery();
                 }
 
-                LoadDrafts(); // Refresh list
+                LoadDrafts(); // Refresh list after deletion
             }
         }
 
         private int GetLoggedInAccountID()
         {
-            // TODO: Replace this with actual session/user logic
-            return 1;
+            // TODO: Replace this with actual session or authentication logic to get the logged-in user's AccountID
+            if (Session["AccountID"] != null)
+            {
+                return Convert.ToInt32(Session["AccountID"]);
+            }
+            else
+            {
+                Response.Redirect("Login.aspx");
+                return 0;
+            }
         }
     }
 }
