@@ -1,24 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 
 namespace Singlife
 {
-    public partial class OncoShieldQuote : System.Web.UI.Page
+    public partial class OncoShieldQuote : Page
     {
         private const decimal BaseRate = 0.0050M; // 0.50%
         private const decimal SmokerExtra = 0.0010M; // +0.10% if smoker
-        private const decimal MinCoverageAmount = 50000M; // Minimum coverage SGD 50,000
+        private const decimal MinCoverageAmount = 50000M;
 
-        protected void Page_Load(object sender, EventArgs e)
-        {
-
-        }
+        protected void Page_Load(object sender, EventArgs e) { }
 
         protected void btnCalculate_Click(object sender, EventArgs e)
         {
@@ -48,12 +41,15 @@ namespace Singlife
                 return;
             }
 
-            decimal finalRate = BaseRate;
-
-            if (smoker == "Yes")
+            if (Session["AccountID"] == null)
             {
-                finalRate += SmokerExtra;
+                ShowValidationError("⚠️ Please log in to get a quote.");
+                return;
             }
+
+            int accountId = Convert.ToInt32(Session["AccountID"]);
+            decimal finalRate = BaseRate;
+            if (smoker == "Yes") finalRate += SmokerExtra;
 
             decimal annualPremium = coverage * finalRate;
             decimal monthlyPremium = annualPremium / 12;
@@ -68,21 +64,6 @@ namespace Singlife
             pnlResult.Visible = true;
             pnlActions.Visible = true;
 
-            // Generate random AccountID for testing if user not logged in
-            int accountId;
-            if (Session["AccountID"] != null && int.TryParse(Session["AccountID"].ToString(), out accountId))
-            {
-                // Use real session ID
-            }
-            else
-            {
-                // Generate random AccountID for testing
-                Random rnd = new Random();
-                accountId = rnd.Next(1000, 10000); // 1000–9999
-                Session["AccountID"] = accountId; // <-- persist to session
-            }
-
-            // Save the quote
             SaveQuoteToDatabase(accountId, coverage, age, smoker, annualPremium, monthlyPremium);
         }
 
@@ -98,8 +79,10 @@ namespace Singlife
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = @"INSERT INTO OncoShieldQuotes (AccountID, CoverageAmount, Age, Smoker, AnnualPremium, MonthlyPremium, QuoteDate)
-                                 VALUES (@AccountID, @CoverageAmount, @Age, @Smoker, @AnnualPremium, @MonthlyPremium, GETDATE())";
+                string query = @"INSERT INTO OncoShieldQuotes 
+                                (AccountID, CoverageAmount, Age, Smoker, AnnualPremium, MonthlyPremium, QuoteDate)
+                                 VALUES 
+                                (@AccountID, @CoverageAmount, @Age, @Smoker, @AnnualPremium, @MonthlyPremium, GETDATE())";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
@@ -112,41 +95,37 @@ namespace Singlife
 
                     conn.Open();
                     cmd.ExecuteNonQuery();
-                    conn.Close();
                 }
             }
         }
 
         protected void btnAddToCart_Click(object sender, EventArgs e)
         {
-            int accountId;
-            if (Session["AccountID"] != null && int.TryParse(Session["AccountID"].ToString(), out accountId))
+            if (Session["AccountID"] == null)
             {
-                // Use real account ID
-            }
-            else
-            {
-                // For testing, generate a random account ID and store it in session
-                Random rnd = new Random();
-                accountId = rnd.Next(1000, 10000);
-                Session["AccountID"] = accountId;  // <-- persist AccountID in session
+                ShowValidationError("⚠️ Please log in to add to cart.");
+                return;
             }
 
+            int accountId = Convert.ToInt32(Session["AccountID"]);
             decimal coverage;
-            decimal annualPremium;
-            decimal monthlyPremium;
+            if (!decimal.TryParse(txtCoverage.Text, out coverage))
+            {
+                ShowValidationError("⚠️ Invalid coverage amount.");
+                return;
+            }
 
-            // Parse values from previous quote (must match btnCalculate_Click values)
-            if (!decimal.TryParse(txtCoverage.Text, out coverage)) coverage = 0;
-            annualPremium = coverage * (ddlSmoker.SelectedValue == "Yes" ? (BaseRate + SmokerExtra) : BaseRate);
-            monthlyPremium = annualPremium / 12;
+            decimal annualPremium = coverage * (ddlSmoker.SelectedValue == "Yes" ? (BaseRate + SmokerExtra) : BaseRate);
+            decimal monthlyPremium = annualPremium / 12;
 
-            // Save cart item to DB
             string connectionString = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
+
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = @"INSERT INTO CartItems (AccountID, ProductName, PlanName, CoverageAmount, AnnualPremium, MonthlyPremium)
-                 VALUES (@AccountID, @ProductName, @PlanName, @CoverageAmount, @AnnualPremium, @MonthlyPremium)";
+                string query = @"INSERT INTO CartItems 
+                                (AccountID, ProductName, PlanName, CoverageAmount, AnnualPremium, MonthlyPremium)
+                                 VALUES 
+                                (@AccountID, @ProductName, @PlanName, @CoverageAmount, @AnnualPremium, @MonthlyPremium)";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
@@ -159,17 +138,14 @@ namespace Singlife
 
                     conn.Open();
                     cmd.ExecuteNonQuery();
-                    conn.Close();
                 }
             }
 
-            // Redirect to cart page
             Response.Redirect("Cart.aspx");
         }
 
         protected void btnBuyNow_Click(object sender, EventArgs e)
         {
-            // Redirect to the purchase page with the selected plan
             Response.Redirect("Purchase.aspx?plan=OncoShield");
         }
     }

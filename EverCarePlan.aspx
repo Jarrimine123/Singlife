@@ -257,7 +257,7 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder2" runat="server">
     <!-- Hero Banner -->
     <div class="hero-container shadow-sm rounded-bottom">
-        <img src="Image/Evercare.PNG" alt="EverCare Banner" />
+        <img src="Images/Evercare.PNG" alt="EverCare Banner" />
         <div class="hero-buttons">
             <a href="EverCareQuote.aspx" class="btn btn-danger btn-lg shadow">Get a Quote</a>
             <a href="Documents/OncoShield_Brochure.pdf" target="_blank" class="btn btn-outline-danger btn-lg shadow">View Brochure</a>
@@ -267,7 +267,7 @@
     <!-- Intro Section -->
     <section class="intro-section-wrapper">
         <div class="intro-image">
-            <img src="Image/Screenshot%202025-06-18%20021919.png" alt="EverCare Plan Illustration" />
+            <img src="Images/Screenshot%202025-06-18%20021919.png" alt="EverCare Plan Illustration" />
         </div>
         <div class="intro-text">
             <h1>EverCare Plan – Everyday Hospital & Specialist Shield</h1>
@@ -310,14 +310,14 @@
     <!-- Scroll Arrow -->
     <div class="text-center my-4">
         <a href="#nextSection" id="scrollDownArrow">
-            <img src="Image/pngtree-down-arrow-red-png-image_4376823-removebg-preview.png" alt="Scroll Down" class="scroll-arrow" />
+            <img src="Images/pngtree-down-arrow-red-png-image_4376823-removebg-preview.png" alt="Scroll Down" class="scroll-arrow" />
         </a>
     </div>
 
     <!-- How to Use Section -->
     <section id="nextSection" class="text-center">
         <h2 class="section-title mb-3">How to Use the EverCare Plan</h2>
-        <img src="Image/Evercare.jpg" alt="How to Use EverCare Plan" class="how-to-use-img rounded shadow-sm" />
+        <img src="Images/Evercare.jpg" alt="How to Use EverCare Plan" class="how-to-use-img rounded shadow-sm" />
     </section>
 </asp:Content>
 

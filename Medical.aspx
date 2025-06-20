@@ -114,7 +114,7 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder2" runat="server">
     <!-- Hero image -->
     <div>
-        <img src="Image/Medicalind.png" alt="Medical Insurance Banner" class="img-fluid w-100" />
+        <img src="Images/Medicalind.png" alt="Medical Insurance Banner" class="img-fluid w-100" />
     </div>
 
     <!-- Full width background wrapper -->
