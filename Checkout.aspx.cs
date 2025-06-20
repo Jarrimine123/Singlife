@@ -17,7 +17,7 @@ namespace Singlife
                     return;
                 }
 
-                // Check if coming from Buy Now with query string parameters
+                // Load either single quote or cart
                 if (!string.IsNullOrEmpty(Request.QueryString["product"]))
                 {
                     LoadSingleQuoteFromQuery();
@@ -40,57 +40,25 @@ namespace Singlife
             decimal.TryParse(Request.QueryString["annual"], out annualPremium);
             decimal.TryParse(Request.QueryString["monthly"], out monthlyPremium);
 
+            string frequency = Request.QueryString["frequency"] ?? "Annual";
+
             DataTable dt = new DataTable();
             dt.Columns.Add("ProductName");
             dt.Columns.Add("PlanName");
             dt.Columns.Add("CoverageAmount", typeof(decimal));
             dt.Columns.Add("AnnualPremium", typeof(decimal));
             dt.Columns.Add("MonthlyPremium", typeof(decimal));
+            dt.Columns.Add("PaymentFrequency");
 
             DataRow row = dt.NewRow();
 
-            if (productName == "EverCare")
-            {
-                string preExisting = Request.QueryString["preExisting"];
-                string criticalIllness = Request.QueryString["criticalIllness"];
-
-                dt.Columns.Add("PreExisting");
-                dt.Columns.Add("CriticalIllness");
-
-                row["ProductName"] = "Medical Insurance";
-                row["PlanName"] = "EverCare Plan";
-                row["CoverageAmount"] = coverage;
-                row["AnnualPremium"] = annualPremium;
-                row["MonthlyPremium"] = monthlyPremium;
-                row["PreExisting"] = preExisting;
-                row["CriticalIllness"] = criticalIllness;
-            }
-            else if (productName == "OncoShield")
-            {
-                int age = 0;
-                int.TryParse(Request.QueryString["age"], out age);
-                string smoker = Request.QueryString["smoker"];
-
-                dt.Columns.Add("Age", typeof(int));
-                dt.Columns.Add("Smoker");
-
-                row["ProductName"] = "Medical Insurance";
-                row["PlanName"] = "OncoShield Plan";
-                row["CoverageAmount"] = coverage;
-                row["AnnualPremium"] = annualPremium;
-                row["MonthlyPremium"] = monthlyPremium;
-                row["Age"] = age;
-                row["Smoker"] = smoker;
-            }
-            else
-            {
-                // Default fallback, just basic columns
-                row["ProductName"] = productName;
-                row["PlanName"] = productName + " Plan";
-                row["CoverageAmount"] = coverage;
-                row["AnnualPremium"] = annualPremium;
-                row["MonthlyPremium"] = monthlyPremium;
-            }
+            // You can expand this for more plans if needed
+            row["ProductName"] = "Medical Insurance";
+            row["PlanName"] = productName == "EverCare" ? "EverCare Plan" : productName + " Plan";
+            row["CoverageAmount"] = coverage;
+            row["AnnualPremium"] = annualPremium;
+            row["MonthlyPremium"] = monthlyPremium;
+            row["PaymentFrequency"] = frequency;
 
             dt.Rows.Add(row);
             ViewState["CartItems"] = dt;
@@ -98,7 +66,8 @@ namespace Singlife
             gvOrderSummary.DataSource = dt;
             gvOrderSummary.DataBind();
 
-            lblTotalMonthly.Text = monthlyPremium.ToString("C");
+            decimal totalPremium = (frequency == "Monthly") ? monthlyPremium : annualPremium;
+            lblTotalMonthly.Text = totalPremium.ToString("C");
         }
 
         private void LoadCartItems()
@@ -108,7 +77,7 @@ namespace Singlife
             string connStr = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                string query = @"SELECT CartID, ProductName, PlanName, CoverageAmount, AnnualPremium
+                string query = @"SELECT CartID, ProductName, PlanName, CoverageAmount, AnnualPremium, PaymentFrequency
                                  FROM CartItems WHERE AccountID = @AccountID";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -123,13 +92,19 @@ namespace Singlife
                 gvOrderSummary.DataSource = dt;
                 gvOrderSummary.DataBind();
 
-                decimal totalMonthly = 0;
+                decimal totalPremium = 0;
                 foreach (DataRow row in dt.Rows)
                 {
-                    totalMonthly += Convert.ToDecimal(row["AnnualPremium"]) / 12;
+                    string freq = row["PaymentFrequency"].ToString();
+                    decimal annual = Convert.ToDecimal(row["AnnualPremium"]);
+
+                    if (freq == "Monthly")
+                        totalPremium += annual / 12;
+                    else
+                        totalPremium += annual;
                 }
 
-                lblTotalMonthly.Text = totalMonthly.ToString("C");
+                lblTotalMonthly.Text = totalPremium.ToString("C");
             }
         }
 
@@ -151,8 +126,7 @@ namespace Singlife
             string expiry = txtExpiry.Text.Trim();
             string cvv = txtCVV.Text.Trim();
 
-            // Add your existing validation here (omitted for brevity)
-            // Please add validation like in your original code to check fields
+            // TODO: Add proper validation for these fields here!
 
             DataTable dt = ViewState["CartItems"] as DataTable;
             if (dt == null || dt.Rows.Count == 0)
@@ -172,37 +146,45 @@ namespace Singlife
                 {
                     decimal annual = Convert.ToDecimal(row["AnnualPremium"]);
                     decimal monthly = annual / 12;
+                    string frequency = row["PaymentFrequency"].ToString();
 
-                    string insertQuery = @"INSERT INTO Purchases 
+                    string paymentMethod = frequency == "Monthly" ? "Card Monthly" : "Card Annual";
+
+                    string insertQuery = @"
+                        INSERT INTO Purchases 
                         (PurchaseGroupID, AccountID, FullName, Email, Phone, Address, ProductName, PlanName, CoverageAmount, AnnualPremium, MonthlyPremium, PaymentMethod, CardLast4, PaymentFrequency)
                         VALUES 
                         (@PurchaseGroupID, @AccountID, @FullName, @Email, @Phone, @Address, @ProductName, @PlanName, @CoverageAmount, @AnnualPremium, @MonthlyPremium, @PaymentMethod, @CardLast4, @PaymentFrequency)";
 
-                    SqlCommand cmd = new SqlCommand(insertQuery, conn);
-                    cmd.Parameters.AddWithValue("@PurchaseGroupID", purchaseGroupId);
-                    cmd.Parameters.AddWithValue("@AccountID", accountId);
-                    cmd.Parameters.AddWithValue("@FullName", name);
-                    cmd.Parameters.AddWithValue("@Email", email);
-                    cmd.Parameters.AddWithValue("@Phone", phone);
-                    cmd.Parameters.AddWithValue("@Address", address);
-                    cmd.Parameters.AddWithValue("@ProductName", row["ProductName"]);
-                    cmd.Parameters.AddWithValue("@PlanName", row["PlanName"]);
-                    cmd.Parameters.AddWithValue("@CoverageAmount", row["CoverageAmount"]);
-                    cmd.Parameters.AddWithValue("@AnnualPremium", annual);
-                    cmd.Parameters.AddWithValue("@MonthlyPremium", monthly);
-                    cmd.Parameters.AddWithValue("@PaymentMethod", "Card Monthly");
-                    cmd.Parameters.AddWithValue("@CardLast4", cardNumber.Length >= 4 ? cardNumber.Substring(cardNumber.Length - 4) : "");
-                    cmd.Parameters.AddWithValue("@PaymentFrequency", "Monthly");
+                    using (SqlCommand cmd = new SqlCommand(insertQuery, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@PurchaseGroupID", purchaseGroupId);
+                        cmd.Parameters.AddWithValue("@AccountID", accountId);
+                        cmd.Parameters.AddWithValue("@FullName", name);
+                        cmd.Parameters.AddWithValue("@Email", email);
+                        cmd.Parameters.AddWithValue("@Phone", phone);
+                        cmd.Parameters.AddWithValue("@Address", address);
+                        cmd.Parameters.AddWithValue("@ProductName", row["ProductName"]);
+                        cmd.Parameters.AddWithValue("@PlanName", row["PlanName"]);
+                        cmd.Parameters.AddWithValue("@CoverageAmount", row["CoverageAmount"]);
+                        cmd.Parameters.AddWithValue("@AnnualPremium", annual);
+                        cmd.Parameters.AddWithValue("@MonthlyPremium", monthly);
+                        cmd.Parameters.AddWithValue("@PaymentMethod", paymentMethod);
+                        cmd.Parameters.AddWithValue("@CardLast4", cardNumber.Length >= 4 ? cardNumber.Substring(cardNumber.Length - 4) : "");
+                        cmd.Parameters.AddWithValue("@PaymentFrequency", frequency);
 
-                    cmd.ExecuteNonQuery();
+                        cmd.ExecuteNonQuery();
+                    }
                 }
 
-                // If the order was from the cart, clear cart items
+                // Clear cart if purchase came from cart
                 if (string.IsNullOrEmpty(Request.QueryString["product"]))
                 {
-                    SqlCommand deleteCmd = new SqlCommand("DELETE FROM CartItems WHERE AccountID = @AccountID", conn);
-                    deleteCmd.Parameters.AddWithValue("@AccountID", accountId);
-                    deleteCmd.ExecuteNonQuery();
+                    using (SqlCommand deleteCmd = new SqlCommand("DELETE FROM CartItems WHERE AccountID = @AccountID", conn))
+                    {
+                        deleteCmd.Parameters.AddWithValue("@AccountID", accountId);
+                        deleteCmd.ExecuteNonQuery();
+                    }
                 }
             }
 

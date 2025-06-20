@@ -3,7 +3,6 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.IO;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 
 namespace Singlife
 {
@@ -11,14 +10,18 @@ namespace Singlife
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (!IsPostBack)
-            {
-                // Optional: Load data for editing drafts, etc.
-            }
         }
 
         protected void btnSubmit_Click(object sender, EventArgs e)
         {
+            if (!IsValidSubmission())
+            {
+                lblError.Text = "Please fill in all required fields before submitting.";
+                lblError.Visible = true;
+                return;
+            }
+
+            lblError.Visible = false;
             SaveClaim("SUBMITTED");
         }
 
@@ -29,7 +32,6 @@ namespace Singlife
 
         protected void btnDiscard_Click(object sender, EventArgs e)
         {
-            // Do not save to DB, just redirect
             Response.Redirect("ChooseClaim.aspx");
         }
 
@@ -47,9 +49,9 @@ namespace Singlife
             {
                 string query = @"INSERT INTO Claims (
                                     AccountID, PlanName, DiagnosisDate, TreatmentCountry, CancerType,
-                                    IsFirstDiagnosis, HasReceivedTreatment, IsConfirmedBySpecialist,
-                                    TreatmentStartDate, HospitalName, TherapyType, UsedFreeScreening,
-                                    Declaration, FilePathTreatment, FilePathScreening, FilePathOthers, Status
+                                    FirstDiagnosis, ReceivedTreatment, ConfirmedBySpecialist,
+                                    TreatmentStartDate, Hospital, TherapyType, UsedFreeScreening,
+                                    DeclarationConfirmed, TreatmentFilePath, ScreeningFilePath, OtherFilesPath, Status
                                 ) VALUES (
                                     @AccountID, @PlanName, @DiagnosisDate, @TreatmentCountry, @CancerType,
                                     @IsFirstDiagnosis, @HasReceivedTreatment, @IsConfirmedBySpecialist,
@@ -60,13 +62,13 @@ namespace Singlife
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@AccountID", accountId);
                 cmd.Parameters.AddWithValue("@PlanName", "OncoShield Plan");
-                cmd.Parameters.AddWithValue("@DiagnosisDate", diagnosisDate.Value);
+                cmd.Parameters.AddWithValue("@DiagnosisDate", string.IsNullOrEmpty(diagnosisDate.Value) ? (object)DBNull.Value : diagnosisDate.Value);
                 cmd.Parameters.AddWithValue("@TreatmentCountry", treatmentCountry.Value);
                 cmd.Parameters.AddWithValue("@CancerType", cancerType.Value);
                 cmd.Parameters.AddWithValue("@IsFirstDiagnosis", firstYes.Checked);
                 cmd.Parameters.AddWithValue("@HasReceivedTreatment", treatmentYes.Checked);
                 cmd.Parameters.AddWithValue("@IsConfirmedBySpecialist", confirmedYes.Checked);
-                cmd.Parameters.AddWithValue("@TreatmentStartDate", treatmentDate.Value);
+                cmd.Parameters.AddWithValue("@TreatmentStartDate", string.IsNullOrEmpty(treatmentDate.Value) ? (object)DBNull.Value : treatmentDate.Value);
                 cmd.Parameters.AddWithValue("@HospitalName", hospital.Value);
                 cmd.Parameters.AddWithValue("@TherapyType", therapyType.Value);
                 cmd.Parameters.AddWithValue("@UsedFreeScreening", screeningYes.Checked);
@@ -80,10 +82,33 @@ namespace Singlife
                 cmd.ExecuteNonQuery();
             }
 
-            Response.Redirect("ChooseClaim.aspx");
+            if (status == "DRAFT")
+                Response.Redirect("SaveAsDraft.aspx");
+            else
+                Response.Redirect("ChooseClaim.aspx");
         }
 
-        private string SaveFile(FileUpload fileUpload)
+        private bool IsValidSubmission()
+        {
+            if (string.IsNullOrWhiteSpace(diagnosisDate.Value) ||
+                string.IsNullOrWhiteSpace(treatmentCountry.Value) ||
+                string.IsNullOrWhiteSpace(cancerType.Value))
+                return false;
+
+            if (!(firstYes.Checked || firstNo.Checked))
+                return false;
+            if (!(treatmentYes.Checked || treatmentNo.Checked))
+                return false;
+            if (!(confirmedYes.Checked || confirmedNo.Checked))
+                return false;
+
+            if (!declaration.Checked)
+                return false;
+
+            return true;
+        }
+
+        private string SaveFile(System.Web.UI.WebControls.FileUpload fileUpload)
         {
             if (fileUpload.HasFile)
             {
@@ -99,7 +124,6 @@ namespace Singlife
 
                 return "Uploads/" + fileName;
             }
-
             return null;
         }
     }

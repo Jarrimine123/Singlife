@@ -7,15 +7,15 @@ namespace Singlife
 {
     public partial class OncoShieldQuote : Page
     {
-        private const decimal BaseRate = 0.0050M; // 0.50%
-        private const decimal SmokerExtra = 0.0010M; // +0.10%
+        private const decimal BaseRate = 0.0050M;
+        private const decimal SmokerExtra = 0.0010M;
         private const decimal MinCoverageAmount = 50000M;
 
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!IsPostBack)
             {
-                ResetForm(); // Clear old data when page loads fresh
+                ResetForm();
             }
         }
 
@@ -31,11 +31,7 @@ namespace Singlife
                 return;
             }
 
-            decimal coverage;
-            int age;
-            string smoker = ddlSmoker.SelectedValue;
-
-            if (!decimal.TryParse(txtCoverage.Text, out coverage) || coverage <= 0)
+            if (!decimal.TryParse(txtCoverage.Text, out decimal coverage) || coverage <= 0)
             {
                 ShowValidationError("❌ Please enter a valid coverage amount greater than zero.");
                 return;
@@ -47,28 +43,34 @@ namespace Singlife
                 return;
             }
 
-            if (!int.TryParse(txtAge.Text, out age) || age < 18 || age > 80)
+            if (!int.TryParse(txtAge.Text, out int age) || age < 18 || age > 80)
             {
                 ShowValidationError("❌ Please enter a valid age between 18 and 80.");
                 return;
             }
 
             int accountId = Convert.ToInt32(Session["AccountID"]);
+            string smoker = ddlSmoker.SelectedValue;
+            string frequency = ddlFrequency.SelectedValue;
+
             decimal finalRate = BaseRate + (smoker == "Yes" ? SmokerExtra : 0);
             decimal annualPremium = coverage * finalRate;
             decimal monthlyPremium = annualPremium / 12;
 
+            string premiumDisplay = frequency == "Annual"
+                ? $"Annual: <strong>SGD {annualPremium:F2}</strong>"
+                : $"Monthly: <strong>SGD {monthlyPremium:F2}</strong>";
+
             lblResult.Text = $"<strong>Quote Summary:</strong><br/>" +
                              $"Coverage Amount: SGD {coverage:N0}<br/>" +
-                             $"Age: {age} &nbsp;&nbsp;|&nbsp;&nbsp; Smoker: {smoker}<br/><br/>" +
-                             $"<strong>Estimated Premiums:</strong><br/>" +
-                             $"Annual: <strong>SGD {annualPremium:F2}</strong><br/>" +
-                             $"Monthly: <strong>SGD {monthlyPremium:F2}</strong>";
+                             $"Age: {age} &nbsp;&nbsp;|&nbsp;&nbsp; Smoker: {smoker}<br/>" +
+                             $"Payment Frequency: {frequency}<br/><br/>" +
+                             $"<strong>Estimated Premium:</strong><br/>" + premiumDisplay;
 
             pnlResult.Visible = true;
             pnlActions.Visible = true;
 
-            SaveQuoteToDatabase(accountId, coverage, age, smoker, annualPremium, monthlyPremium);
+            SaveQuoteToDatabase(accountId, coverage, age, smoker, annualPremium, monthlyPremium, frequency);
         }
 
         protected void btnAddToCart_Click(object sender, EventArgs e)
@@ -109,19 +111,18 @@ namespace Singlife
             Response.Redirect("Cart.aspx");
         }
 
-        // *** Modified btnBuyNow_Click to pass quote data to Checkout.aspx via query string ***
         protected void btnBuyNow_Click(object sender, EventArgs e)
         {
             if (!decimal.TryParse(txtCoverage.Text, out decimal coverage)) return;
             if (!int.TryParse(txtAge.Text, out int age)) return;
             string smoker = ddlSmoker.SelectedValue;
+            string frequency = ddlFrequency.SelectedValue;
 
             decimal finalRate = BaseRate + (smoker == "Yes" ? SmokerExtra : 0);
             decimal annualPremium = coverage * finalRate;
             decimal monthlyPremium = annualPremium / 12;
 
-            // Build query string with all needed info for checkout
-            string url = $"Checkout.aspx?product=OncoShield&coverage={coverage}&age={age}&smoker={smoker}&annual={annualPremium}&monthly={monthlyPremium}";
+            string url = $"Checkout.aspx?product=OncoShield&coverage={coverage}&age={age}&smoker={smoker}&annual={annualPremium}&monthly={monthlyPremium}&frequency={frequency}";
 
             ResetForm();
             Response.Redirect(url);
@@ -133,14 +134,14 @@ namespace Singlife
             lblValidationMessage.Visible = true;
         }
 
-        private void SaveQuoteToDatabase(int accountId, decimal coverage, int age, string smoker, decimal annual, decimal monthly)
+        private void SaveQuoteToDatabase(int accountId, decimal coverage, int age, string smoker, decimal annual, decimal monthly, string frequency)
         {
             string connStr = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string query = @"INSERT INTO OncoShieldQuotes 
-                                 (AccountID, CoverageAmount, Age, Smoker, AnnualPremium, MonthlyPremium, QuoteDate)
-                                 VALUES (@AccountID, @CoverageAmount, @Age, @Smoker, @AnnualPremium, @MonthlyPremium, GETDATE())";
+                                 (AccountID, CoverageAmount, Age, Smoker, AnnualPremium, MonthlyPremium, Frequency, QuoteDate)
+                                 VALUES (@AccountID, @CoverageAmount, @Age, @Smoker, @AnnualPremium, @MonthlyPremium, @Frequency, GETDATE())";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
@@ -150,6 +151,7 @@ namespace Singlife
                     cmd.Parameters.AddWithValue("@Smoker", smoker == "Yes" ? 1 : 0);
                     cmd.Parameters.AddWithValue("@AnnualPremium", annual);
                     cmd.Parameters.AddWithValue("@MonthlyPremium", monthly);
+                    cmd.Parameters.AddWithValue("@Frequency", frequency);
 
                     conn.Open();
                     cmd.ExecuteNonQuery();
@@ -162,6 +164,7 @@ namespace Singlife
             txtCoverage.Text = "";
             txtAge.Text = "";
             ddlSmoker.SelectedIndex = 0;
+            ddlFrequency.SelectedIndex = 0;
 
             lblResult.Text = "";
             lblValidationMessage.Visible = false;

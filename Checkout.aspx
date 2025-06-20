@@ -8,16 +8,19 @@
                 <asp:BoundField DataField="ProductName" HeaderText="Product" />
                 <asp:BoundField DataField="PlanName" HeaderText="Plan" />
                 <asp:BoundField DataField="CoverageAmount" HeaderText="Coverage" DataFormatString="{0:C}" />
-                <asp:TemplateField HeaderText="Monthly Premium">
+                <asp:BoundField DataField="PaymentFrequency" HeaderText="Payment Frequency" />
+                <asp:TemplateField HeaderText="Premium">
                     <ItemTemplate>
-                        <%# ((decimal)Eval("AnnualPremium") / 12).ToString("C") %>
+                        <%# Eval("PaymentFrequency").ToString() == "Monthly" 
+                            ? ((decimal)Eval("AnnualPremium") / 12).ToString("C") 
+                            : ((decimal)Eval("AnnualPremium")).ToString("C") %>
                     </ItemTemplate>
                 </asp:TemplateField>
             </Columns>
         </asp:GridView>
 
         <div class="text-end mt-2">
-            <strong>Total Monthly: </strong><asp:Label ID="lblTotalMonthly" runat="server" CssClass="fw-bold fs-5" />
+            <strong>Total Premium: </strong><asp:Label ID="lblTotalMonthly" runat="server" CssClass="fw-bold fs-5" />
         </div>
 
         <hr />

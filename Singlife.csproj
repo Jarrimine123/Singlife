@@ -98,6 +98,7 @@
     <Content Include="OncoshieldPlan.aspx" />
     <Content Include="OncoShieldQuote.aspx" />
     <Content Include="OncoShieldTimeClaim.aspx" />
+    <Content Include="SaveAsDraft.aspx" />
     <Content Include="StaffPurchase.aspx" />
     <Content Include="startclaim.aspx" />
     <Content Include="ThankYou.aspx" />
@@ -217,6 +218,13 @@
       <DependentUpon>OncoShieldTimeClaim.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SaveAsDraft.aspx.cs">
+      <DependentUpon>SaveAsDraft.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="SaveAsDraft.aspx.designer.cs">
+      <DependentUpon>SaveAsDraft.aspx</DependentUpon>
+    </Compile>
     <Compile Include="StaffPurchase.aspx.cs">
       <DependentUpon>StaffPurchase.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>

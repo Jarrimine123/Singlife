@@ -125,7 +125,7 @@
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="draft-claim-tab" onclick="window.location.href='DraftClaims.aspx'" type="button" role="tab">
+                    <button class="nav-link" id="draft-claim-tab" onclick="window.location.href='SaveAsDraft.aspx'" type="button" role="tab">
                         Continue Draft Claims
                     </button>
                 </li>

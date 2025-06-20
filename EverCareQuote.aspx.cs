@@ -35,6 +35,7 @@ namespace Singlife
             decimal coverage;
             string preExisting = ddlPreExisting.SelectedValue;
             string criticalIllness = ddlCriticalIllness.SelectedValue;
+            string frequency = ddlFrequency.SelectedValue;
 
             if (!decimal.TryParse(txtCoverage.Text, out coverage) || coverage <= 0)
             {
@@ -48,9 +49,9 @@ namespace Singlife
                 return;
             }
 
-            if (string.IsNullOrEmpty(preExisting) || string.IsNullOrEmpty(criticalIllness))
+            if (string.IsNullOrEmpty(preExisting) || string.IsNullOrEmpty(criticalIllness) || string.IsNullOrEmpty(frequency))
             {
-                ShowValidationError("❌ Please select an option for both Pre-existing Conditions and Critical Illness Add-on.");
+                ShowValidationError("❌ Please select all options including Premium Payment Frequency.");
                 return;
             }
 
@@ -63,18 +64,20 @@ namespace Singlife
             decimal annualPremium = coverage * finalRate;
             decimal monthlyPremium = annualPremium / 12;
 
+            decimal displayedPremium = frequency == "Monthly" ? monthlyPremium : annualPremium;
+
             lblResult.Text = $"<strong>Quote Summary:</strong><br/>" +
                              $"Coverage Amount: SGD {coverage:N0}<br/>" +
                              $"Pre-existing Conditions: {preExisting} <br/>" +
-                             $"Critical Illness Add-on: {criticalIllness}<br/><br/>" +
-                             $"<strong>Estimated Premiums:</strong><br/>" +
-                             $"Annual: <strong>SGD {annualPremium:F2}</strong><br/>" +
-                             $"Monthly: <strong>SGD {monthlyPremium:F2}</strong>";
+                             $"Critical Illness Add-on: {criticalIllness}<br/>" +
+                             $"Payment Frequency: {frequency}<br/><br/>" +
+                             $"<strong>Estimated Premium:</strong><br/>" +
+                             $"{frequency}: <strong>SGD {displayedPremium:F2}</strong>";
 
             pnlResult.Visible = true;
             pnlActions.Visible = true;
 
-            SaveQuoteToDatabase(accountId, coverage, preExisting, criticalIllness, annualPremium, monthlyPremium);
+            SaveQuoteToDatabase(accountId, coverage, preExisting, criticalIllness, annualPremium, monthlyPremium, frequency);
         }
 
         protected void btnAddToCart_Click(object sender, EventArgs e)
@@ -90,6 +93,7 @@ namespace Singlife
             decimal coverage = decimal.TryParse(txtCoverage.Text, out var cov) ? cov : 0;
             string preExisting = ddlPreExisting.SelectedValue;
             string criticalIllness = ddlCriticalIllness.SelectedValue;
+            string frequency = ddlFrequency.SelectedValue;
 
             decimal finalRate = BaseRate;
             if (preExisting == "Yes") finalRate += PreExistingExtra;
@@ -103,8 +107,8 @@ namespace Singlife
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 string query = @"INSERT INTO CartItems 
-                    (AccountID, ProductName, PlanName, CoverageAmount, AnnualPremium, MonthlyPremium)
-                    VALUES (@AccountID, @ProductName, @PlanName, @CoverageAmount, @AnnualPremium, @MonthlyPremium)";
+                    (AccountID, ProductName, PlanName, CoverageAmount, AnnualPremium, MonthlyPremium, PaymentFrequency)
+                    VALUES (@AccountID, @ProductName, @PlanName, @CoverageAmount, @AnnualPremium, @MonthlyPremium, @Frequency)";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
@@ -114,6 +118,7 @@ namespace Singlife
                     cmd.Parameters.AddWithValue("@CoverageAmount", coverage);
                     cmd.Parameters.AddWithValue("@AnnualPremium", annualPremium);
                     cmd.Parameters.AddWithValue("@MonthlyPremium", monthlyPremium);
+                    cmd.Parameters.AddWithValue("@Frequency", frequency);
 
                     conn.Open();
                     cmd.ExecuteNonQuery();
@@ -129,6 +134,7 @@ namespace Singlife
             decimal coverage = decimal.TryParse(txtCoverage.Text, out var cov) ? cov : 0;
             string preExisting = ddlPreExisting.SelectedValue;
             string criticalIllness = ddlCriticalIllness.SelectedValue;
+            string frequency = ddlFrequency.SelectedValue;
 
             decimal finalRate = BaseRate;
             if (preExisting == "Yes") finalRate += PreExistingExtra;
@@ -137,13 +143,11 @@ namespace Singlife
             decimal annualPremium = coverage * finalRate;
             decimal monthlyPremium = annualPremium / 12;
 
-            // Build a query string with the quote details
-            string url = $"Checkout.aspx?product=EverCarePlan&coverage={coverage}&preExisting={preExisting}&criticalIllness={criticalIllness}&annual={annualPremium}&monthly={monthlyPremium}";
+            string url = $"Checkout.aspx?product=EverCarePlan&coverage={coverage}&preExisting={preExisting}&criticalIllness={criticalIllness}&frequency={frequency}&annual={annualPremium}&monthly={monthlyPremium}";
 
             ResetForm();
             Response.Redirect(url);
         }
-
 
         private void ShowValidationError(string message)
         {
@@ -151,15 +155,15 @@ namespace Singlife
             lblValidationMessage.Visible = true;
         }
 
-        private void SaveQuoteToDatabase(int accountId, decimal coverage, string preExisting, string criticalIllness, decimal annual, decimal monthly)
+        private void SaveQuoteToDatabase(int accountId, decimal coverage, string preExisting, string criticalIllness, decimal annual, decimal monthly, string frequency)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 string query = @"INSERT INTO EverCareQuotes 
-                                (AccountID, CoverageAmount, PreExistingConditions, CriticalIllnessAddon, AnnualPremium, MonthlyPremium, QuoteDate)
-                                VALUES (@AccountID, @CoverageAmount, @PreExisting, @CriticalIllness, @AnnualPremium, @MonthlyPremium, GETDATE())";
+                                (AccountID, CoverageAmount, PreExistingConditions, CriticalIllnessAddon, AnnualPremium, MonthlyPremium, Frequency, QuoteDate)
+                                VALUES (@AccountID, @CoverageAmount, @PreExisting, @CriticalIllness, @AnnualPremium, @MonthlyPremium, @Frequency, GETDATE())";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
@@ -169,6 +173,7 @@ namespace Singlife
                     cmd.Parameters.AddWithValue("@CriticalIllness", criticalIllness);
                     cmd.Parameters.AddWithValue("@AnnualPremium", annual);
                     cmd.Parameters.AddWithValue("@MonthlyPremium", monthly);
+                    cmd.Parameters.AddWithValue("@Frequency", frequency);
 
                     conn.Open();
                     cmd.ExecuteNonQuery();
@@ -181,6 +186,7 @@ namespace Singlife
             txtCoverage.Text = "";
             ddlPreExisting.SelectedIndex = 0;
             ddlCriticalIllness.SelectedIndex = 0;
+            ddlFrequency.SelectedIndex = 0;
 
             lblResult.Text = "";
             lblValidationMessage.Visible = false;

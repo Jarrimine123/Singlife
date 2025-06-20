@@ -12,26 +12,26 @@ namespace Singlife
         {
             if (!IsPostBack)
             {
+                if (Session["AccountID"] == null)
+                {
+                    Response.Redirect("Login.aspx");
+                    return;
+                }
                 LoadCart();
             }
         }
 
         private void LoadCart()
         {
-            if (Session["AccountID"] == null)
-            {
-                Response.Redirect("Login.aspx");
-                return;
-            }
-
             int accountId = Convert.ToInt32(Session["AccountID"]);
             string connStr = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
 
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                string query = @"SELECT CartID, PlanName, CoverageAmount, AnnualPremium, MonthlyPremium, DateAdded 
-                                 FROM CartItems 
-                                 WHERE AccountID = @AccountID";
+                string query = @"
+            SELECT CartID, PlanName, CoverageAmount, AnnualPremium, MonthlyPremium, PaymentFrequency, DateAdded 
+            FROM CartItems 
+            WHERE AccountID = @AccountID";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
@@ -40,10 +40,22 @@ namespace Singlife
                     DataTable dt = new DataTable();
                     adapter.Fill(dt);
 
-                    gvCart.DataSource = dt;
-                    gvCart.DataBind();
+                    if (dt.Rows.Count > 0)
+                    {
+                        pnlCart.Visible = true;
+                        pnlEmpty.Visible = false;
 
-                    btnCheckout.Enabled = dt.Rows.Count > 0;
+                        gvCart.DataSource = dt;
+                        gvCart.DataBind();
+
+                        btnCheckout.Enabled = true;
+                    }
+                    else
+                    {
+                        pnlCart.Visible = false;
+                        pnlEmpty.Visible = true;
+                        btnCheckout.Enabled = false;
+                    }
                 }
             }
         }

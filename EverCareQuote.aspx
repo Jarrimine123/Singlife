@@ -92,7 +92,7 @@
     <div class="quote-container">
         <h2>EverCare Plan</h2>
         <div class="plan-info">
-            <strong>Premium Rate:</strong> 0.65% annually<br />
+            <strong>Premium Rate:</strong> 0.70% annually<br />
             This plan supports long-term wellness and chronic illness protection. Optionally includes critical illness top-ups for additional peace of mind.
         </div>
 
@@ -105,6 +105,14 @@
         <div class="form-group">
             <label for="txtCoverage">Coverage Amount (SGD):</label>
             <asp:TextBox ID="txtCoverage" runat="server" Text="100000"></asp:TextBox>
+        </div>
+
+        <div class="form-group">
+            <label for="ddlFrequency">Premium Payment Frequency:</label>
+            <asp:DropDownList ID="ddlFrequency" runat="server">
+                <asp:ListItem Text="Annual" Value="Annual" />
+                <asp:ListItem Text="Monthly" Value="Monthly" />
+            </asp:DropDownList>
         </div>
 
         <div class="form-group">
@@ -139,4 +147,3 @@
         </asp:Panel>
     </div>
 </asp:Content>
-

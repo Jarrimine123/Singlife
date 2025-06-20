@@ -1,4 +1,5 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Customer.Master" AutoEventWireup="true" CodeBehind="OncoShieldQuote.aspx.cs" Inherits="Singlife.OncoShieldQuote" %>
+
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <style>
         .quote-container {
@@ -11,15 +12,9 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-        h2 {
+        h2, h3 {
             text-align: center;
             margin-bottom: 10px;
-        }
-
-        h3 {
-            text-align: center;
-            margin-top: 10px;
-            color: #333;
         }
 
         .plan-info {
@@ -123,6 +118,14 @@
             <asp:DropDownList ID="ddlSmoker" runat="server">
                 <asp:ListItem Text="No" Value="No" />
                 <asp:ListItem Text="Yes" Value="Yes" />
+            </asp:DropDownList>
+        </div>
+
+        <div class="form-group">
+            <label for="ddlFrequency">Payment Frequency:</label>
+            <asp:DropDownList ID="ddlFrequency" runat="server">
+                <asp:ListItem Text="Annual" Value="Annual" />
+                <asp:ListItem Text="Monthly" Value="Monthly" />
             </asp:DropDownList>
         </div>
 
