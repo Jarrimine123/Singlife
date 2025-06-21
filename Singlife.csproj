@@ -67,6 +67,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="ActionNeededClaim.aspx" />
+    <Content Include="ApprovedClaim.aspx" />
     <Content Include="App_Data\Singlife.mdf" />
     <Content Include="App_Data\Singlife_log.ldf">
       <DependentUpon>Singlife.mdf</DependentUpon>
@@ -74,6 +76,7 @@
     <Content Include="Cart.aspx" />
     <Content Include="Checkout.aspx" />
     <Content Include="ChooseClaim.aspx" />
+    <Content Include="ClaimHistory.aspx" />
     <Content Include="Claiming.aspx" />
     <Content Include="ClaimService.aspx" />
     <Content Include="ContinueDraft.aspx" />
@@ -108,12 +111,26 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActionNeededClaim.aspx.cs">
+      <DependentUpon>ActionNeededClaim.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ActionNeededClaim.aspx.designer.cs">
+      <DependentUpon>ActionNeededClaim.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Admin.Master.cs">
       <DependentUpon>Admin.Master</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Admin.Master.designer.cs">
       <DependentUpon>Admin.Master</DependentUpon>
+    </Compile>
+    <Compile Include="ApprovedClaim.aspx.cs">
+      <DependentUpon>ApprovedClaim.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ApprovedClaim.aspx.designer.cs">
+      <DependentUpon>ApprovedClaim.aspx</DependentUpon>
     </Compile>
     <Compile Include="Cart.aspx.cs">
       <DependentUpon>Cart.aspx</DependentUpon>
@@ -135,6 +152,13 @@
     </Compile>
     <Compile Include="ChooseClaim.aspx.designer.cs">
       <DependentUpon>ChooseClaim.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ClaimHistory.aspx.cs">
+      <DependentUpon>ClaimHistory.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ClaimHistory.aspx.designer.cs">
+      <DependentUpon>ClaimHistory.aspx</DependentUpon>
     </Compile>
     <Compile Include="Claiming.aspx.cs">
       <DependentUpon>Claiming.aspx</DependentUpon>

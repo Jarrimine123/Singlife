@@ -19,8 +19,8 @@
                             After 2 days, editing will be disabled.
                         </p>
                         <div class="mt-4 d-flex justify-content-center gap-3">
-                            <a href="ViewClaims.aspx" class="btn btn-success px-4">View My Claims</a>
-                            <a href="Home.aspx" class="btn btn-outline-secondary px-4">Return to Dashboard</a>
+                            <a href="ClaimHistory.aspx" class="btn btn-success px-4">View My Claims</a>
+                            <a href="HomePage.aspx" class="btn btn-outline-secondary px-4">Return to Dashboard</a>
                         </div>
                     </div>
                 </div>

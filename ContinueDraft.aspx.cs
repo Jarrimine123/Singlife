@@ -207,7 +207,7 @@ namespace Singlife
                     if (status == "DRAFT")
                         Response.Redirect("SaveAsDraft.aspx");
                     else
-                        Response.Redirect("ClaimSubmittedConfirmation.aspx");
+                        Response.Redirect("SubmitSucces.aspx");
                 }
             }
         }

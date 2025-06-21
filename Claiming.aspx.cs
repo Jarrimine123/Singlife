@@ -92,7 +92,7 @@ namespace Singlife
             if (status == "DRAFT")
                 Response.Redirect("SaveAsDraft.aspx");
             else
-                Response.Redirect("ChooseClaim.aspx");
+                Response.Redirect("SubmitSucces.aspx");
         }
 
         private bool IsValidSubmission()
