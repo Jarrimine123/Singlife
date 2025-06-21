@@ -126,7 +126,7 @@ namespace Singlife
             if (claimType == "evercare")
             {
                 editUrl = $"EditEverClaim.aspx?claimId={claimId}";
-                viewUrl = $"EverViewClaim.aspx?claimId={claimId}";
+                viewUrl = $"EverApproveClaim.aspx?claimId={claimId}";
             }
             else
             {

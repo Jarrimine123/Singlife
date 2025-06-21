@@ -85,6 +85,24 @@
 
                     <asp:HiddenField ID="hfClaimType" runat="server" Value='<%# Eval("ClaimType") %>' />
                 </div>
+
+                <%-- Review Summary Displayed Below --%>
+                <asp:Panel ID="pnlReviewSummary" runat="server" Visible='<%# !string.IsNullOrEmpty(Eval("ReviewStatus").ToString()) %>' CssClass="mt-3" style="border-top: 1px solid #ccc; padding-top: 10px;">
+                    <div class="claim-info-grid">
+                        <div class="row-label">Review Status:</div>
+                        <div class="row-value"><%# Eval("ReviewStatus") %></div>
+
+                        <div class="row-label">Staff Comment:</div>
+                        <div class="row-value"><%# Eval("ReviewComment") %></div>
+
+                        <asp:Panel ID="pnlOutcomeFile" runat="server" Visible='<%# !string.IsNullOrEmpty(Eval("OutcomeFilePath").ToString()) %>'>
+                            <div class="row-label">Outcome File:</div>
+                            <div class="row-value">
+                                <a href='<%# ResolveUrl(Eval("OutcomeFilePath").ToString()) %>' target="_blank">View File</a>
+                            </div>
+                        </asp:Panel>
+                    </div>
+                </asp:Panel>
             </div>
         </ItemTemplate>
     </asp:Repeater>

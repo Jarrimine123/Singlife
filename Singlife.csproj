@@ -81,6 +81,7 @@
     <Content Include="ClaimService.aspx" />
     <Content Include="ContinueDraft.aspx" />
     <Content Include="CreateAccount.aspx" />
+    <Content Include="EverApproveClaim.aspx" />
     <Content Include="EverCareClaim.aspx" />
     <Content Include="EverCarePlan.aspx" />
     <Content Include="EverCareQuote.aspx" />
@@ -197,6 +198,13 @@
     </Compile>
     <Compile Include="Customer.Master.designer.cs">
       <DependentUpon>Customer.Master</DependentUpon>
+    </Compile>
+    <Compile Include="EverApproveClaim.aspx.cs">
+      <DependentUpon>EverApproveClaim.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EverApproveClaim.aspx.designer.cs">
+      <DependentUpon>EverApproveClaim.aspx</DependentUpon>
     </Compile>
     <Compile Include="EverCareClaim.aspx.cs">
       <DependentUpon>EverCareClaim.aspx</DependentUpon>

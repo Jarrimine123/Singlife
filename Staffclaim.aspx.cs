@@ -1,9 +1,9 @@
-﻿// Staffclaim.aspx.cs
-using System;
+﻿using System;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -85,14 +85,38 @@ namespace Singlife
                     continue;
 
                 string label = Regex.Replace(colName, "([a-z])([A-Z])", "$1 $2");
-                string display = value is DateTime dt ? dt.ToString("yyyy-MM-dd") :
-                                  value is bool b ? (b ? "Yes" : "No") :
-                                  HttpUtility.HtmlEncode(value.ToString());
+                string raw = value.ToString();
+                string display;
+
+                if (value is DateTime dt)
+                {
+                    display = dt.ToString("yyyy-MM-dd");
+                }
+                else if (value is bool b)
+                {
+                    display = b ? "Yes" : "No";
+                }
+                else if (IsFilePath(raw))
+                {
+                    string url = ResolveUrl(raw.StartsWith("~") ? raw : "~/" + raw.TrimStart('/'));
+                    string fileName = Path.GetFileName(raw);
+                    display = $"<a href='{url}' target='_blank'>{fileName}</a>";
+                }
+                else
+                {
+                    display = HttpUtility.HtmlEncode(raw);
+                }
 
                 html.Append($"<div class='row-label'>{label}:</div><div class='row-value'>{display}</div>");
             }
 
             return html.ToString();
+        }
+
+        private bool IsFilePath(string path)
+        {
+            string[] extensions = { ".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx", ".xls", ".xlsx" };
+            return !string.IsNullOrEmpty(path) && extensions.Any(ext => path.EndsWith(ext, StringComparison.OrdinalIgnoreCase));
         }
 
         protected void rptClaims_ItemCommand(object source, RepeaterCommandEventArgs e)
