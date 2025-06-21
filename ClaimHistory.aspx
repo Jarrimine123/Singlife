@@ -56,6 +56,11 @@
             font-weight: 500;
         }
 
+        .status-success-reupload {
+            color: #fd7e14;
+            font-weight: 500;
+        }
+
         .claim-comment {
             margin-top: 0.5rem;
             font-size: 0.9rem;
@@ -109,6 +114,7 @@
                     <asp:ListItem Text="Received" Value="Received" />
                     <asp:ListItem Text="Approved" Value="Approved" />
                     <asp:ListItem Text="Action Needed" Value="Action Needed" />
+                    <asp:ListItem Text="Successfully Reuploaded" Value="Successfully Reuploaded" />
                 </asp:DropDownList>
             </div>
             <div class="col-md-2">
@@ -132,7 +138,7 @@
                             </div>
                             <div class="claim-date">Date received: <%# Eval("CreatedDate", "{0:dd/MM/yyyy}") %></div>
                             <%# ((Singlife.ClaimHistory)Page).ShowCommentIfNeeded(Eval("ReviewStatus"), Eval("Comment")) %>
-                            <%# ((Singlife.ClaimHistory)Page).ShowEditButton(Eval("ClaimID"), Eval("CreatedDate"), Eval("ReviewStatus")) %>
+                            <%# ((Singlife.ClaimHistory)Page).ShowEditButton(Eval("ClaimID"), Eval("CreatedDate"), Eval("ReviewStatus"), Eval("ClaimType")) %>
                         </div>
                     </div>
                 </ItemTemplate>

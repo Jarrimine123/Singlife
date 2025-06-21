@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
+using System.Text;
 
 namespace Singlife
 {
@@ -12,93 +14,178 @@ namespace Singlife
         {
             if (!IsPostBack)
             {
-                LoadClaimHistory();
-            }
-        }
-
-        private void LoadClaimHistory(string planFilter = "", string statusFilter = "")
-        {
-            int userId = Convert.ToInt32(Session["AccountID"] ?? 1);
-
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                string sql = @"
-                    SELECT 
-                        c.ClaimID, c.PlanName, c.CreatedDate,
-                        ISNULL(sc.Status, 'Received') AS ReviewStatus,
-                        sc.Comment
-                    FROM Claims c
-                    LEFT JOIN StaffClaims sc ON c.ClaimID = sc.ClaimID
-                    WHERE c.AccountID = @UserID";
-
-                if (!string.IsNullOrEmpty(planFilter))
-                    sql += " AND c.PlanName LIKE @PlanName";
-
-                if (!string.IsNullOrEmpty(statusFilter))
-                    sql += " AND ISNULL(sc.Status, 'Received') = @Status";
-
-                sql += " ORDER BY c.CreatedDate DESC";
-
-                SqlCommand cmd = new SqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@UserID", userId);
-                if (!string.IsNullOrEmpty(planFilter))
-                    cmd.Parameters.AddWithValue("@PlanName", "%" + planFilter + "%");
-                if (!string.IsNullOrEmpty(statusFilter))
-                    cmd.Parameters.AddWithValue("@Status", statusFilter);
-
-                conn.Open();
-                rptClaimHistory.DataSource = cmd.ExecuteReader();
-                rptClaimHistory.DataBind();
+                LoadClaims();
             }
         }
 
         protected void btnSearch_Click(object sender, EventArgs e)
         {
-            string planName = txtSearchPlan.Text.Trim();
-            string status = ddlStatus.SelectedValue;
-            LoadClaimHistory(planName, status);
+            LoadClaims();
+        }
+
+        private void LoadClaims()
+        {
+            int accountId = Convert.ToInt32(Session["AccountID"]);
+            string planFilter = txtSearchPlan.Text.Trim();
+            string statusFilter = ddlStatus.SelectedValue;
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                string baseSql = @"
+                    SELECT 
+                        c.ClaimID, c.PlanName, c.CreatedDate, 
+                        ISNULL(sc.Status, 'Received') AS ReviewStatus, sc.Comment,
+                        'Normal' AS ClaimType
+                    FROM Claims c
+                    LEFT JOIN StaffClaims sc ON c.ClaimID = sc.ClaimID
+                    WHERE c.AccountID = @AccountID
+
+                    UNION ALL
+
+                    SELECT 
+                        ec.ClaimID, ec.PlanName, ec.CreatedDate, 
+                        ISNULL(sec.Status, 'Received') AS ReviewStatus, sec.Comment,
+                        'EverCare' AS ClaimType
+                    FROM EverCareClaims ec
+                    LEFT JOIN StaffEverClaims sec ON ec.ClaimID = sec.ClaimID
+                    WHERE ec.AccountID = @AccountID
+                ";
+
+                StringBuilder sqlBuilder = new StringBuilder();
+                sqlBuilder.Append("SELECT * FROM (");
+                sqlBuilder.Append(baseSql);
+                sqlBuilder.Append(") AS AllClaims WHERE 1=1 ");
+
+                if (!string.IsNullOrEmpty(planFilter))
+                {
+                    sqlBuilder.Append(" AND PlanName LIKE @PlanFilter ");
+                }
+
+                if (!string.IsNullOrEmpty(statusFilter))
+                {
+                    sqlBuilder.Append(" AND ReviewStatus = @StatusFilter ");
+                }
+
+                sqlBuilder.Append(" ORDER BY CreatedDate DESC ");
+
+                SqlCommand cmd = new SqlCommand(sqlBuilder.ToString(), conn);
+                cmd.Parameters.AddWithValue("@AccountID", accountId);
+
+                if (!string.IsNullOrEmpty(planFilter))
+                {
+                    cmd.Parameters.AddWithValue("@PlanFilter", "%" + planFilter + "%");
+                }
+                if (!string.IsNullOrEmpty(statusFilter))
+                {
+                    cmd.Parameters.AddWithValue("@StatusFilter", statusFilter);
+                }
+
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+
+                rptClaimHistory.DataSource = dt;
+                rptClaimHistory.DataBind();
+            }
         }
 
         public string GetStatusClass(object statusObj)
         {
-            string status = (statusObj ?? "Received").ToString().ToLower();
-            if (status == "approved") return "status-approved";
-            if (status == "action needed") return "status-action";
-            return "status-received";
+            string status = statusObj?.ToString()?.ToLower() ?? "received";
+
+            if (status == "approved")
+                return "status-approved";
+            else if (status == "action needed")
+                return "status-action";
+            else if (status == "successfully reuploaded")
+                return "status-success-reupload";
+            else
+                return "status-received";
         }
 
         public string ShowCommentIfNeeded(object statusObj, object commentObj)
         {
-            string status = (statusObj ?? "").ToString().ToLower();
-            string comment = commentObj?.ToString();
-            if (status == "action needed" && !string.IsNullOrWhiteSpace(comment))
+            string status = statusObj?.ToString()?.ToLower();
+            if (status == "action needed" && commentObj != null && !string.IsNullOrWhiteSpace(commentObj.ToString()))
             {
-                return $"<div class='claim-comment'><strong>Comment:</strong> {comment}</div>";
+                return $"<div class='claim-comment'>Staff Comment: {commentObj}</div>";
             }
-            return string.Empty;
+
+            return "";
         }
 
-        public string ShowEditButton(object claimIdObj, object createdDateObj, object statusObj)
+        public string ShowEditButton(object claimIdObj, object createdDateObj, object statusObj, object claimTypeObj)
         {
-            string status = (statusObj ?? "").ToString().ToLower();
-            DateTime createdDate = Convert.ToDateTime(createdDateObj);
+            string status = statusObj?.ToString()?.ToLower() ?? "received";
+            string claimType = claimTypeObj?.ToString()?.ToLower() ?? "normal";
             int claimId = Convert.ToInt32(claimIdObj);
 
-            if (status == "received" && (DateTime.Now - createdDate).TotalDays <= 2)
+            string editUrl = "";
+            string viewUrl = "";
+
+            if (claimType == "evercare")
             {
-                return $"<a class='edit-link' href='EditClaim.aspx?claimId={claimId}'>Edit Claim</a>";
+                editUrl = $"EditEverClaim.aspx?claimId={claimId}";
+                viewUrl = $"EverViewClaim.aspx?claimId={claimId}";
             }
-            else if (status == "approved")
+            else
             {
-                return $"<a class='edit-link' href='ApprovedClaim.aspx?claimId={claimId}'>&#8594; View Details</a>";
-            }
-            else if (status == "action needed")
-            {
-                return $"<a class='edit-link' href='ActionNeededClaim.aspx?claimId={claimId}'>&#8594; View Details</a>";
+                editUrl = $"EditClaim.aspx?claimId={claimId}";
+                viewUrl = $"ApprovedClaim.aspx?claimId={claimId}";
             }
 
-            return string.Empty;
+            if (status == "approved")
+            {
+                return $"<a class='edit-link' href='{viewUrl}'>→ View Details</a>";
+            }
+            else if (status == "successfully reuploaded")
+            {
+                return $"<a class='edit-link' href='SuccessUploaded.aspx?claimId={claimId}'>→ View Details</a>";
+            }
+            else if (status == "received")
+            {
+                DateTime createdDate = Convert.ToDateTime(createdDateObj);
+                if ((DateTime.Now - createdDate).TotalDays <= 2)
+                {
+                    return $"<a class='edit-link' href='{editUrl}'>Edit Claim</a>";
+                }
+            }
+
+            return "";
         }
 
+        // Example method to submit new claim and insert default status
+        public void SubmitNewClaim(string planName /* add more parameters as needed */)
+        {
+            int accountId = Convert.ToInt32(Session["AccountID"]);
+
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+
+                string insertClaimSql = @"
+                    INSERT INTO Claims (AccountID, PlanName, CreatedDate)
+                    VALUES (@AccountID, @PlanName, GETDATE());
+                    SELECT SCOPE_IDENTITY();
+                ";
+
+                SqlCommand cmdClaim = new SqlCommand(insertClaimSql, conn);
+                cmdClaim.Parameters.AddWithValue("@AccountID", accountId);
+                cmdClaim.Parameters.AddWithValue("@PlanName", planName);
+
+                int newClaimId = Convert.ToInt32(cmdClaim.ExecuteScalar());
+
+                string insertStaffStatusSql = @"
+                    INSERT INTO StaffClaims (ClaimID, Status, Comment)
+                    VALUES (@ClaimID, 'Received', NULL);
+                ";
+
+                SqlCommand cmdStaff = new SqlCommand(insertStaffStatusSql, conn);
+                cmdStaff.Parameters.AddWithValue("@ClaimID", newClaimId);
+                cmdStaff.ExecuteNonQuery();
+
+                conn.Close();
+            }
+        }
     }
 }

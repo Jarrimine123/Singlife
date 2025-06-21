@@ -1,4 +1,6 @@
-﻿using System;
+﻿
+
+using System;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.IO;
@@ -46,18 +48,18 @@ namespace Singlife
                     {
                         litClaimInfo.Text = $@"
                             <div class='value'><span class='label'>Plan:</span> {reader["PlanName"]}</div>
-                            <div class='value'><span class='label'>Diagnosis Date:</span> {FormatDate(reader["DiagnosisDate"])}</div>
+                            <div class='value'><span class='label'>Diagnosis Date:</span> {FormatDate(reader["DiagnosisDate"])} </div>
                             <div class='value'><span class='label'>Treatment Country:</span> {reader["TreatmentCountry"]}</div>
                             <div class='value'><span class='label'>Cancer Type:</span> {reader["CancerType"]}</div>
-                            <div class='value'><span class='label'>First Diagnosis:</span> {FormatBool(reader["FirstDiagnosis"])}</div>
-                            <div class='value'><span class='label'>Received Treatment:</span> {FormatBool(reader["ReceivedTreatment"])}</div>
-                            <div class='value'><span class='label'>Confirmed by Specialist:</span> {FormatBool(reader["ConfirmedBySpecialist"])}</div>
-                            <div class='value'><span class='label'>Treatment Start Date:</span> {FormatDate(reader["TreatmentStartDate"])}</div>
+                            <div class='value'><span class='label'>First Diagnosis:</span> {FormatBool(reader["FirstDiagnosis"])} </div>
+                            <div class='value'><span class='label'>Received Treatment:</span> {FormatBool(reader["ReceivedTreatment"])} </div>
+                            <div class='value'><span class='label'>Confirmed by Specialist:</span> {FormatBool(reader["ConfirmedBySpecialist"])} </div>
+                            <div class='value'><span class='label'>Treatment Start Date:</span> {FormatDate(reader["TreatmentStartDate"])} </div>
                             <div class='value'><span class='label'>Hospital:</span> {reader["Hospital"]}</div>
                             <div class='value'><span class='label'>Therapy Type:</span> {reader["TherapyType"]}</div>
-                            <div class='value'><span class='label'>Used Free Screening:</span> {FormatBool(reader["UsedFreeScreening"])}</div>
-                            <div class='value'><span class='label'>Declaration Confirmed:</span> {FormatBool(reader["DeclarationConfirmed"])}</div>
-                            <div class='value'><span class='label'>Submitted On:</span> {FormatDate(reader["CreatedDate"])}</div>";
+                            <div class='value'><span class='label'>Used Free Screening:</span> {FormatBool(reader["UsedFreeScreening"])} </div>
+                            <div class='value'><span class='label'>Declaration Confirmed:</span> {FormatBool(reader["DeclarationConfirmed"])} </div>
+                            <div class='value'><span class='label'>Submitted On:</span> {FormatDate(reader["CreatedDate"])}";
 
                         string status = reader["Status"]?.ToString()?.ToLower() ?? "received";
                         if (status == "action needed")
@@ -65,11 +67,6 @@ namespace Singlife
                             pnlOutcome.Visible = true;
                             litComment.Text = reader["Comment"].ToString();
                             pnlUpload.Visible = true;
-                        }
-                        else
-                        {
-                            pnlOutcome.Visible = false;
-                            pnlUpload.Visible = false;
                         }
 
                         ViewState["UserEmail"] = reader["Email"].ToString();
@@ -83,16 +80,16 @@ namespace Singlife
             if (!int.TryParse(Request.QueryString["claimId"], out int claimId))
             {
                 lblMessage.Text = "Invalid claim ID.";
-                lblMessage.Visible = true;
                 lblMessage.CssClass = "text-danger";
+                lblMessage.Visible = true;
                 return;
             }
 
             if (!fuDocument.HasFile)
             {
                 lblMessage.Text = "Please select a file to upload.";
-                lblMessage.Visible = true;
                 lblMessage.CssClass = "text-danger";
+                lblMessage.Visible = true;
                 return;
             }
 
@@ -111,11 +108,11 @@ namespace Singlife
                     WHERE ClaimID = @ClaimID;
 
                     UPDATE StaffClaims
-                    SET Status = 'Received', ReviewedDate = GETDATE()
+                    SET Status = 'Successfully Reuploaded', ReviewedDate = GETDATE()
                     WHERE ClaimID = @ClaimID;";
 
                 SqlCommand cmd = new SqlCommand(sql, conn);
-                cmd.Parameters.AddWithValue("@FilePath", fileName);
+                cmd.Parameters.AddWithValue("@FilePath", "Uploads/Reloads/" + fileName);
                 cmd.Parameters.AddWithValue("@ClaimID", claimId);
                 conn.Open();
                 cmd.ExecuteNonQuery();
@@ -123,12 +120,11 @@ namespace Singlife
 
             SendEmailAlert(ViewState["UserEmail"]?.ToString());
 
-            // ✅ Hide upload and comment, disable button
             pnlUpload.Visible = false;
             pnlOutcome.Visible = false;
             btnSubmit.Enabled = false;
 
-            lblMessage.Text = "✅ File uploaded successfully. Your claim is now marked as 'Received'. <br /><a href='ClaimHistory.aspx' class='btn btn-sm btn-outline-primary mt-2'>← Back to Claim History</a>";
+            lblMessage.Text = "✅ File uploaded successfully. Your claim is now marked as 'Successfully Reuploaded'.<br /><a href='ClaimHistory.aspx' class='btn btn-sm btn-outline-primary mt-2'>← Back to Claim History</a>";
             lblMessage.CssClass = "text-success";
             lblMessage.Visible = true;
         }
@@ -143,7 +139,7 @@ namespace Singlife
                 message.To.Add(email);
                 message.From = new MailAddress("singlifeeeeeeke@gmail.com");
                 message.Subject = "Claim Document Re-uploaded";
-                message.Body = "We’ve received your updated document. Your claim status is now 'Received'. Our team will review it shortly.";
+                message.Body = "We’ve received your updated document. Your claim status is now 'Successfully Reuploaded'. Our team will review it shortly.";
                 message.IsBodyHtml = false;
 
                 SmtpClient client = new SmtpClient("smtp.gmail.com", 587);

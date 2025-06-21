@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Configuration;
 using System.Data.SqlClient;
-using System.Web.UI.WebControls;
 
 namespace Singlife
 {
@@ -17,14 +16,20 @@ namespace Singlife
 
         private void LoadDrafts()
         {
-            int accountId = GetLoggedInAccountID(); // Replace with actual logic to get user AccountID from session
-
+            int accountId = GetLoggedInAccountID();
             string connStr = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
 
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                SqlCommand cmd = new SqlCommand(
-                    "SELECT ClaimID, PlanName, ModifiedDate FROM Claims WHERE AccountID = @AccountID AND Status = 'DRAFT' ORDER BY ModifiedDate DESC", conn);
+                string query = @"
+                    SELECT ClaimID, PlanName, ModifiedDate, 'Claims' AS Source FROM Claims
+                    WHERE AccountID = @AccountID AND Status = 'DRAFT'
+                    UNION
+                    SELECT ClaimID, PlanName, SubmissionDate AS ModifiedDate, 'EverCare' AS Source FROM EverCareClaims
+                    WHERE AccountID = @AccountID AND Status = 'DRAFT'
+                    ORDER BY ModifiedDate DESC";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@AccountID", accountId);
 
                 conn.Open();
@@ -37,7 +42,7 @@ namespace Singlife
             }
         }
 
-        protected void rptDrafts_ItemCommand(object source, RepeaterCommandEventArgs e)
+        protected void rptDrafts_ItemCommand(object source, System.Web.UI.WebControls.RepeaterCommandEventArgs e)
         {
             if (e.CommandName == "Delete")
             {
@@ -46,19 +51,23 @@ namespace Singlife
 
                 using (SqlConnection conn = new SqlConnection(connStr))
                 {
-                    SqlCommand cmd = new SqlCommand("DELETE FROM Claims WHERE ClaimID = @ClaimID AND Status = 'DRAFT'", conn);
+                    string deleteQuery = @"
+                        DELETE FROM Claims WHERE ClaimID = @ClaimID AND Status = 'DRAFT';
+                        DELETE FROM EverCareClaims WHERE ClaimID = @ClaimID AND Status = 'DRAFT';";
+
+                    SqlCommand cmd = new SqlCommand(deleteQuery, conn);
                     cmd.Parameters.AddWithValue("@ClaimID", claimId);
+
                     conn.Open();
                     cmd.ExecuteNonQuery();
                 }
 
-                LoadDrafts(); // Refresh list after deletion
+                LoadDrafts();
             }
         }
 
         private int GetLoggedInAccountID()
         {
-            // TODO: Replace this with actual session or authentication logic to get the logged-in user's AccountID
             if (Session["AccountID"] != null)
             {
                 return Convert.ToInt32(Session["AccountID"]);

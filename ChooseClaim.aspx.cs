@@ -63,5 +63,19 @@ namespace Singlife
                 }
             }
         }
+
+        // 🔁 Dynamic claim page redirection logic
+        protected string GetClaimPageUrl(string planName)
+        {
+            switch (planName.Trim())
+            {
+                case "EverCare Plan":
+                    return "EverCareTimeClaim.aspx?plan=" + Server.UrlEncode(planName);
+                case "OncoShield":
+                    return "OncoShieldTimeClaim.aspx?plan=" + Server.UrlEncode(planName);
+                default:
+                    return "GenericClaim.aspx?plan=" + Server.UrlEncode(planName);
+            }
+        }
     }
 }

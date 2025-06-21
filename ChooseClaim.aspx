@@ -150,7 +150,7 @@
                                     </div>
                                 </div>
                                 <div class="claim-btn">
-                                    <a href='<%# "OncoShieldTimeClaim.aspx?plan=" + Eval("PlanName") %>' class="btn btn-danger">File a Claim</a>
+                                    <a href='<%# GetClaimPageUrl(Eval("PlanName").ToString()) %>' class="btn btn-danger">File a Claim</a>
                                 </div>
                             </div>
                         </div>

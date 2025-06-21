@@ -20,7 +20,6 @@
                         <h6 class="mb-1 fw-bold">View policy and life assured</h6>
                         <span class="text-muted small">~ 1 min</span>
                     </div>
-                    <p class="text-muted mb-0 small">Policy and person you're claiming for</p>
                 </div>
             </div>
 

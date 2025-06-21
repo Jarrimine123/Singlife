@@ -1,8 +1,13 @@
-﻿using System;
+﻿// Staffclaim.aspx.cs
+using System;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Web;
+using System.Web.UI;
 using System.Web.UI.WebControls;
 
 namespace Singlife
@@ -26,15 +31,32 @@ namespace Singlife
             {
                 string sql = @"
                     SELECT 
-                        c.*, u.Name,
-                        sc.Status AS ReviewStatus,
-                        sc.Comment AS ReviewComment,
-                        sc.OutcomeFilePath
+                        c.ClaimID, c.AccountID, c.PlanName, c.Status, c.DiagnosisDate, c.TreatmentCountry, c.CancerType,
+                        c.FirstDiagnosis, c.ReceivedTreatment, c.ConfirmedBySpecialist, c.TreatmentStartDate, c.Hospital,
+                        c.TherapyType, c.TreatmentFilePath, c.UsedFreeScreening, c.ScreeningFilePath, c.OtherFilesPath,
+                        c.ReloadFilesPath, c.DeclarationConfirmed, NULL AS AdmissionDate, NULL AS DischargeDate,
+                        NULL AS HospitalName, NULL AS WardType, NULL AS DidTestsBefore, NULL AS DidFollowUpAfter,
+                        NULL AS CpfUsed, NULL AS HospitalDocPath, NULL AS FollowupDocPath, c.ClaimType, c.CreatedDate,
+                        u.Name, sc.Status AS ReviewStatus, sc.Comment AS ReviewComment, sc.OutcomeFilePath
                     FROM Claims c
                     INNER JOIN Users u ON c.AccountID = u.AccountID
                     LEFT JOIN StaffClaims sc ON c.ClaimID = sc.ClaimID
                     WHERE c.Status = 'SUBMITTED'
-                    ORDER BY c.CreatedDate DESC";
+
+                    UNION ALL
+
+                    SELECT 
+                        ec.ClaimID, ec.AccountID, ec.PlanName, ec.Status, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+                        NULL, NULL, NULL, NULL, NULL, ec.OtherFilesPath, NULL, ec.DeclarationConfirmed, ec.AdmissionDate,
+                        ec.DischargeDate, ec.HospitalName, ec.WardType, ec.DidTestsBefore, ec.DidFollowUpAfter,
+                        ec.CpfUsed, ec.HospitalDocPath, ec.FollowupDocPath, ec.ClaimType, ec.CreatedDate, u.Name,
+                        sec.Status AS ReviewStatus, sec.Comment AS ReviewComment, sec.OutcomeFilePath
+                    FROM EverCareClaims ec
+                    INNER JOIN Users u ON ec.AccountID = u.AccountID
+                    LEFT JOIN StaffEverClaims sec ON ec.ClaimID = sec.ClaimID
+                    WHERE ec.Status = 'SUBMITTED'
+
+                    ORDER BY CreatedDate DESC";
 
                 SqlDataAdapter da = new SqlDataAdapter(sql, conn);
                 DataTable dt = new DataTable();
@@ -45,85 +67,90 @@ namespace Singlife
             }
         }
 
+        public string GetClaimDetails(object dataItemObj)
+        {
+            var dataItem = (DataRowView)dataItemObj;
+            var html = new StringBuilder();
+
+            foreach (DataColumn col in dataItem.DataView.Table.Columns)
+            {
+                string colName = col.ColumnName;
+                if (colName == "ClaimID" || colName == "Name" || colName == "ReviewStatus" ||
+                    colName == "ReviewComment" || colName == "OutcomeFilePath" || colName == "AccountID" ||
+                    colName == "CreatedDate" || colName == "ClaimType")
+                    continue;
+
+                object value = dataItem[colName];
+                if (value == DBNull.Value || string.IsNullOrWhiteSpace(value.ToString()))
+                    continue;
+
+                string label = Regex.Replace(colName, "([a-z])([A-Z])", "$1 $2");
+                string display = value is DateTime dt ? dt.ToString("yyyy-MM-dd") :
+                                  value is bool b ? (b ? "Yes" : "No") :
+                                  HttpUtility.HtmlEncode(value.ToString());
+
+                html.Append($"<div class='row-label'>{label}:</div><div class='row-value'>{display}</div>");
+            }
+
+            return html.ToString();
+        }
+
         protected void rptClaims_ItemCommand(object source, RepeaterCommandEventArgs e)
         {
             if (e.CommandName == "UpdateStatus")
             {
                 int claimId = Convert.ToInt32(e.CommandArgument);
-                DropDownList ddlStatus = (DropDownList)e.Item.FindControl("ddlStatus");
-                TextBox txtComment = (TextBox)e.Item.FindControl("txtComment");
-                FileUpload fuOutcomeFile = (FileUpload)e.Item.FindControl("fuOutcomeFile");
+                string claimType = ((HiddenField)e.Item.FindControl("hfClaimType")).Value;
+                var ddlStatus = (DropDownList)e.Item.FindControl("ddlStatus");
+                var txtComment = (TextBox)e.Item.FindControl("txtComment");
+                var fuOutcomeFile = (FileUpload)e.Item.FindControl("fuOutcomeFile");
 
                 string newStatus = ddlStatus.SelectedValue;
                 string comment = txtComment.Text.Trim();
                 string outcomePath = null;
 
-                // Save outcome file if uploaded
                 if (fuOutcomeFile.HasFile)
                 {
                     string fileExt = Path.GetExtension(fuOutcomeFile.FileName);
-                    string fileName = "Outcome_" + claimId + "_" + Guid.NewGuid() + fileExt;
+                    string fileName = $"Outcome_{claimId}_{Guid.NewGuid()}{fileExt}";
                     string savePath = Server.MapPath(uploadFolder + fileName);
-                    Directory.CreateDirectory(Server.MapPath(uploadFolder)); // ensure folder exists
+                    Directory.CreateDirectory(Server.MapPath(uploadFolder));
                     fuOutcomeFile.SaveAs(savePath);
                     outcomePath = uploadFolder + fileName;
                 }
 
-                SaveStaffReview(claimId, newStatus, comment, outcomePath);
-
+                SaveStaffReview(claimId, newStatus, comment, outcomePath, claimType);
                 lblMessage.Text = "Claim review updated.";
                 lblMessage.Visible = true;
-
-                // No reload to preserve input
                 LoadClaims();
             }
         }
 
-        private void SaveStaffReview(int claimId, string status, string comment, string outcomePath)
+        private void SaveStaffReview(int claimId, string status, string comment, string outcomePath, string claimType)
         {
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
+                string table = claimType == "EverCare" ? "StaffEverClaims" : "StaffClaims";
 
-                string checkSql = "SELECT COUNT(*) FROM StaffClaims WHERE ClaimID = @ClaimID";
+                string checkSql = $"SELECT COUNT(*) FROM {table} WHERE ClaimID = @ClaimID";
                 SqlCommand checkCmd = new SqlCommand(checkSql, conn);
                 checkCmd.Parameters.AddWithValue("@ClaimID", claimId);
                 int exists = (int)checkCmd.ExecuteScalar();
 
-                string sql;
-                if (exists > 0)
-                {
-                    sql = @"UPDATE StaffClaims 
-                            SET Status = @Status, Comment = @Comment, ReviewedDate = GETDATE(), 
-                                OutcomeFilePath = ISNULL(@OutcomeFilePath, OutcomeFilePath)
-                            WHERE ClaimID = @ClaimID";
-                }
-                else
-                {
-                    sql = @"INSERT INTO StaffClaims (ClaimID, StaffID, Status, Comment, ReviewedDate, OutcomeFilePath)
-                            VALUES (@ClaimID, @StaffID, @Status, @Comment, GETDATE(), @OutcomeFilePath)";
-                }
+                string sql = exists > 0 ?
+                    $"UPDATE {table} SET Status = @Status, Comment = @Comment, ReviewedDate = GETDATE(), OutcomeFilePath = ISNULL(@OutcomeFilePath, OutcomeFilePath) WHERE ClaimID = @ClaimID" :
+                    $"INSERT INTO {table} (ClaimID, StaffID, Status, Comment, ReviewedDate, OutcomeFilePath) VALUES (@ClaimID, @StaffID, @Status, @Comment, GETDATE(), @OutcomeFilePath)";
 
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@ClaimID", claimId);
                 cmd.Parameters.AddWithValue("@Status", status);
                 cmd.Parameters.AddWithValue("@Comment", comment);
                 cmd.Parameters.AddWithValue("@OutcomeFilePath", (object)outcomePath ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@StaffID", 1); // Replace with actual StaffID if available
+                cmd.Parameters.AddWithValue("@StaffID", 1); // Placeholder staff ID
 
                 cmd.ExecuteNonQuery();
             }
-        }
-
-        protected string GetFileLink(object path)
-        {
-            string url = path?.ToString();
-            if (!string.IsNullOrEmpty(url))
-            {
-                string fileName = Path.GetFileName(url);
-                return $"<a href='{ResolveUrl(url)}' target='_blank'>{fileName}</a>";
-            }
-            return "";
         }
     }
 }

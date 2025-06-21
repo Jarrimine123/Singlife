@@ -81,8 +81,11 @@
     <Content Include="ClaimService.aspx" />
     <Content Include="ContinueDraft.aspx" />
     <Content Include="CreateAccount.aspx" />
+    <Content Include="EverCareClaim.aspx" />
     <Content Include="EverCarePlan.aspx" />
     <Content Include="EverCareQuote.aspx" />
+    <Content Include="EverCareTimeClaim.aspx" />
+    <Content Include="EverContinueDraft.aspx" />
     <Content Include="HomePage.aspx" />
     <Content Include="Images\background.png" />
     <Content Include="Images\Cart.jpg" />
@@ -195,6 +198,13 @@
     <Compile Include="Customer.Master.designer.cs">
       <DependentUpon>Customer.Master</DependentUpon>
     </Compile>
+    <Compile Include="EverCareClaim.aspx.cs">
+      <DependentUpon>EverCareClaim.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EverCareClaim.aspx.designer.cs">
+      <DependentUpon>EverCareClaim.aspx</DependentUpon>
+    </Compile>
     <Compile Include="EverCarePlan.aspx.cs">
       <DependentUpon>EverCarePlan.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -208,6 +218,20 @@
     </Compile>
     <Compile Include="EverCareQuote.aspx.designer.cs">
       <DependentUpon>EverCareQuote.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="EverCareTimeClaim.aspx.cs">
+      <DependentUpon>EverCareTimeClaim.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EverCareTimeClaim.aspx.designer.cs">
+      <DependentUpon>EverCareTimeClaim.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="EverContinueDraft.aspx.cs">
+      <DependentUpon>EverContinueDraft.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EverContinueDraft.aspx.designer.cs">
+      <DependentUpon>EverContinueDraft.aspx</DependentUpon>
     </Compile>
     <Compile Include="HomePage.aspx.cs">
       <DependentUpon>HomePage.aspx</DependentUpon>
