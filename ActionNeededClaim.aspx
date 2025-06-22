@@ -74,20 +74,17 @@
 
         <asp:Label ID="lblMessage" runat="server" Visible="false" EnableViewState="false" />
 
-        <!-- Staff Review -->
         <asp:Panel ID="pnlOutcome" runat="server" CssClass="outcome-section" Visible="false">
             <h5>Staff Review Outcome</h5>
             <p><strong>Comment:</strong> <asp:Literal ID="litComment" runat="server" /></p>
         </asp:Panel>
 
-        <!-- File Upload Panel -->
         <asp:Panel ID="pnlUpload" runat="server" CssClass="upload-section">
             <h5>Upload Required Document</h5>
             <asp:FileUpload ID="fuDocument" runat="server" CssClass="form-control mb-3" />
             <asp:Button ID="btnSubmit" runat="server" Text="Submit" CssClass="btn btn-warning btn-submit" OnClick="btnSubmit_Click" />
         </asp:Panel>
 
-        <!-- Claim Info -->
         <asp:Panel ID="pnlClaimDetails" runat="server" CssClass="claim-detail">
             <h4>Claim Information</h4>
             <asp:Literal ID="litClaimInfo" runat="server" />

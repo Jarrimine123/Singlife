@@ -114,6 +114,8 @@
     <Content Include="StaffPurchase.aspx" />
     <Content Include="startclaim.aspx" />
     <Content Include="SubmitSucces.aspx" />
+    <Content Include="SuccessfulEverCareUpload.aspx" />
+    <Content Include="SuccessfulUploaded.aspx" />
     <Content Include="ThankYou.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -342,6 +344,20 @@
     </Compile>
     <Compile Include="SubmitSucces.aspx.designer.cs">
       <DependentUpon>SubmitSucces.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="SuccessfulEverCareUpload.aspx.cs">
+      <DependentUpon>SuccessfulEverCareUpload.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="SuccessfulEverCareUpload.aspx.designer.cs">
+      <DependentUpon>SuccessfulEverCareUpload.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="SuccessfulUploaded.aspx.cs">
+      <DependentUpon>SuccessfulUploaded.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="SuccessfulUploaded.aspx.designer.cs">
+      <DependentUpon>SuccessfulUploaded.aspx</DependentUpon>
     </Compile>
     <Compile Include="ThankYou.aspx.cs">
       <DependentUpon>ThankYou.aspx</DependentUpon>

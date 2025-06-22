@@ -29,6 +29,7 @@ namespace Singlife
                         c.FirstDiagnosis, c.ReceivedTreatment, c.ConfirmedBySpecialist,
                         c.TreatmentStartDate, c.Hospital, c.TherapyType, c.UsedFreeScreening,
                         c.DeclarationConfirmed, c.CreatedDate,
+                        c.TreatmentFilePath, c.ScreeningFilePath, c.OtherFilesPath,
                         sc.Status, sc.Comment,
                         u.Email
                     FROM Claims c
@@ -44,6 +45,20 @@ namespace Singlife
                 {
                     if (reader.Read())
                     {
+                        string BuildFileLink(string label, object pathObj)
+                        {
+                            if (pathObj == DBNull.Value || string.IsNullOrEmpty(pathObj.ToString()))
+                                return $"<div class='value'><span class='label'>{label}:</span> None</div>";
+
+                            string url = ResolveUrl("~/" + pathObj.ToString());
+                            return $"<div class='value'><span class='label'>{label}:</span> <a href='{url}' target='_blank' rel='noopener noreferrer'>View File</a></div>";
+                        }
+
+                        string fileLinksHtml = "";
+                        fileLinksHtml += BuildFileLink("Treatment File", reader["TreatmentFilePath"]);
+                        fileLinksHtml += BuildFileLink("Screening File", reader["ScreeningFilePath"]);
+                        fileLinksHtml += BuildFileLink("Other File", reader["OtherFilesPath"]);
+
                         litClaimInfo.Text = $@"
                             <div class='value'><span class='label'>Plan:</span> {reader["PlanName"]}</div>
                             <div class='value'><span class='label'>Diagnosis Date:</span> {FormatDate(reader["DiagnosisDate"])} </div>
@@ -57,7 +72,9 @@ namespace Singlife
                             <div class='value'><span class='label'>Therapy Type:</span> {reader["TherapyType"]}</div>
                             <div class='value'><span class='label'>Used Free Screening:</span> {FormatBool(reader["UsedFreeScreening"])} </div>
                             <div class='value'><span class='label'>Declaration Confirmed:</span> {FormatBool(reader["DeclarationConfirmed"])} </div>
-                            <div class='value'><span class='label'>Submitted On:</span> {FormatDate(reader["CreatedDate"])}";
+                            <div class='value'><span class='label'>Submitted On:</span> {FormatDate(reader["CreatedDate"])}</div>
+                            {fileLinksHtml}
+                        ";
 
                         string status = reader["Status"]?.ToString()?.ToLower() ?? "received";
                         if (status == "action needed")
@@ -141,7 +158,7 @@ namespace Singlife
                 message.IsBodyHtml = false;
 
                 SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
-                client.Credentials = new NetworkCredential("singlifeeeeeeke@gmail.com", "pnfupbxiznvokifd"); // App password
+                client.Credentials = new NetworkCredential("singlifeeeeeeke@gmail.com", "pnfupbxiznvokifd");
                 client.EnableSsl = true;
 
                 client.Send(message);

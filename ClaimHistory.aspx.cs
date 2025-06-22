@@ -140,7 +140,7 @@ namespace Singlife
             }
             else if (status == "successfully reuploaded")
             {
-                return $"<a class='edit-link' href='SuccessUploaded.aspx?claimId={claimId}'>→ View Details</a>";
+                return $"<a class='edit-link' href='SuccessfulUploaded.aspx?claimId={claimId}'>→ View Details</a>";
             }
             else if (status == "action needed")
             {
