@@ -3,160 +3,173 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <style>
         body {
-            background-color: #f1f3f5;
+            background-color: #f8f9fa;
         }
 
         .claim-header {
-            padding: 60px 20px 20px 20px;
+            padding: 4rem 1rem 2rem;
             text-align: center;
-            background-color: #ffffff;
+            background-color: #fff;
             border-bottom: 1px solid #dee2e6;
+            margin-bottom: 3rem;
         }
 
         .claim-header h2 {
             font-weight: 700;
             color: #e60012;
+            font-size: 2.75rem;
+            line-height: 1.2;
         }
 
-        .claim-tabs {
-            border-bottom: 1px solid #dee2e6;
-            gap: 20px;
-        }
-
-        .claim-tabs .nav-link {
+        .claim-header p {
+            font-size: 1.1rem;
             color: #6c757d;
-            font-weight: 600;
-            border: none;
-            border-radius: 0;
-            position: relative;
-            background-color: transparent;
-            padding-bottom: 8px;
-            font-size: 16px;
+            margin-top: 0.75rem;
         }
 
-        .claim-tabs .nav-link.active {
-            color: #e60012;
-            border-bottom: 3px solid #e60012;
+        .nav-pills .nav-link {
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: #6c757d;
+            border-radius: 50px;
+            padding: 0.5rem 1.5rem;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .nav-pills .nav-link.active,
+        .nav-pills .nav-link:hover {
+            color: #fff;
+            background-color: #e60012;
+            border-color: #e60012;
+            box-shadow: 0 4px 10px rgb(230 0 18 / 0.4);
         }
 
         .claim-section {
-            background-color: #f9f9f9;
-            border-radius: 20px;
-            padding: 40px 30px;
+            max-width: 1140px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .claim-card {
-            border: none;
-            border-radius: 16px;
-            padding: 25px;
-            height: 100%;
             background: #fff;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+            border-radius: 1rem;
+            box-shadow: 0 5px 15px rgb(0 0 0 / 0.1);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            position: relative;
+            height: 100%;
         }
 
         .claim-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 30px rgb(230 0 18 / 0.25);
         }
 
         .claim-icon {
-            font-size: 36px;
+            font-size: 4.5rem;
             color: #fff;
             background-color: #e60012;
-            width: 70px;
-            height: 70px;
-            line-height: 70px;
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
-            margin: 0 auto 15px auto;
-        }
-
-        .claim-btn a {
-            margin-top: 20px;
-            font-weight: 600;
-            padding: 10px 24px;
-            font-size: 15px;
-            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 4px 12px rgb(230 0 18 / 0.5);
         }
 
         .claim-text h5 {
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-
-        .claim-text p {
-            font-size: 13.5px;
-            margin-bottom: 5px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #212529;
         }
 
         .plan-badge {
-            display: inline-block;
-            font-size: 12px;
+            font-size: 0.9rem;
             background-color: #e60012;
             color: white;
-            padding: 3px 10px;
-            border-radius: 30px;
-            margin-top: 6px;
-            font-weight: 500;
+            padding: 0.3rem 1.1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-bottom: 1.25rem;
+            display: inline-block;
+            box-shadow: 0 2px 8px rgb(230 0 18 / 0.4);
         }
 
         .small-desc {
-            font-size: 13.5px;
+            font-size: 1rem;
             font-weight: 500;
-            color: #555;
+            color: #6c757d;
+            min-height: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .claim-btn a {
+            font-weight: 700;
+            padding: 0.625rem 2rem;
+            font-size: 1.125rem;
+            border-radius: 50px;
+            color: #fff !important;
+            background-color: #e60012;
+            text-decoration: none;
+            box-shadow: 0 6px 15px rgb(230 0 18 / 0.4);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            display: inline-block;
+        }
+
+        .claim-btn a:hover {
+            background-color: #b4000e;
+            box-shadow: 0 8px 20px rgb(180 0 14 / 0.6);
+            color: #fff !important;
+            text-decoration: none;
         }
     </style>
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder2" runat="server">
-    <div class="container py-5">
-        <div class="claim-header mb-4">
-            <h2>We're here to help — what would you like to do today?</h2>
-            <p class="text-muted">Select a purchased plan below to start your claim.</p>
-        </div>
+    <div class="claim-header">
+        <h2>We're here to help — what would you like to do today?</h2>
+        <p>Select a purchased plan below to start your claim.</p>
+    </div>
 
-        <!-- Tabs -->
-        <div class="d-flex justify-content-center mb-4">
-            <ul class="nav nav-pills claim-tabs" id="claimTab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="new-claim-tab" data-bs-toggle="pill" type="button" role="tab">
-                        New Claim
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="draft-claim-tab" onclick="window.location.href='SaveAsDraft.aspx'" type="button" role="tab">
-                        Continue Draft Claims
-                    </button>
-                </li>
-            </ul>
-        </div>
+    <!-- Tabs -->
+    <ul class="nav nav-pills justify-content-center mb-5" id="claimTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" href="ChooseClaim.aspx" role="tab" aria-selected="true">New Claim</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" href="SaveAsDraft.aspx" role="tab" aria-selected="false">Continue Draft Claims</a>
+        </li>
+    </ul>
 
-        <!-- Cards Section -->
-        <div class="claim-section mt-4">
-            <div class="row row-cols-1 row-cols-md-3 g-4">
-                <asp:Repeater ID="rptPlans" runat="server" OnItemDataBound="rptPlans_ItemDataBound">
-                    <ItemTemplate>
-                        <div class="col">
-                            <div class="claim-card text-center d-flex flex-column justify-content-between">
-                                <div>
-                                    <div class="claim-icon d-flex align-items-center justify-content-center">
-                                        <i class="bi bi-heart-pulse-fill"></i>
-                                    </div>
-                                    <div class="claim-text mt-2">
-                                        <h5 class="fw-bold text-dark"><%# Eval("ProductName") %></h5>
-                                        <div class="plan-badge"><%# Eval("PlanName") %></div>
-                                        <p class="small-desc mt-2" runat="server" id="lblShortDesc"></p>
-                                    </div>
-                                </div>
-                                <div class="claim-btn">
-                                    <a href='<%# GetClaimPageUrl(Eval("PlanName").ToString()) %>' class="btn btn-danger">File a Claim</a>
-                                </div>
+    <!-- Cards Section -->
+    <div class="claim-section">
+        <div class="row row-cols-1 row-cols-md-3 g-5">
+            <asp:Repeater ID="rptPlans" runat="server" OnItemDataBound="rptPlans_ItemDataBound">
+                <ItemTemplate>
+                    <div class="col d-flex align-items-stretch">
+                        <div class="claim-card">
+                            <div class="claim-icon">
+                                <i class="bi bi-heart-pulse-fill"></i>
+                            </div>
+                            <div class="claim-text">
+                                <h5><%# Eval("ProductName") %></h5>
+                                <div class="plan-badge"><%# Eval("PlanName") %></div>
+                                <p class="small-desc" runat="server" id="lblShortDesc"></p>
+                            </div>
+                            <div class="claim-btn mt-auto">
+                                <a href='<%# GetClaimPageUrl(Eval("PlanName").ToString()) %>'>File a Claim</a>
                             </div>
                         </div>
-                    </ItemTemplate>
-                </asp:Repeater>
-            </div>
+                    </div>
+                </ItemTemplate>
+            </asp:Repeater>
         </div>
     </div>
 </asp:Content>

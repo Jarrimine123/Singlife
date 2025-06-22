@@ -59,6 +59,25 @@ namespace Singlife
                             <div class='value'><span class='label'>Declaration Confirmed:</span> {FormatBool(reader["DeclarationConfirmed"])}</div>
                             <div class='value'><span class='label'>Submitted On:</span> {FormatDate(reader["CreatedDate"])}</div>";
 
+                        // Uploaded file links
+                        if (!reader.IsDBNull(reader.GetOrdinal("HospitalDocPath")) && !string.IsNullOrWhiteSpace(reader["HospitalDocPath"].ToString()))
+                        {
+                            string hospitalDoc = reader["HospitalDocPath"].ToString();
+                            html += $"<div class='value'><span class='label'>Hospital Document:</span> <a href='/{hospitalDoc}' target='_blank'>📎 View File</a></div>";
+                        }
+
+                        if (!reader.IsDBNull(reader.GetOrdinal("FollowupDocPath")) && !string.IsNullOrWhiteSpace(reader["FollowupDocPath"].ToString()))
+                        {
+                            string followupDoc = reader["FollowupDocPath"].ToString();
+                            html += $"<div class='value'><span class='label'>Follow-Up Document:</span> <a href='/{followupDoc}' target='_blank'>📎 View File</a></div>";
+                        }
+
+                        if (!reader.IsDBNull(reader.GetOrdinal("OtherFilesPath")) && !string.IsNullOrWhiteSpace(reader["OtherFilesPath"].ToString()))
+                        {
+                            string otherFiles = reader["OtherFilesPath"].ToString();
+                            html += $"<div class='value'><span class='label'>Other Supporting Documents:</span> <a href='/{otherFiles}' target='_blank'>📎 View File</a></div>";
+                        }
+
                         litClaimInfo.Text = html;
 
                         bool hasComment = !reader.IsDBNull(reader.GetOrdinal("Comment")) && !string.IsNullOrWhiteSpace(reader["Comment"].ToString());

@@ -25,8 +25,16 @@ namespace Singlife
             }
         }
 
+        protected void btnFilter_Click(object sender, EventArgs e)
+        {
+            LoadClaims();
+        }
+
         private void LoadClaims()
         {
+            string nameFilter = txtSearchName.Text.Trim();
+            string planFilter = txtSearchPlan.Text.Trim();
+
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string sql = @"
@@ -55,12 +63,17 @@ namespace Singlife
                     INNER JOIN Users u ON ec.AccountID = u.AccountID
                     LEFT JOIN StaffEverClaims sec ON ec.ClaimID = sec.ClaimID
                     WHERE ec.Status = 'SUBMITTED'
-
-                    ORDER BY CreatedDate DESC";
+                ";
 
                 SqlDataAdapter da = new SqlDataAdapter(sql, conn);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
+
+                if (!string.IsNullOrEmpty(nameFilter))
+                    dt = dt.Select($"Name LIKE '%{nameFilter.Replace("'", "''")}%'").CopyToDataTable();
+
+                if (!string.IsNullOrEmpty(planFilter))
+                    dt = dt.Select($"PlanName LIKE '%{planFilter.Replace("'", "''")}%'").CopyToDataTable();
 
                 rptClaims.DataSource = dt;
                 rptClaims.DataBind();
@@ -171,7 +184,7 @@ namespace Singlife
                 cmd.Parameters.AddWithValue("@Status", status);
                 cmd.Parameters.AddWithValue("@Comment", comment);
                 cmd.Parameters.AddWithValue("@OutcomeFilePath", (object)outcomePath ?? DBNull.Value);
-                cmd.Parameters.AddWithValue("@StaffID", 1); // Placeholder staff ID
+                cmd.Parameters.AddWithValue("@StaffID", 1); // Placeholder
 
                 cmd.ExecuteNonQuery();
             }

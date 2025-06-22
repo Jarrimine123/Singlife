@@ -35,6 +35,7 @@ namespace Singlife
                         c.FirstDiagnosis, c.ReceivedTreatment, c.ConfirmedBySpecialist,
                         c.TreatmentStartDate, c.Hospital, c.TherapyType, c.UsedFreeScreening,
                         c.DeclarationConfirmed, c.CreatedDate,
+                        c.TreatmentFilePath, c.ScreeningFilePath, c.OtherFilesPath,  -- Add these
                         sc.Comment, sc.OutcomeFilePath
                     FROM Claims c
                     LEFT JOIN StaffClaims sc ON c.ClaimID = sc.ClaimID
@@ -63,6 +64,25 @@ namespace Singlife
                             <div class='value'><span class='label'>Declaration Confirmed:</span> {FormatBool(reader["DeclarationConfirmed"])}</div>
                             <div class='value'><span class='label'>Submitted On:</span> {FormatDate(reader["CreatedDate"])}</div>";
 
+                        // Show uploaded files if available
+                        string treatmentFile = reader["TreatmentFilePath"] as string;
+                        if (!string.IsNullOrWhiteSpace(treatmentFile))
+                        {
+                            html += $"<div class='value'><span class='label'>Treatment File:</span> <a href='{ResolveUrl(treatmentFile)}' target='_blank' rel='noopener noreferrer'>View file</a></div>";
+                        }
+
+                        string screeningFile = reader["ScreeningFilePath"] as string;
+                        if (!string.IsNullOrWhiteSpace(screeningFile))
+                        {
+                            html += $"<div class='value'><span class='label'>Screening File:</span> <a href='{ResolveUrl(screeningFile)}' target='_blank' rel='noopener noreferrer'>View file</a></div>";
+                        }
+
+                        string otherFiles = reader["OtherFilesPath"] as string;
+                        if (!string.IsNullOrWhiteSpace(otherFiles))
+                        {
+                            html += $"<div class='value'><span class='label'>Other Documents:</span> <a href='{ResolveUrl(otherFiles)}' target='_blank' rel='noopener noreferrer'>View file</a></div>";
+                        }
+
                         litClaimInfo.Text = html;
 
                         bool hasComment = !reader.IsDBNull(reader.GetOrdinal("Comment")) && !string.IsNullOrWhiteSpace(reader["Comment"].ToString());
@@ -77,7 +97,7 @@ namespace Singlife
                             {
                                 string filePath = reader["OutcomeFilePath"].ToString();
                                 lnkOutcomeFile.Text = "Download Outcome File";
-                                lnkOutcomeFile.NavigateUrl = ResolveUrl(filePath); // ✅ Fix: use full path from DB
+                                lnkOutcomeFile.NavigateUrl = ResolveUrl(filePath);
                             }
                             else
                             {

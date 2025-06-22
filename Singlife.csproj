@@ -81,12 +81,15 @@
     <Content Include="ClaimService.aspx" />
     <Content Include="ContinueDraft.aspx" />
     <Content Include="CreateAccount.aspx" />
+    <Content Include="EditSubmitClaims.aspx" />
+    <Content Include="EverActionNeeded.aspx" />
     <Content Include="EverApproveClaim.aspx" />
     <Content Include="EverCareClaim.aspx" />
     <Content Include="EverCarePlan.aspx" />
     <Content Include="EverCareQuote.aspx" />
     <Content Include="EverCareTimeClaim.aspx" />
     <Content Include="EverContinueDraft.aspx" />
+    <Content Include="EverEditClaims.aspx" />
     <Content Include="HomePage.aspx" />
     <Content Include="Images\background.png" />
     <Content Include="Images\Cart.jpg" />
@@ -199,6 +202,20 @@
     <Compile Include="Customer.Master.designer.cs">
       <DependentUpon>Customer.Master</DependentUpon>
     </Compile>
+    <Compile Include="EditSubmitClaims.aspx.cs">
+      <DependentUpon>EditSubmitClaims.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EditSubmitClaims.aspx.designer.cs">
+      <DependentUpon>EditSubmitClaims.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="EverActionNeeded.aspx.cs">
+      <DependentUpon>EverActionNeeded.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EverActionNeeded.aspx.designer.cs">
+      <DependentUpon>EverActionNeeded.aspx</DependentUpon>
+    </Compile>
     <Compile Include="EverApproveClaim.aspx.cs">
       <DependentUpon>EverApproveClaim.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -240,6 +257,13 @@
     </Compile>
     <Compile Include="EverContinueDraft.aspx.designer.cs">
       <DependentUpon>EverContinueDraft.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="EverEditClaims.aspx.cs">
+      <DependentUpon>EverEditClaims.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EverEditClaims.aspx.designer.cs">
+      <DependentUpon>EverEditClaims.aspx</DependentUpon>
     </Compile>
     <Compile Include="HomePage.aspx.cs">
       <DependentUpon>HomePage.aspx</DependentUpon>

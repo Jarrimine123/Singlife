@@ -65,6 +65,7 @@
 
         <asp:Panel ID="pnlClaimDetails" runat="server" CssClass="claim-detail">
             <h4>Claim Information</h4>
+            <!-- All claim info including uploaded files will be injected here by the code-behind -->
             <asp:Literal ID="litClaimInfo" runat="server" />
         </asp:Panel>
     </div>

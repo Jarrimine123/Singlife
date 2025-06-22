@@ -125,12 +125,12 @@ namespace Singlife
 
             if (claimType == "evercare")
             {
-                editUrl = $"EditEverClaim.aspx?claimId={claimId}";
+                editUrl = $"EverEditClaims.aspx?claimId={claimId}";
                 viewUrl = $"EverApproveClaim.aspx?claimId={claimId}";
             }
             else
             {
-                editUrl = $"EditClaim.aspx?claimId={claimId}";
+                editUrl = $"EditSubmitClaims.aspx?claimId={claimId}";
                 viewUrl = $"ApprovedClaim.aspx?claimId={claimId}";
             }
 
@@ -141,6 +141,14 @@ namespace Singlife
             else if (status == "successfully reuploaded")
             {
                 return $"<a class='edit-link' href='SuccessUploaded.aspx?claimId={claimId}'>→ View Details</a>";
+            }
+            else if (status == "action needed")
+            {
+                string actionNeededUrl = (claimType == "evercare")
+                    ? $"EverActionNeeded.aspx?claimId={claimId}"
+                    : $"ActionNeededClaim.aspx?claimId={claimId}";
+
+                return $"<a class='edit-link' href='{actionNeededUrl}'>→ Action Needed: Upload</a>";
             }
             else if (status == "received")
             {
@@ -153,6 +161,7 @@ namespace Singlife
 
             return "";
         }
+
 
         // Example method to submit new claim and insert default status
         public void SubmitNewClaim(string planName /* add more parameters as needed */)
