@@ -112,6 +112,7 @@
     <Content Include="SaveAsDraft.aspx" />
     <Content Include="Staffclaim.aspx" />
     <Content Include="StaffPurchase.aspx" />
+    <Content Include="StaffReview.aspx" />
     <Content Include="startclaim.aspx" />
     <Content Include="SubmitSucces.aspx" />
     <Content Include="SuccessfulEverCareUpload.aspx" />
@@ -330,6 +331,13 @@
     </Compile>
     <Compile Include="StaffPurchase.aspx.designer.cs">
       <DependentUpon>StaffPurchase.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StaffReview.aspx.cs">
+      <DependentUpon>StaffReview.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StaffReview.aspx.designer.cs">
+      <DependentUpon>StaffReview.aspx</DependentUpon>
     </Compile>
     <Compile Include="startclaim.aspx.cs">
       <DependentUpon>startclaim.aspx</DependentUpon>

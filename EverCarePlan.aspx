@@ -1,4 +1,5 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Customer.Master" AutoEventWireup="true" CodeBehind="EverCarePlan.aspx.cs" Inherits="Singlife.EverCarePlan" %>
+
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 
@@ -14,27 +15,27 @@
             border-radius: 0 0 30px 30px;
         }
 
-        .hero-container img {
-            width: 100%;
-            height: 500px;
-            object-fit: cover;
-            filter: brightness(0.85);
-            display: block;
-            transform: scale(1.05);
-            opacity: 0;
-            transition: transform 1.5s ease, opacity 1.5s ease;
-        }
+            .hero-container img {
+                width: 100%;
+                height: 500px;
+                object-fit: cover;
+                filter: brightness(0.85);
+                display: block;
+                transform: scale(1.05);
+                opacity: 0;
+                transition: transform 1.5s ease, opacity 1.5s ease;
+            }
 
-        .hero-container img.loaded {
-            transform: scale(1);
-            opacity: 1;
-        }
+                .hero-container img.loaded {
+                    transform: scale(1);
+                    opacity: 1;
+                }
 
-        .hero-container:hover img {
-            transform: scale(1.03);
-            filter: brightness(1);
-            transition: transform 0.6s ease, filter 0.6s ease;
-        }
+            .hero-container:hover img {
+                transform: scale(1.03);
+                filter: brightness(1);
+                transition: transform 0.6s ease, filter 0.6s ease;
+            }
 
         .hero-buttons {
             position: absolute;
@@ -50,24 +51,24 @@
             max-width: 90vw;
         }
 
-        .hero-buttons a {
-            background: linear-gradient(135deg, #d80027 0%, #a6001e 100%);
-            color: white;
-            padding: 10px 22px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            border-radius: 25px;
-            box-shadow: 0 3px 10px rgba(216,0,39,0.5);
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            transition: background 0.4s ease, box-shadow 0.4s ease;
-        }
+            .hero-buttons a {
+                background: linear-gradient(135deg, #d80027 0%, #a6001e 100%);
+                color: white;
+                padding: 10px 22px;
+                font-weight: 700;
+                font-size: 0.9rem;
+                border-radius: 25px;
+                box-shadow: 0 3px 10px rgba(216,0,39,0.5);
+                text-transform: uppercase;
+                letter-spacing: 0.8px;
+                transition: background 0.4s ease, box-shadow 0.4s ease;
+            }
 
-        .hero-buttons a:hover {
-            background: linear-gradient(135deg, #a6001e 0%, #d80027 100%);
-            box-shadow: 0 5px 15px rgba(166,0,30,0.7);
-            text-decoration: none;
-        }
+                .hero-buttons a:hover {
+                    background: linear-gradient(135deg, #a6001e 0%, #d80027 100%);
+                    box-shadow: 0 5px 15px rgba(166,0,30,0.7);
+                    text-decoration: none;
+                }
 
         /* Intro Section */
         .intro-section-wrapper {
@@ -91,28 +92,67 @@
             transition: transform 0.4s ease;
         }
 
-        .intro-image img:hover {
-            transform: scale(1.03);
-            box-shadow: 0 6px 20px rgba(216,0,39,0.28);
-        }
+            .intro-image img:hover {
+                transform: scale(1.03);
+                box-shadow: 0 6px 20px rgba(216,0,39,0.28);
+            }
 
         .intro-text {
             max-width: 520px;
             text-align: left;
         }
 
-        .intro-text h1 {
-            font-size: 2.2rem;
-            color: #d80027;
-            font-weight: 800;
-            margin-bottom: 14px;
-            text-shadow: 1px 1px 2px rgba(216,0,39,0.3);
+            .intro-text h1 {
+                font-size: 2.2rem;
+                color: #d80027;
+                font-weight: 800;
+                margin-bottom: 14px;
+                text-shadow: 1px 1px 2px rgba(216,0,39,0.3);
+            }
+
+            .intro-text p {
+                font-size: 1rem;
+                color: #444;
+                line-height: 1.5;
+            }
+
+        .review-section {
+            background-color: #fff4f6;
+            padding: 40px 15px;
+            max-width: 900px;
+            margin: 60px auto;
+            border-radius: 20px;
+            box-shadow: 0 6px 20px rgba(216,0,39,0.12);
         }
 
-        .intro-text p {
-            font-size: 1rem;
-            color: #444;
-            line-height: 1.5;
+        .review-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #d80027;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .review-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .review-stars i {
+            color: #f1c40f;
+        }
+
+        .review-form {
+            margin-top: 30px;
+        }
+
+        .filter-bar {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: end;
         }
 
         /* Features Section */
@@ -145,10 +185,10 @@
             font-weight: 600;
         }
 
-        .feature-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 28px rgba(216,0,39,0.25);
-        }
+            .feature-card:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 12px 28px rgba(216,0,39,0.25);
+            }
 
         .feature-emoji {
             font-size: 36px;
@@ -168,11 +208,30 @@
             line-height: 1.4;
         }
 
-        .feature-card:nth-child(1) { background: #ffe1e6; color: #b32e3a; }
-        .feature-card:nth-child(2) { background: #ffe9d6; color: #b36a2e; }
-        .feature-card:nth-child(3) { background: #d6f0ff; color: #2e5ab3; }
-        .feature-card:nth-child(4) { background: #d6ffe9; color: #2eb37e; }
-        .feature-card:nth-child(5) { background: #fff6d6; color: #b3a72e; }
+        .feature-card:nth-child(1) {
+            background: #ffe1e6;
+            color: #b32e3a;
+        }
+
+        .feature-card:nth-child(2) {
+            background: #ffe9d6;
+            color: #b36a2e;
+        }
+
+        .feature-card:nth-child(3) {
+            background: #d6f0ff;
+            color: #2e5ab3;
+        }
+
+        .feature-card:nth-child(4) {
+            background: #d6ffe9;
+            color: #2eb37e;
+        }
+
+        .feature-card:nth-child(5) {
+            background: #fff6d6;
+            color: #b3a72e;
+        }
 
         h2.section-title {
             text-align: center;
@@ -195,10 +254,20 @@
             display: block;
         }
 
+
+
         @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-15px); }
-            60% { transform: translateY(-8px); }
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-15px);
+            }
+
+            60% {
+                transform: translateY(-8px);
+            }
         }
 
         @media (max-width: 767.98px) {
@@ -241,15 +310,14 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const heroImage = document.querySelector('.hero-container img');
-            setTimeout(() => {
-                heroImage.classList.add('loaded');
-            }, 100);
-
+            setTimeout(() => heroImage.classList.add('loaded'), 100);
             const arrow = document.getElementById('scrollDownArrow');
-            arrow.addEventListener('click', function (event) {
-                event.preventDefault();
-                document.querySelector('#nextSection').scrollIntoView({ behavior: 'smooth' });
-            });
+            if (arrow) {
+                arrow.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    document.querySelector('#nextSection').scrollIntoView({ behavior: 'smooth' });
+                });
+            }
         });
     </script>
 </asp:Content>
@@ -319,5 +387,80 @@
         <h2 class="section-title mb-3">How to Use the EverCare Plan</h2>
         <img src="Images/Evercare.jpg" alt="How to Use EverCare Plan" class="how-to-use-img rounded shadow-sm" />
     </section>
-</asp:Content>
 
+
+    <!-- Review Section -->
+<section class="review-section my-5 px-3">
+    <h2 class="section-title text-center mb-4">Customer Reviews</h2>
+
+    <!-- Filter Dropdown -->
+    <div class="d-flex justify-content-center mb-4">
+        <asp:DropDownList ID="ddlFilterStars" runat="server" AutoPostBack="true"
+            OnSelectedIndexChanged="ddlFilterStars_SelectedIndexChanged"
+            CssClass="form-select w-auto shadow-sm">
+            <asp:ListItem Text="All Ratings" Value="all" />
+            <asp:ListItem Text="5 Stars" Value="5" />
+            <asp:ListItem Text="4 Stars & Up" Value="4" />
+            <asp:ListItem Text="3 Stars & Up" Value="3" />
+        </asp:DropDownList>
+    </div>
+
+    <!-- Reviews List -->
+    <asp:Repeater ID="ReviewsRepeater" runat="server">
+        <ItemTemplate>
+            <div class="card mb-3 mx-auto shadow-sm" style="max-width: 700px;">
+                <div class="card-body">
+                    <!-- Reviewer name and star rating -->
+                    <div class="d-flex justify-content-between mb-2">
+                        <h6 class="mb-0 text-dark fw-bold"><%# Eval("Name") %></h6>
+                        <div class="review-stars text-warning">
+                            <%# new System.Web.HtmlString(GetStarHtml(Convert.ToInt32(Eval("Rating")))) %>
+                        </div>
+                    </div>
+
+                    <!-- Review comment -->
+                    <p class="card-text mt-2" style="font-size: 1rem; color: #333;">
+                        <i class="fas fa-quote-left me-2 text-danger"></i>
+                        <%# Eval("ReviewText") %>
+                    </p>
+
+                    <!-- Date -->
+                    <div class="text-end text-muted small mt-1">
+                        <%# Convert.ToDateTime(Eval("ReviewDate")).ToString("dd MMM yyyy") %>
+                    </div>
+                </div>
+            </div>
+        </ItemTemplate>
+    </asp:Repeater>
+
+    <!-- Message Label -->
+    <asp:Label ID="lblMessage" runat="server" CssClass="text-success d-block text-center my-3 fw-bold" EnableViewState="false" />
+
+    <!-- Submit Form -->
+    <asp:Panel ID="reviewForm" runat="server" CssClass="card mx-auto mt-5 shadow-sm p-4" style="max-width: 600px;">
+        <h5 class="mb-4 text-danger">Leave a Review</h5>
+
+        <div class="mb-3">
+            <label for="ddlRating" class="form-label">Your Rating</label>
+            <asp:DropDownList ID="ddlRating" runat="server" CssClass="form-select">
+                <asp:ListItem Text="5 - Excellent" Value="5" />
+                <asp:ListItem Text="4 - Good" Value="4" />
+                <asp:ListItem Text="3 - Average" Value="3" />
+                <asp:ListItem Text="2 - Poor" Value="2" />
+                <asp:ListItem Text="1 - Terrible" Value="1" />
+            </asp:DropDownList>
+        </div>
+
+        <div class="mb-3">
+            <label for="txtReview" class="form-label">Your Review</label>
+            <asp:TextBox ID="txtReview" runat="server" TextMode="MultiLine" Rows="4" CssClass="form-control" />
+        </div>
+
+        <asp:Button ID="btnSubmitReview" runat="server" Text="Submit Review"
+            CssClass="btn btn-danger w-100" OnClick="btnSubmitReview_Click" />
+    </asp:Panel>
+</section>
+
+<!-- Add FontAwesome CDN in your <head> for stars icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+</asp:Content>

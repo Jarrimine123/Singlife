@@ -267,7 +267,7 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder2" runat="server">
     <!-- Hero Banner -->
     <div class="hero-container shadow-sm rounded-bottom">
-        <img src="Images/OncoSheild.PNG" alt="Medical Insurance Banner" />
+        <img src="Images/OncoSheild.PNG" alt="Medical Insurance Banner" class="loaded" />
         <div class="hero-buttons">
             <a href="OncoShieldQuote.aspx" class="btn btn-danger btn-lg shadow">Get a Quote</a>
             <a href="Documents/OncoShield_Brochure.pdf" target="_blank" class="btn btn-outline-danger btn-lg shadow">View Brochure</a>
@@ -281,10 +281,7 @@
         </div>
         <div class="intro-text">
             <h1>What is OncoShield Plan?</h1>
-            <p>
-                OncoShield is a powerful cancer protection plan that goes far beyond basics — giving you access to advanced therapies,
-                global second opinions, and ongoing survivorship support.
-            </p>
+            <p>OncoShield is a powerful cancer protection plan that goes far beyond basics — giving you access to advanced therapies, global second opinions, and ongoing survivorship support.</p>
         </div>
     </section>
 
@@ -318,7 +315,7 @@
         </div>
     </section>
 
-    <!-- Scroll down arrow -->
+    <!-- Scroll Down Arrow -->
     <div class="text-center my-4">
         <a href="#nextSection" id="scrollDownArrow">
             <img src="Images/pngtree-down-arrow-red-png-image_4376823-removebg-preview.png" alt="Scroll Down" class="scroll-arrow" />
@@ -330,4 +327,80 @@
         <h2 class="section-title mb-3">How to Use the OncoShield Plan</h2>
         <img src="Images/HowOnco.jpg" alt="How to Use OncoShield Plan" class="how-to-use-img rounded shadow-sm" />
     </section>
+
+    <!-- Review Section -->
+<section class="review-section my-5 px-3">
+    <h2 class="section-title text-center mb-4">Customer Reviews</h2>
+
+    <!-- Filter Dropdown -->
+    <div class="d-flex justify-content-center mb-4">
+        <asp:DropDownList ID="ddlFilterStars" runat="server" AutoPostBack="true"
+            OnSelectedIndexChanged="ddlFilterStars_SelectedIndexChanged"
+            CssClass="form-select w-auto shadow-sm">
+            <asp:ListItem Text="All Ratings" Value="all" />
+            <asp:ListItem Text="5 Stars" Value="5" />
+            <asp:ListItem Text="4 Stars & Up" Value="4" />
+            <asp:ListItem Text="3 Stars & Up" Value="3" />
+        </asp:DropDownList>
+    </div>
+
+    <!-- Reviews List -->
+    <asp:Repeater ID="ReviewsRepeater" runat="server">
+        <ItemTemplate>
+            <div class="card mb-3 mx-auto shadow-sm" style="max-width: 700px;">
+                <div class="card-body">
+                    <!-- Reviewer name and star rating -->
+                    <div class="d-flex justify-content-between mb-2">
+                        <h6 class="mb-0 text-dark fw-bold"><%# Eval("Name") %></h6>
+                        <div class="review-stars text-warning">
+                            <%# new System.Web.HtmlString(GetStarHtml(Convert.ToInt32(Eval("Rating")))) %>
+                        </div>
+                    </div>
+
+                    <!-- Review comment -->
+                    <p class="card-text mt-2" style="font-size: 1rem; color: #333;">
+                        <i class="fas fa-quote-left me-2 text-danger"></i>
+                        <%# Eval("ReviewText") %>
+                    </p>
+
+                    <!-- Date -->
+                    <div class="text-end text-muted small mt-1">
+                        <%# Convert.ToDateTime(Eval("ReviewDate")).ToString("dd MMM yyyy") %>
+                    </div>
+                </div>
+            </div>
+        </ItemTemplate>
+    </asp:Repeater>
+
+    <!-- Message Label -->
+    <asp:Label ID="lblMessage" runat="server" CssClass="text-success d-block text-center my-3 fw-bold" EnableViewState="false" />
+
+    <!-- Submit Form -->
+    <asp:Panel ID="reviewForm" runat="server" CssClass="card mx-auto mt-5 shadow-sm p-4" style="max-width: 600px;">
+        <h5 class="mb-4 text-danger">Leave a Review</h5>
+
+        <div class="mb-3">
+            <label for="ddlRating" class="form-label">Your Rating</label>
+            <asp:DropDownList ID="ddlRating" runat="server" CssClass="form-select">
+                <asp:ListItem Text="5 - Excellent" Value="5" />
+                <asp:ListItem Text="4 - Good" Value="4" />
+                <asp:ListItem Text="3 - Average" Value="3" />
+                <asp:ListItem Text="2 - Poor" Value="2" />
+                <asp:ListItem Text="1 - Terrible" Value="1" />
+            </asp:DropDownList>
+        </div>
+
+        <div class="mb-3">
+            <label for="txtReview" class="form-label">Your Review</label>
+            <asp:TextBox ID="txtReview" runat="server" TextMode="MultiLine" Rows="4" CssClass="form-control" />
+        </div>
+
+        <asp:Button ID="btnSubmitReview" runat="server" Text="Submit Review"
+            CssClass="btn btn-danger w-100" OnClick="btnSubmitReview_Click" />
+    </asp:Panel>
+</section>
+
+<!-- Add FontAwesome CDN in your <head> for stars icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
 </asp:Content>
