@@ -101,6 +101,7 @@
     <Content Include="Images\Onco.PNG" />
     <Content Include="Images\Oncoshei.PNG" />
     <Content Include="Images\OncoSheild.PNG" />
+    <Content Include="Images\Paymentbackground.png" />
     <Content Include="Images\pngtree-down-arrow-red-png-image_4376823-removebg-preview.png" />
     <Content Include="Images\Screenshot 2025-06-18 021919.png" />
     <Content Include="Images\sl-logo-singlife.png" />
@@ -109,6 +110,7 @@
     <Content Include="OncoshieldPlan.aspx" />
     <Content Include="OncoShieldQuote.aspx" />
     <Content Include="OncoShieldTimeClaim.aspx" />
+    <Content Include="Payment.aspx" />
     <Content Include="SaveAsDraft.aspx" />
     <Content Include="Staffclaim.aspx" />
     <Content Include="StaffPurchase.aspx" />
@@ -309,6 +311,13 @@
     </Compile>
     <Compile Include="OncoShieldTimeClaim.aspx.designer.cs">
       <DependentUpon>OncoShieldTimeClaim.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Payment.aspx.cs">
+      <DependentUpon>Payment.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Payment.aspx.designer.cs">
+      <DependentUpon>Payment.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SaveAsDraft.aspx.cs">
