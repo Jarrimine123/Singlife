@@ -84,6 +84,7 @@ namespace Singlife
             int accountId = Convert.ToInt32(Session["AccountID"]);
             if (!decimal.TryParse(txtCoverage.Text, out decimal coverage)) return;
 
+            string frequency = ddlFrequency.SelectedValue; // <--- capture the selected frequency
             decimal finalRate = BaseRate + (ddlSmoker.SelectedValue == "Yes" ? SmokerExtra : 0);
             decimal annualPremium = coverage * finalRate;
             decimal monthlyPremium = annualPremium / 12;
@@ -91,8 +92,11 @@ namespace Singlife
             string connStr = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                string query = @"INSERT INTO CartItems (AccountID, ProductName, PlanName, CoverageAmount, AnnualPremium, MonthlyPremium)
-                                 VALUES (@AccountID, @ProductName, @PlanName, @CoverageAmount, @AnnualPremium, @MonthlyPremium)";
+                string query = @"INSERT INTO CartItems 
+                        (AccountID, ProductName, PlanName, CoverageAmount, AnnualPremium, MonthlyPremium, PaymentFrequency)
+                         VALUES 
+                        (@AccountID, @ProductName, @PlanName, @CoverageAmount, @AnnualPremium, @MonthlyPremium, @PaymentFrequency)";
+
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@AccountID", accountId);
@@ -101,6 +105,7 @@ namespace Singlife
                     cmd.Parameters.AddWithValue("@CoverageAmount", coverage);
                     cmd.Parameters.AddWithValue("@AnnualPremium", annualPremium);
                     cmd.Parameters.AddWithValue("@MonthlyPremium", monthlyPremium);
+                    cmd.Parameters.AddWithValue("@PaymentFrequency", frequency); // <-- now saved
 
                     conn.Open();
                     cmd.ExecuteNonQuery();
@@ -110,6 +115,7 @@ namespace Singlife
             ResetForm();
             Response.Redirect("Cart.aspx");
         }
+
 
         protected void btnBuyNow_Click(object sender, EventArgs e)
         {

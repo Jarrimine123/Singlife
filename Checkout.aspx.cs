@@ -2,6 +2,8 @@
 using System.Data;
 using System.Configuration;
 using System.Data.SqlClient;
+using System.Net;
+using System.Net.Mail;
 
 namespace Singlife
 {
@@ -17,7 +19,6 @@ namespace Singlife
                     return;
                 }
 
-                // Load either single quote or cart
                 if (!string.IsNullOrEmpty(Request.QueryString["product"]))
                 {
                     LoadSingleQuoteFromQuery();
@@ -32,14 +33,9 @@ namespace Singlife
         private void LoadSingleQuoteFromQuery()
         {
             string productName = Request.QueryString["product"];
-            decimal coverage = 0;
-            decimal annualPremium = 0;
-            decimal monthlyPremium = 0;
-
-            decimal.TryParse(Request.QueryString["coverage"], out coverage);
-            decimal.TryParse(Request.QueryString["annual"], out annualPremium);
-            decimal.TryParse(Request.QueryString["monthly"], out monthlyPremium);
-
+            decimal.TryParse(Request.QueryString["coverage"], out decimal coverage);
+            decimal.TryParse(Request.QueryString["annual"], out decimal annualPremium);
+            decimal.TryParse(Request.QueryString["monthly"], out decimal monthlyPremium);
             string frequency = Request.QueryString["frequency"] ?? "Annual";
 
             DataTable dt = new DataTable();
@@ -51,8 +47,6 @@ namespace Singlife
             dt.Columns.Add("PaymentFrequency");
 
             DataRow row = dt.NewRow();
-
-            // You can expand this for more plans if needed
             row["ProductName"] = "Medical Insurance";
             row["PlanName"] = productName == "EverCare" ? "EverCare Plan" : productName + " Plan";
             row["CoverageAmount"] = coverage;
@@ -73,11 +67,11 @@ namespace Singlife
         private void LoadCartItems()
         {
             int accountId = Convert.ToInt32(Session["AccountID"]);
-
             string connStr = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
+
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                string query = @"SELECT CartID, ProductName, PlanName, CoverageAmount, AnnualPremium, PaymentFrequency
+                string query = @"SELECT CartID, ProductName, PlanName, CoverageAmount, AnnualPremium, PaymentFrequency 
                                  FROM CartItems WHERE AccountID = @AccountID";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -88,7 +82,6 @@ namespace Singlife
                 da.Fill(dt);
 
                 ViewState["CartItems"] = dt;
-
                 gvOrderSummary.DataSource = dt;
                 gvOrderSummary.DataBind();
 
@@ -97,11 +90,7 @@ namespace Singlife
                 {
                     string freq = row["PaymentFrequency"].ToString();
                     decimal annual = Convert.ToDecimal(row["AnnualPremium"]);
-
-                    if (freq == "Monthly")
-                        totalPremium += annual / 12;
-                    else
-                        totalPremium += annual;
+                    totalPremium += (freq == "Monthly") ? (annual / 12) : annual;
                 }
 
                 lblTotalMonthly.Text = totalPremium.ToString("C");
@@ -116,8 +105,6 @@ namespace Singlife
                 return;
             }
 
-            int accountId = Convert.ToInt32(Session["AccountID"]);
-
             string name = txtName.Text.Trim();
             string email = txtEmail.Text.Trim();
             string phone = txtPhone.Text.Trim();
@@ -126,18 +113,49 @@ namespace Singlife
             string expiry = txtExpiry.Text.Trim();
             string cvv = txtCVV.Text.Trim();
 
-            // TODO: Add proper validation for these fields here!
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(phone) ||
+                string.IsNullOrEmpty(address) || string.IsNullOrEmpty(cardNumber) ||
+                string.IsNullOrEmpty(expiry) || string.IsNullOrEmpty(cvv))
+            {
+                ShowAlert("⚠️ Please fill in all fields.");
+                return;
+            }
+
+            if (!System.Text.RegularExpressions.Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+            {
+                ShowAlert("❌ Please enter a valid email address.");
+                return;
+            }
+
+            if (!long.TryParse(cardNumber, out _) || cardNumber.Length != 16)
+            {
+                ShowAlert("❌ Card number must be 16 digits.");
+                return;
+            }
+
+            if (!System.Text.RegularExpressions.Regex.IsMatch(expiry, @"^(0[1-9]|1[0-2])\/\d{2}$"))
+            {
+                ShowAlert("❌ Expiry date must be in MM/YY format.");
+                return;
+            }
+
+            if (!int.TryParse(cvv, out _) || (cvv.Length != 3 && cvv.Length != 4))
+            {
+                ShowAlert("❌ CVV must be 3 or 4 digits.");
+                return;
+            }
 
             DataTable dt = ViewState["CartItems"] as DataTable;
             if (dt == null || dt.Rows.Count == 0)
             {
-                ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('Your cart is empty.');", true);
+                ShowAlert("🛒 Your cart is empty.");
                 return;
             }
 
+            int accountId = Convert.ToInt32(Session["AccountID"]);
             Guid purchaseGroupId = Guid.NewGuid();
-
             string connStr = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
+
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
@@ -147,7 +165,6 @@ namespace Singlife
                     decimal annual = Convert.ToDecimal(row["AnnualPremium"]);
                     decimal monthly = annual / 12;
                     string frequency = row["PaymentFrequency"].ToString();
-
                     string paymentMethod = frequency == "Monthly" ? "Card Monthly" : "Card Annual";
 
                     string insertQuery = @"
@@ -170,14 +187,13 @@ namespace Singlife
                         cmd.Parameters.AddWithValue("@AnnualPremium", annual);
                         cmd.Parameters.AddWithValue("@MonthlyPremium", monthly);
                         cmd.Parameters.AddWithValue("@PaymentMethod", paymentMethod);
-                        cmd.Parameters.AddWithValue("@CardLast4", cardNumber.Length >= 4 ? cardNumber.Substring(cardNumber.Length - 4) : "");
+                        cmd.Parameters.AddWithValue("@CardLast4", cardNumber.Substring(cardNumber.Length - 4));
                         cmd.Parameters.AddWithValue("@PaymentFrequency", frequency);
 
                         cmd.ExecuteNonQuery();
                     }
                 }
 
-                // Clear cart if purchase came from cart
                 if (string.IsNullOrEmpty(Request.QueryString["product"]))
                 {
                     using (SqlCommand deleteCmd = new SqlCommand("DELETE FROM CartItems WHERE AccountID = @AccountID", conn))
@@ -188,7 +204,57 @@ namespace Singlife
                 }
             }
 
+            // ✅ Send confirmation email
+            SendEmailAlert(email, dt);
+
             Response.Redirect("ThankYou.aspx");
+        }
+
+        private void ShowAlert(string message)
+        {
+            ClientScript.RegisterStartupScript(this.GetType(), "alert", $"alert('{message}');", true);
+        }
+
+        private void SendEmailAlert(string email, DataTable cartItems)
+        {
+            if (string.IsNullOrEmpty(email) || cartItems == null || cartItems.Rows.Count == 0)
+                return;
+
+            try
+            {
+                string planSummary = "";
+                foreach (DataRow row in cartItems.Rows)
+                {
+                    string planName = row["PlanName"].ToString();
+                    string coverage = Convert.ToDecimal(row["CoverageAmount"]).ToString("C");
+                    string frequency = row["PaymentFrequency"].ToString();
+                    string premium = frequency == "Monthly"
+                        ? (Convert.ToDecimal(row["AnnualPremium"]) / 12).ToString("C")
+                        : Convert.ToDecimal(row["AnnualPremium"]).ToString("C");
+
+                    planSummary += $"- {planName}: {coverage} ({frequency}, Premium: {premium})\n";
+                }
+
+                MailMessage message = new MailMessage();
+                message.To.Add(email);
+                message.From = new MailAddress("singlifeeeeeeke@gmail.com");
+                message.Subject = "🛒 Singlife Insurance Purchase Confirmation";
+                message.Body = $"Thank you for your purchase!\n\nYou’ve successfully purchased the following plan(s):\n\n{planSummary}" +
+                               "\nYour policy will be processed and activated shortly.\n\nRegards,\nSinglife Team";
+                message.IsBodyHtml = false;
+
+                SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
+                client.Credentials = new NetworkCredential("singlifeeeeeeke@gmail.com", "pnfupbxiznvokifd");
+                client.EnableSsl = true;
+
+                client.Send(message);
+            }
+            catch (Exception ex)
+            {
+                lblMessage.Text = "Purchase succeeded, but email failed: " + ex.Message;
+                lblMessage.CssClass = "text-danger";
+                lblMessage.Visible = true;
+            }
         }
     }
 }

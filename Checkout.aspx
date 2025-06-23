@@ -1,5 +1,20 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Customer.Master" AutoEventWireup="true" CodeBehind="Checkout.aspx.cs" Inherits="Singlife.Checkout" %>
+
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder2" runat="server">
+
+    <script type="text/javascript">
+        function formatExpiry(input) {
+            let value = input.value.replace(/\D/g, ''); // Remove non-digits
+            if (value.length > 4) value = value.substring(0, 4); // Limit to 4 digits
+
+            if (value.length >= 3) {
+                input.value = value.substring(0, 2) + '/' + value.substring(2);
+            } else {
+                input.value = value;
+            }
+        }
+    </script>
+
     <div class="container py-5">
         <h2 class="mb-4">Checkout</h2>
 
@@ -47,7 +62,7 @@
                 <asp:TextBox ID="txtCardNumber" runat="server" CssClass="form-control" placeholder="Card Number" MaxLength="16" />
             </div>
             <div class="col-md-3">
-                <asp:TextBox ID="txtExpiry" runat="server" CssClass="form-control" placeholder="MM/YY" MaxLength="5" />
+                <asp:TextBox ID="txtExpiry" runat="server" CssClass="form-control" placeholder="MM/YY" MaxLength="5" onkeyup="formatExpiry(this)" />
             </div>
             <div class="col-md-3">
                 <asp:TextBox ID="txtCVV" runat="server" CssClass="form-control" placeholder="CVV" MaxLength="4" />
@@ -55,6 +70,9 @@
         </div>
 
         <div class="mt-4">
+            <!-- ✅ Add message label to show email or validation messages -->
+            <asp:Label ID="lblMessage" runat="server" CssClass="d-block mb-3" ForeColor="Red" Visible="false" />
+            
             <asp:Button ID="btnPlaceOrder" runat="server" CssClass="btn btn-primary" Text="Place Order" OnClick="btnPlaceOrder_Click" />
         </div>
     </div>
