@@ -108,6 +108,7 @@
     <Content Include="Login.aspx" />
     <Content Include="Medical.aspx" />
     <Content Include="nig.aspx" />
+    <Content Include="Nigga.aspx" />
     <Content Include="OncoshieldPlan.aspx" />
     <Content Include="OncoShieldQuote.aspx" />
     <Content Include="OncoShieldTimeClaim.aspx" />
@@ -298,6 +299,13 @@
     </Compile>
     <Compile Include="nig.aspx.designer.cs">
       <DependentUpon>nig.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Nigga.aspx.cs">
+      <DependentUpon>Nigga.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Nigga.aspx.designer.cs">
+      <DependentUpon>Nigga.aspx</DependentUpon>
     </Compile>
     <Compile Include="OncoshieldPlan.aspx.cs">
       <DependentUpon>OncoshieldPlan.aspx</DependentUpon>
