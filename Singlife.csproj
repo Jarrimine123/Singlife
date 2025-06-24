@@ -107,6 +107,7 @@
     <Content Include="Images\sl-logo-singlife.png" />
     <Content Include="Login.aspx" />
     <Content Include="Medical.aspx" />
+    <Content Include="nig.aspx" />
     <Content Include="OncoshieldPlan.aspx" />
     <Content Include="OncoShieldQuote.aspx" />
     <Content Include="OncoShieldTimeClaim.aspx" />
@@ -290,6 +291,13 @@
     </Compile>
     <Compile Include="Medical.aspx.designer.cs">
       <DependentUpon>Medical.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="nig.aspx.cs">
+      <DependentUpon>nig.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="nig.aspx.designer.cs">
+      <DependentUpon>nig.aspx</DependentUpon>
     </Compile>
     <Compile Include="OncoshieldPlan.aspx.cs">
       <DependentUpon>OncoshieldPlan.aspx</DependentUpon>
