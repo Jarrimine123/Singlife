@@ -97,6 +97,8 @@
     <Content Include="Images\Evercare.jpg" />
     <Content Include="Images\Evercare.PNG" />
     <Content Include="Images\HowOnco.jpg" />
+    <Content Include="Images\Lifeg.jpg" />
+    <Content Include="Images\Lifegrow.JPG" />
     <Content Include="Images\Medical-removebg-preview.png" />
     <Content Include="Images\Medicalind.png" />
     <Content Include="Images\Onco.PNG" />
@@ -104,9 +106,13 @@
     <Content Include="Images\OncoSheild.PNG" />
     <Content Include="Images\Paymentbackground.png" />
     <Content Include="Images\pngtree-down-arrow-red-png-image_4376823-removebg-preview.png" />
+    <Content Include="Images\Screenshot 2025-06-18 021919.jpg" />
     <Content Include="Images\Screenshot 2025-06-18 021919.png" />
+    <Content Include="Images\Screenshot 2025-06-27 204318.png" />
     <Content Include="Images\sl-logo-singlife.png" />
     <Content Include="Images\UM_bank_OCBC_paynow_qr-code_480x480.jpg" />
+    <Content Include="LifeGrowRetirementPlus.aspx" />
+    <Content Include="LifeInsurance.aspx" />
     <Content Include="Login.aspx" />
     <Content Include="Medical.aspx" />
     <Content Include="nig.aspx" />
@@ -286,6 +292,20 @@
     </Compile>
     <Compile Include="HomePage.aspx.designer.cs">
       <DependentUpon>HomePage.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="LifeGrowRetirementPlus.aspx.cs">
+      <DependentUpon>LifeGrowRetirementPlus.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="LifeGrowRetirementPlus.aspx.designer.cs">
+      <DependentUpon>LifeGrowRetirementPlus.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="LifeInsurance.aspx.cs">
+      <DependentUpon>LifeInsurance.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="LifeInsurance.aspx.designer.cs">
+      <DependentUpon>LifeInsurance.aspx</DependentUpon>
     </Compile>
     <Compile Include="Login.aspx.cs">
       <DependentUpon>Login.aspx</DependentUpon>

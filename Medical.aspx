@@ -82,10 +82,13 @@
             background-color: #800080;
             color: white;
             font-weight: 600;
-            font-size: 0.75rem;
-            border-radius: 1rem;
-            padding: 0.25rem 0.75rem;
+            font-size: 0.85rem; /* increased from 0.75rem */
+            border-radius: 1.25rem; /* slightly more rounded */
+            padding: 0.35rem 1rem; /* more padding = bigger badge */
             white-space: nowrap;
+            /* Position it slightly higher */
+            position: relative;
+            top: -45px; /* adjust up position */
         }
 
         .brochure-link {

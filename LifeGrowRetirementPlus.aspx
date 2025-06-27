@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Customer.Master" AutoEventWireup="true" CodeBehind="EverCarePlan.aspx.cs" Inherits="Singlife.EverCarePlan" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Customer.Master" AutoEventWireup="true" CodeBehind="LifeGrowRetirementPlus.aspx.cs" Inherits="Singlife.LifeGrowRetirementPlus" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -317,7 +317,7 @@
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder2" runat="server">
     <!-- Hero Banner -->
     <div class="hero-container shadow-sm rounded-bottom">
-        <img src="Images/Evercare.PNG" alt="EverCare Banner" />
+        <img src="Images/Lifegrow.JPG" alt="EverCare Banner" />
         <div class="hero-buttons">
             <a href="EverCareQuote.aspx" class="btn btn-danger btn-lg shadow">Get a Quote</a>
             <a href="Documents/OncoShield_Brochure.pdf" target="_blank" class="btn btn-outline-danger btn-lg shadow">View Brochure</a>
@@ -331,10 +331,10 @@
                 <img src="Images/Screenshot%202025-06-18%20021919.jpg" alt="EverCare Plan Illustration" class="auto-style1" />
             </td>
             <td class="intro-text-cell">
-                <h1>EverCare Plan – Everyday Hospital & Specialist Shield</h1>
+                <h1>🌱 LifeGrow Retirement Plus</h1>
                 <p>
-                    EverCare Plan pays fully for your hospital stay and helps you access top private specialists,
-                    with added coverage for tests, surgery, and post-care — all CPF Medisave-friendly.
+                    It helps to combine lifetime protection with investment growth,helping you build a retirement 
+nest egg while keeping your family protected.
                 </p>
             </td>
         </tr>
@@ -343,30 +343,30 @@
     <!-- Features Section -->
     <h2 class="section-title">Key Features and Benefits</h2>
     <section class="features-wrapper">
-        <div class="feature-card">
-            <div class="feature-emoji">🏥</div>
-            <div class="feature-title">Full Hospital Coverage</div>
-            <div class="feature-desc">Pays fully for ward stays, surgery, and ICU — up to S$1,000/day in public hospitals.</div>
+       <div class="feature-card">
+            <div class="feature-emoji">✅</div>
+            <div class="feature-title">Life-long peace of mind</div>
+            <div class="feature-desc">Protection up to age 100. Coverage of SGD 300,000 from just S$2.10/day.</div>
         </div>
         <div class="feature-card">
-            <div class="feature-emoji">🔬</div>
-            <div class="feature-title">Before & After Support</div>
-            <div class="feature-desc">Covers tests and follow-ups for 180 days before and 365 days after hospitalisation.</div>
+            <div class="feature-emoji">📈</div>
+            <div class="feature-title">Build wealth as you protect</div>
+            <div class="feature-desc">Projected returns of 4–6%, policy value may grow to SGD 180,000 in 20 years.</div>
         </div>
         <div class="feature-card">
-            <div class="feature-emoji">👨‍⚕️</div>
-            <div class="feature-title">Private Specialist Priority</div>
-            <div class="feature-desc">Get fast access to top private specialists with up to 95% bill coverage.</div>
+            <div class="feature-emoji">🏰</div>
+            <div class="feature-title">Get rewarded for retirement</div>
+            <div class="feature-desc">Receive SGD 5,000 every 5 years from age 55. Your future vacation fund!</div>
         </div>
         <div class="feature-card">
-            <div class="feature-emoji">🚑</div>
-            <div class="feature-title">Day Surgery + Ambulance</div>
-            <div class="feature-desc">100% day surgery cover and ambulance trips reimbursed up to S$250.</div>
+            <div class="feature-emoji">🔒</div>
+            <div class="feature-title">Capital guaranteed</div>
+            <div class="feature-desc">Capital protected at maturity if held till end. Grow confidently.</div>
         </div>
         <div class="feature-card">
-            <div class="feature-emoji">💰</div>
-            <div class="feature-title">CPF-Friendly</div>
-            <div class="feature-desc">Pay premiums using CPF Medisave within allowed limits.</div>
+            <div class="feature-emoji">🔀</div>
+            <div class="feature-title">Flexible payouts</div>
+            <div class="feature-desc">Choose monthly income or lump sum to match your retirement lifestyle.</div>
         </div>
     </section>
 
@@ -380,7 +380,7 @@
     <!-- How to Use Section -->
     <section id="nextSection" class="text-center">
         <h2 class="section-title mb-3">How to Use the EverCare Plan</h2>
-        <img src="Images/Evercare.jpg" alt="How to Use EverCare Plan" class="how-to-use-img rounded shadow-sm" />
+        <img src="Images/Lifeg.jpg" alt="How to Use EverCare Plan" class="how-to-use-img rounded shadow-sm" />
     </section>
 
 
