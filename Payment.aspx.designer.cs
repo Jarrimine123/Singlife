@@ -33,40 +33,31 @@ namespace Singlife
         protected global::System.Web.UI.WebControls.Label lblAmountDue;
 
         /// <summary>
-        /// lblGiroMessage control.
+        /// lblNextBillingDate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblGiroMessage;
+        protected global::System.Web.UI.WebControls.Label lblNextBillingDate;
 
         /// <summary>
-        /// fuGiroForm control.
+        /// phPaymentMethods control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.FileUpload fuGiroForm;
+        protected global::System.Web.UI.WebControls.PlaceHolder phPaymentMethods;
 
         /// <summary>
-        /// txtBankAccount control.
+        /// phGiroActive control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtBankAccount;
-
-        /// <summary>
-        /// btnSubmitGiro control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnSubmitGiro;
+        protected global::System.Web.UI.WebControls.PlaceHolder phGiroActive;
 
         /// <summary>
         /// lblCardMessage control.
@@ -112,5 +103,32 @@ namespace Singlife
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnSubmitCard;
+
+        /// <summary>
+        /// lblGiroUploadMessage control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblGiroUploadMessage;
+
+        /// <summary>
+        /// fuGiroForm control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.FileUpload fuGiroForm;
+
+        /// <summary>
+        /// btnUploadGiro control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnUploadGiro;
     }
 }
