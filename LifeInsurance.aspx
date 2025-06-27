@@ -135,7 +135,7 @@
                                 <li>✔ Get rewarded for reaching retirement – Receive S$5,000 every 5 years from age 55.</li>
                             </ul>
                             <a href="#" class="brochure-link mb-3 d-inline-block">↓ View brochure</a>
-                            <a href="#" class="btn btn-danger rounded-pill fw-bold btn-learn-more">Learn more</a>
+                            <a href="LifeGrowRetirementPlus.aspx" class="btn btn-danger rounded-pill fw-bold btn-learn-more">Learn more</a>
                         </div>
                     </div>
                 </div>

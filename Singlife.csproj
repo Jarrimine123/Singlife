@@ -111,6 +111,7 @@
     <Content Include="Images\Screenshot 2025-06-27 204318.png" />
     <Content Include="Images\sl-logo-singlife.png" />
     <Content Include="Images\UM_bank_OCBC_paynow_qr-code_480x480.jpg" />
+    <Content Include="LifeGrowQuote.aspx" />
     <Content Include="LifeGrowRetirementPlus.aspx" />
     <Content Include="LifeInsurance.aspx" />
     <Content Include="Login.aspx" />
@@ -292,6 +293,13 @@
     </Compile>
     <Compile Include="HomePage.aspx.designer.cs">
       <DependentUpon>HomePage.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="LifeGrowQuote.aspx.cs">
+      <DependentUpon>LifeGrowQuote.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="LifeGrowQuote.aspx.designer.cs">
+      <DependentUpon>LifeGrowQuote.aspx</DependentUpon>
     </Compile>
     <Compile Include="LifeGrowRetirementPlus.aspx.cs">
       <DependentUpon>LifeGrowRetirementPlus.aspx</DependentUpon>

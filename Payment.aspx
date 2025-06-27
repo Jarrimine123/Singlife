@@ -19,24 +19,24 @@
             text-align: center;
         }
 
-            .hero-container img {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 500px;
-                object-fit: cover;
-                filter: brightness(0.45);
-                transition: transform 1.5s ease, opacity 1.5s ease;
-                z-index: 0;
-                opacity: 0;
-                transform: scale(1.05);
-            }
+        .hero-container img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 500px;
+            object-fit: cover;
+            filter: brightness(0.45);
+            transition: transform 1.5s ease, opacity 1.5s ease;
+            z-index: 0;
+            opacity: 0;
+            transform: scale(1.05);
+        }
 
-                .hero-container img.loaded {
-                    opacity: 1;
-                    transform: scale(1);
-                }
+        .hero-container img.loaded {
+            opacity: 1;
+            transform: scale(1);
+        }
 
         .hero-text {
             position: relative;
@@ -61,16 +61,16 @@
             background-color: #fefefe;
         }
 
-            .card-method:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-            }
+        .card-method:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
 
-            .card-method i {
-                font-size: 2.5rem;
-                color: #dc3545;
-                margin-bottom: 15px;
-            }
+        .card-method i {
+            font-size: 2.5rem;
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
 
         #payNowQR img {
             max-width: 250px;
@@ -81,6 +81,14 @@
         .terms-section {
             margin-bottom: 80px;
         }
+
+        .payment-card {
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
     </style>
 
     <script>
@@ -90,6 +98,21 @@
                 if (img) img.classList.add('loaded');
             }, 100);
         });
+
+        function showQR(purchaseId) {
+            const modal = new bootstrap.Modal(document.getElementById('payNowQR'));
+            modal.show();
+        }
+
+        function showCardModal(purchaseId) {
+            const modal = new bootstrap.Modal(document.getElementById('cardModal'));
+            modal.show();
+        }
+
+        function showGiroModal(purchaseId) {
+            const modal = new bootstrap.Modal(document.getElementById('giroUploadModal'));
+            modal.show();
+        }
     </script>
 </asp:Content>
 
@@ -106,7 +129,32 @@
         </div>
     </div>
 
-    <!-- Show if GIRO not active -->
+    <section class="container payment-section">
+        <asp:Repeater ID="rptPlans" runat="server" OnItemCommand="rptPlans_ItemCommand">
+            <ItemTemplate>
+                <div class="payment-card">
+                    <h4 class="fw-bold"><%# Eval("PlanName") %></h4>
+                    <p class="text-muted mb-1">Amount Due: $<%# Eval("MonthlyPremium", "{0:F2}") %></p>
+                    <p class="text-muted mb-1">Next Billing Date: <%# Eval("NextBillingDate", "{0:dd MMM yyyy}") %></p>
+                    <p class="text-muted mb-3">Payment Method: <%# Eval("PaymentMethod") ?? "None" %></p>
+
+                    <asp:HiddenField ID="hfPurchaseID" runat="server" Value='<%# Eval("PurchaseID") %>' />
+
+                    <div class="d-flex gap-2">
+                        <asp:Button ID="btnPayNow" runat="server" CssClass="btn btn-outline-danger btn-sm"
+                            CommandName="PayNow" CommandArgument='<%# Eval("PurchaseID") %>' Text="PayNow" />
+                        <asp:Button ID="btnCard" runat="server" CssClass="btn btn-outline-danger btn-sm"
+                            CommandName="Card" CommandArgument='<%# Eval("PurchaseID") %>' Text="Card" />
+                        <asp:Button ID="btnGiro" runat="server" CssClass="btn btn-outline-primary btn-sm"
+                            CommandName="Giro" CommandArgument='<%# Eval("PurchaseID") %>' Text="GIRO" />
+                    </div>
+                </div>
+            </ItemTemplate>
+        </asp:Repeater>
+    </section>
+
+    <!-- Payment Methods Sections and Modals -->
+
     <asp:PlaceHolder ID="phPaymentMethods" runat="server" Visible="true">
         <section class="container payment-section text-center">
             <h2 class="text-danger fw-bold mb-4">Choose Your Payment Method</h2>
@@ -147,7 +195,6 @@
         </section>
     </asp:PlaceHolder>
 
-    <!-- Show if GIRO is active -->
     <asp:PlaceHolder ID="phGiroActive" runat="server" Visible="false">
         <section class="container payment-section text-center">
             <h4 class="text-success fw-bold mb-4">GIRO Payment Active</h4>
@@ -155,8 +202,6 @@
             <p>No further action is needed on your part at this time.</p>
         </section>
     </asp:PlaceHolder>
-
-    <!-- Modals -->
 
     <!-- PayNow QR Modal -->
     <div class="modal fade" id="payNowQR" tabindex="-1" aria-labelledby="payNowQRLabel" aria-hidden="true">

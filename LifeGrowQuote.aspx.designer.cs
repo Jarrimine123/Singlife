@@ -11,133 +11,115 @@ namespace Singlife
 {
 
 
-    public partial class Payment
+    public partial class LifeGrowQuote
     {
 
         /// <summary>
-        /// lblPlanName control.
+        /// txtCoverage control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblPlanName;
+        protected global::System.Web.UI.WebControls.TextBox txtCoverage;
 
         /// <summary>
-        /// lblAmountDue control.
+        /// txtAge control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblAmountDue;
+        protected global::System.Web.UI.WebControls.TextBox txtAge;
 
         /// <summary>
-        /// lblNextBillingDate control.
+        /// ddlGoal control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblNextBillingDate;
+        protected global::System.Web.UI.WebControls.DropDownList ddlGoal;
 
         /// <summary>
-        /// rptPlans control.
+        /// ddlRetireAge control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Repeater rptPlans;
+        protected global::System.Web.UI.WebControls.DropDownList ddlRetireAge;
 
         /// <summary>
-        /// phPaymentMethods control.
+        /// ddlFrequency control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.PlaceHolder phPaymentMethods;
+        protected global::System.Web.UI.WebControls.DropDownList ddlFrequency;
 
         /// <summary>
-        /// phGiroActive control.
+        /// lblValidationMessage control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.PlaceHolder phGiroActive;
+        protected global::System.Web.UI.WebControls.Label lblValidationMessage;
 
         /// <summary>
-        /// lblCardMessage control.
+        /// btnCalculate control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblCardMessage;
+        protected global::System.Web.UI.WebControls.Button btnCalculate;
 
         /// <summary>
-        /// txtCardNumber control.
+        /// pnlResult control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtCardNumber;
+        protected global::System.Web.UI.WebControls.Panel pnlResult;
 
         /// <summary>
-        /// txtExpiry control.
+        /// lblResult control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtExpiry;
+        protected global::System.Web.UI.WebControls.Label lblResult;
 
         /// <summary>
-        /// txtCVV control.
+        /// pnlActions control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtCVV;
+        protected global::System.Web.UI.WebControls.Panel pnlActions;
 
         /// <summary>
-        /// btnSubmitCard control.
+        /// btnBuyNow control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnSubmitCard;
+        protected global::System.Web.UI.WebControls.Button btnBuyNow;
 
         /// <summary>
-        /// lblGiroUploadMessage control.
+        /// btnAddToCart control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblGiroUploadMessage;
-
-        /// <summary>
-        /// fuGiroForm control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.FileUpload fuGiroForm;
-
-        /// <summary>
-        /// btnUploadGiro control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnUploadGiro;
+        protected global::System.Web.UI.WebControls.Button btnAddToCart;
     }
 }

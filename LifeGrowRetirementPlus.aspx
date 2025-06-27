@@ -319,7 +319,7 @@
     <div class="hero-container shadow-sm rounded-bottom">
         <img src="Images/Lifegrow.JPG" alt="EverCare Banner" />
         <div class="hero-buttons">
-            <a href="EverCareQuote.aspx" class="btn btn-danger btn-lg shadow">Get a Quote</a>
+            <a href="LifeGrowQuote.aspx" class="btn btn-danger btn-lg shadow">Get a Quote</a>
             <a href="Documents/OncoShield_Brochure.pdf" target="_blank" class="btn btn-outline-danger btn-lg shadow">View Brochure</a>
         </div>
     </div>
