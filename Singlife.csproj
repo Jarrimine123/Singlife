@@ -73,6 +73,7 @@
     <Content Include="App_Data\Singlife_log.ldf">
       <DependentUpon>Singlife.mdf</DependentUpon>
     </Content>
+    <Content Include="BillingReminderProgram.aspx" />
     <Content Include="Cart.aspx" />
     <Content Include="Checkout.aspx" />
     <Content Include="ChooseClaim.aspx" />
@@ -105,6 +106,7 @@
     <Content Include="Images\pngtree-down-arrow-red-png-image_4376823-removebg-preview.png" />
     <Content Include="Images\Screenshot 2025-06-18 021919.png" />
     <Content Include="Images\sl-logo-singlife.png" />
+    <Content Include="Images\UM_bank_OCBC_paynow_qr-code_480x480.jpg" />
     <Content Include="Login.aspx" />
     <Content Include="Medical.aspx" />
     <Content Include="nig.aspx" />
@@ -145,6 +147,12 @@
     </Compile>
     <Compile Include="ApprovedClaim.aspx.designer.cs">
       <DependentUpon>ApprovedClaim.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="BillingReminderProgram.aspx.cs">
+      <DependentUpon>BillingReminderProgram.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="BillingReminderProgram.aspx.designer.cs">
+      <DependentUpon>BillingReminderProgram.aspx</DependentUpon>
     </Compile>
     <Compile Include="Cart.aspx.cs">
       <DependentUpon>Cart.aspx</DependentUpon>

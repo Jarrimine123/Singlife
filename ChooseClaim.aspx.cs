@@ -64,7 +64,6 @@ namespace Singlife
             }
         }
 
-        // 🔁 Dynamic claim page redirection logic
         protected string GetClaimPageUrl(string planName)
         {
             switch (planName.Trim())
@@ -76,6 +75,24 @@ namespace Singlife
                 default:
                     return "GenericClaim.aspx?plan=" + Server.UrlEncode(planName);
             }
+        }
+
+        protected string GetCardColorClass(string planName)
+        {
+            planName = planName?.ToLower() ?? "";
+            if (planName.Contains("onco")) return "card-red";
+            if (planName.Contains("critical")) return "card-blue";
+            if (planName.Contains("accident")) return "card-green";
+            return "card-default";
+        }
+
+        protected string GetIconColorClass(string planName)
+        {
+            planName = planName?.ToLower() ?? "";
+            if (planName.Contains("onco")) return "icon-red";
+            if (planName.Contains("critical")) return "icon-blue";
+            if (planName.Contains("accident")) return "icon-green";
+            return "icon-default";
         }
     }
 }
