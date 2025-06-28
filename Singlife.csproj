@@ -91,6 +91,7 @@
     <Content Include="EverCareTimeClaim.aspx" />
     <Content Include="EverContinueDraft.aspx" />
     <Content Include="EverEditClaims.aspx" />
+    <Content Include="GiroApproval.aspx" />
     <Content Include="HomePage.aspx" />
     <Content Include="Images\background.png" />
     <Content Include="Images\Cart.jpg" />
@@ -286,6 +287,13 @@
     </Compile>
     <Compile Include="EverEditClaims.aspx.designer.cs">
       <DependentUpon>EverEditClaims.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GiroApproval.aspx.cs">
+      <DependentUpon>GiroApproval.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GiroApproval.aspx.designer.cs">
+      <DependentUpon>GiroApproval.aspx</DependentUpon>
     </Compile>
     <Compile Include="HomePage.aspx.cs">
       <DependentUpon>HomePage.aspx</DependentUpon>
