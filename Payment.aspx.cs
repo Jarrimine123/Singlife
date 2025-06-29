@@ -435,6 +435,53 @@ namespace Singlife
                 lblMessage.Text = "Failed to upload GIRO form: " + ex.Message;
             }
         }
+        protected void btnCancelGiro_Click(object sender, EventArgs e)
+        {
+            Button btn = (Button)sender;
+            int purchaseId = Convert.ToInt32(btn.CommandArgument);
+
+            Label lblMessage = new Label();
+            try
+            {
+                string connStr = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
+                using (SqlConnection conn = new SqlConnection(connStr))
+                {
+                    conn.Open();
+
+                    string sql = @"UPDATE RecurringPayment 
+                           SET Status = 'Cancelled', NextBillingDate = NULL 
+                           WHERE PurchaseID = @PurchaseID AND PaymentMethod = 'GIRO'";
+
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                // Send confirmation email
+                SendEmailNotification(
+                    Session["UserEmail"]?.ToString() ?? "user@example.com",
+                    "GIRO Payment Cancellation Confirmed",
+                    $@"Dear Customer,
+
+Your GIRO arrangement for Purchase ID {purchaseId} has been successfully cancelled.
+
+You may now choose to pay using other available methods such as Card or PayNow.
+
+If you did not request this cancellation or need further assistance, please contact our support team.
+
+Thank you,
+Singlife Support Team"
+                );
+
+                LoadUserPlans(); // Refresh the plans
+            }
+            catch (Exception ex)
+            {
+                lblMessage.Text = "Failed to cancel GIRO: " + ex.Message;
+            }
+        }
 
         private decimal GetAmountDueForPurchase(int purchaseId)
         {
@@ -542,6 +589,8 @@ namespace Singlife
                 if (phGiroActive != null) phGiroActive.Visible = isGiroActive;
             }
         }
+
+
 
     }
 }

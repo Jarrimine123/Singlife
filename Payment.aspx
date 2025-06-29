@@ -3,7 +3,7 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-<style>
+    <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f9fafb;
@@ -127,7 +127,8 @@
             padding-left: 1.2rem;
         }
 
-        .btn-outline-primary {
+        .btn-outline-primary,
+        .btn-outline-danger {
             border-radius: 30px;
             font-weight: 600;
         }
@@ -153,8 +154,10 @@
         <img src="Images/Paymentbackground.png" alt="Paying for your policy" class="loaded" />
         <div class="hero-text">
             <h1>Pay for Your Insurance Plan</h1>
-            <asp:Label ID="lblPlanName" runat="server" CssClass="h3 fw-bold" /><br />
-            <asp:Label ID="lblAmountDue" runat="server" CssClass="h4 text-warning" /><br />
+            <asp:Label ID="lblPlanName" runat="server" CssClass="h3 fw-bold" />
+            <br />
+            <asp:Label ID="lblAmountDue" runat="server" CssClass="h4 text-warning" />
+            <br />
         </div>
     </div>
 
@@ -176,7 +179,7 @@
                         <i class="fas fa-credit-card"></i>
                         <h5 class="fw-bold">Credit/Debit Card</h5>
                         <p>Secure one-time payment via card.</p>
-                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cardModal">Learn More</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#cardModalStatic">Learn More</button>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -184,16 +187,16 @@
                         <i class="fas fa-file-invoice-dollar"></i>
                         <h5 class="fw-bold">GIRO Payment</h5>
                         <p>Setup automatic payments via GIRO.</p>
-                        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#giroUploadModal">Learn More</button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#giroUploadModalStatic">Learn More</button>
                     </div>
                 </div>
             </div>
         </section>
     </asp:PlaceHolder>
 
-    <!-- Static Modals -->
+    <!-- Static Modals (General Info about payment methods) -->
     <!-- PayNow Modal -->
-    <div class="modal fade" id="payNowQR" tabindex="-1">
+    <div class="modal fade" id="payNowQR" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content text-center p-4">
                 <h5 class="modal-title">PayNow Payment</h5>
@@ -204,13 +207,13 @@
         </div>
     </div>
 
-    <!-- Card Payment Modal -->
-    <div class="modal fade" id="cardModal" tabindex="-1">
+    <!-- Card Payment Static Modal -->
+    <div class="modal fade" id="cardModalStatic" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content p-4">
                 <div class="modal-header">
                     <h5 class="modal-title">Credit/Debit Card Payment</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <p>You can make a secure one-time payment using your credit or debit card.</p>
@@ -224,13 +227,13 @@
         </div>
     </div>
 
-    <!-- GIRO Payment Modal -->
-    <div class="modal fade" id="giroUploadModal" tabindex="-1">
+    <!-- GIRO Static Modal -->
+    <div class="modal fade" id="giroUploadModalStatic" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content p-4">
                 <div class="modal-header">
                     <h5 class="modal-title">GIRO Payment</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <p>GIRO allows you to set up automatic monthly or annual payments directly from your bank account.</p>
@@ -244,10 +247,10 @@
         </div>
     </div>
 
-
+    <!-- Payment Plans Repeater -->
     <asp:Repeater ID="rptPlans" runat="server" OnItemDataBound="rptPlans_ItemDataBound">
         <ItemTemplate>
-            <div class="card mb-4 shadow-sm" style="max-width: 500px; margin: auto;">
+            <div class="card mb-4 shadow-sm mx-auto" style="max-width: 500px;">
                 <div class="card-body">
                     <h4 class="card-title"><%# Eval("PlanName") %></h4>
                     <p><strong>Amount Due: <%# Eval("AmountDue", "{0:C2}") %></strong></p>
@@ -255,7 +258,7 @@
                     <p class="card-text">Next Billing Date: <%# Eval("NextBillingDate", "{0:dd MMM yyyy}") %></p>
                     <p class="card-text fw-semibold">Total Payments Made: <%# Eval("TotalPaymentCount") %></p>
 
-                    <div class="d-flex gap-2">
+                    <div class="d-flex flex-wrap gap-2 justify-content-center mt-3">
                         <asp:Button ID="btnPayNow" runat="server" CssClass="btn btn-outline-danger btn-sm"
                             Text="PayNow"
                             CommandArgument='<%# Eval("PurchaseID") %>'
@@ -271,6 +274,7 @@
                             data-bs-target='<%# "#giroModal_" + Eval("PurchaseID") %>'>
                             GIRO
                         </button>
+
                         <asp:Button ID="btnConfirmPayNow" runat="server" CssClass="btn btn-outline-success btn-sm"
                             Text="Confirm PayNow Payment"
                             CommandArgument='<%# Eval("PurchaseID") %>'
@@ -281,102 +285,122 @@
                         <div class="text-success fw-bold mt-3">
                             GIRO Payment Active - Auto deduction enabled
                         </div>
+                        <asp:Button ID="btnCancelGiro" runat="server" Text="Cancel GIRO" CssClass="btn btn-outline-danger mt-2"
+                            data-bs-toggle="modal" data-bs-target='<%# "#cancelGiroModal_" + Eval("PurchaseID") %>' UseSubmitBehavior="false" />
                     </asp:PlaceHolder>
-
                 </div>
-            </div>
 
-            <!-- PayNow QR Modal -->
-            <div class="modal fade" id='<%# "payNowModal_" + Eval("PurchaseID") %>' tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content text-center p-4">
-                        <div class="modal-header">
-                            <h5 class="modal-title">PayNow QR Code</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <img src="Images/UM_bank_OCBC_paynow_qr-code_480x480.jpg" alt="PayNow QR Code" style="max-width: 200px; margin: auto; display: block;" />
-                            <p>Scan this QR code with your banking app to pay.</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card Modal -->
-            <div class="modal fade" id='<%# "cardModal_" + Eval("PurchaseID") %>' tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Card Payment</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <asp:Label ID="lblCardMessage" runat="server" CssClass="text-danger" />
-                            <asp:TextBox ID="txtCardholderName" runat="server" CssClass="form-control mb-2" Placeholder="Cardholder Name" MaxLength="100" />
-                            <asp:TextBox ID="txtCardNumber" runat="server" CssClass="form-control mb-2" Placeholder="Card Number" MaxLength="16" />
-                            <div class="row g-2 mb-2">
-                                <div class="col">
-                                    <asp:TextBox ID="txtExpiry" runat="server" CssClass="form-control" Placeholder="MM/YY" MaxLength="5" />
-                                </div>
-                                <div class="col">
-                                    <asp:TextBox ID="txtCVV" runat="server" CssClass="form-control" Placeholder="CVV" MaxLength="4" />
-                                </div>
+                <!-- Cancel GIRO Modal -->
+                <div class="modal fade" id='<%# "cancelGiroModal_" + Eval("PurchaseID") %>' tabindex="-1" aria-labelledby="cancelGiroModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content p-4">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Confirm GIRO Cancellation</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to cancel GIRO for this plan? This will disable all future automatic deductions.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <asp:Button ID="btnConfirmCancelGiro" runat="server" CssClass="btn btn-danger" Text="Yes, Cancel GIRO" OnClick="btnCancelGiro_Click" CommandArgument='<%# Eval("PurchaseID") %>' />
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep GIRO</button>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <asp:Button ID="btnSubmitCard" runat="server" CssClass="btn btn-danger" Text="Pay" OnClick="btnSubmitCard_Click" CommandArgument='<%# Eval("PurchaseID") %>' />
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+
+                <!-- PayNow QR Modal -->
+                <div class="modal fade" id='<%# "payNowModal_" + Eval("PurchaseID") %>' tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content text-center p-4">
+                            <div class="modal-header">
+                                <h5 class="modal-title">PayNow QR Code</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <img src="Images/UM_bank_OCBC_paynow_qr-code_480x480.jpg" alt="PayNow QR Code" style="max-width: 200px; margin: auto; display: block;" />
+                                <p>Scan this QR code with your banking app to pay.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- GIRO Modal -->
-            <div class="modal fade" id='<%# "giroModal_" + Eval("PurchaseID") %>' tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Upload GIRO Authorization Form (PDF)</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <asp:Label ID="lblGiroUploadMessage" runat="server" CssClass="text-danger" />
-                            <asp:FileUpload ID="fuGiroForm" runat="server" CssClass="form-control" Accept=".pdf" />
-                            <small class="form-text text-muted mt-2">Please upload a scanned GIRO authorization PDF.</small>
-                        </div>
-                        <div class="modal-footer">
-                            <asp:Button ID="btnUploadGiro" runat="server" CssClass="btn btn-primary" Text="Submit GIRO" OnClick="btnUploadGiro_Click" CommandArgument='<%# Eval("PurchaseID") %>' />
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <!-- Card Payment Modal -->
+                <div class="modal fade" id='<%# "cardModal_" + Eval("PurchaseID") %>' tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content p-4">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Card Payment</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <asp:Label ID="lblCardMessage" runat="server" CssClass="text-danger" />
+                                <asp:TextBox ID="txtCardholderName" runat="server" CssClass="form-control mb-2" Placeholder="Cardholder Name" MaxLength="100" />
+                                <asp:TextBox ID="txtCardNumber" runat="server" CssClass="form-control mb-2" Placeholder="Card Number" MaxLength="16" />
+                                <div class="row g-2 mb-2">
+                                    <div class="col">
+                                        <asp:TextBox ID="txtExpiry" runat="server" CssClass="form-control" Placeholder="MM/YY" MaxLength="5" />
+                                    </div>
+                                    <div class="col">
+                                        <asp:TextBox ID="txtCVV" runat="server" CssClass="form-control" Placeholder="CVV" MaxLength="4" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <asp:Button ID="btnSubmitCard" runat="server" CssClass="btn btn-danger" Text="Pay" OnClick="btnSubmitCard_Click" CommandArgument='<%# Eval("PurchaseID") %>' />
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- PayNow Confirmation Modal -->
-            <div class="modal fade" id='<%# "payNowConfirmModal_" + Eval("PurchaseID") %>' tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content p-4">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Confirm PayNow Payment</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <asp:Label ID="lblPayNowMessage" runat="server" CssClass="text-danger" />
-                            <asp:TextBox ID="txtPayNowRef" runat="server" CssClass="form-control mb-3" Placeholder="Enter transaction reference" MaxLength="100" />
-                            <asp:FileUpload ID="fuPayNowReceipt" runat="server" CssClass="form-control" Accept=".jpg,.png,.pdf" />
-                            <small class="form-text text-muted mt-2">Upload payment receipt (optional)</small>
-                        </div>
-                        <div class="modal-footer">
-                            <asp:Button ID="btnSubmitPayNow" runat="server" CssClass="btn btn-danger" Text="Confirm Payment" OnClick="btnSubmitPayNow_Click" CommandArgument='<%# Eval("PurchaseID") %>' />
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <!-- GIRO Modal -->
+                <div class="modal fade" id='<%# "giroModal_" + Eval("PurchaseID") %>' tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content p-4">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Upload GIRO Authorization Form (PDF)</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <asp:Label ID="lblGiroUploadMessage" runat="server" CssClass="text-danger" />
+                                <asp:FileUpload ID="fuGiroForm" runat="server" CssClass="form-control" Accept=".pdf" />
+                                <small class="form-text text-muted mt-2">Please upload a scanned GIRO authorization PDF.</small>
+                            </div>
+                            <div class="modal-footer">
+                                <asp:Button ID="btnUploadGiro" runat="server" CssClass="btn btn-primary" Text="Submit GIRO" OnClick="btnUploadGiro_Click" CommandArgument='<%# Eval("PurchaseID") %>' />
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
+                <!-- PayNow Confirmation Modal -->
+                <div class="modal fade" id='<%# "payNowConfirmModal_" + Eval("PurchaseID") %>' tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content p-4">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Confirm PayNow Payment</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <asp:Label ID="lblPayNowMessage" runat="server" CssClass="text-danger" />
+                                <asp:TextBox ID="txtPayNowRef" runat="server" CssClass="form-control mb-3" Placeholder="Enter transaction reference" MaxLength="100" />
+                                <asp:FileUpload ID="fuPayNowReceipt" runat="server" CssClass="form-control" Accept=".jpg,.png,.pdf" />
+                                <small class="form-text text-muted mt-2">Upload payment receipt (optional)</small>
+                            </div>
+                            <div class="modal-footer">
+                                <asp:Button ID="btnSubmitPayNow" runat="server" CssClass="btn btn-danger" Text="Confirm Payment" OnClick="btnSubmitPayNow_Click" CommandArgument='<%# Eval("PurchaseID") %>' />
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </ItemTemplate>
     </asp:Repeater>
 
@@ -385,28 +409,28 @@
         <div class="accordion" id="faqAccordion">
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingOne">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                         How do I know my payment was successful?
                     </button>
                 </h2>
-                <div id="collapseOne" class="accordion-collapse collapse show">
+                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">You'll receive a confirmation email and can check the payment status in your customer portal.</div>
                 </div>
             </div>
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingTwo">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
                         Can I change my payment method later?
                     </button>
                 </h2>
-                <div id="collapseTwo" class="accordion-collapse collapse">
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
                     <div class="accordion-body">Yes. You can update your payment method anytime in the policy servicing section.</div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="container terms-section">
+    <section class="container terms-section mb-5">
         <h5>Terms & Conditions</h5>
         <ul>
             <li>All payments are subject to verification and processing timelines.</li>
