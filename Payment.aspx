@@ -13,7 +13,7 @@
 
         .hero-container {
             background: linear-gradient(135deg, #e0e7ff, #a5b4fc);
-            height: 440px;
+            height: auto;
             border-radius: 0 0 32px 32px;
             display: flex;
             flex-direction: column;
@@ -21,7 +21,13 @@
             align-items: center;
             text-align: center;
             box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
-            padding: 0 2rem;
+            padding: 2rem;
+        }
+
+        .hero-container img {
+            max-height: 180px;
+            object-fit: contain;
+            margin-bottom: 1rem;
         }
 
         .hero-container h1 {
@@ -137,6 +143,32 @@
             border-radius: 24px;
             box-shadow: 0 20px 60px rgba(67, 56, 202, 0.15);
         }
+
+        @media (max-width: 768px) {
+            .hero-container {
+                padding: 2rem 1rem;
+            }
+
+            .hero-container h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero-text .h3 {
+                font-size: 1.25rem;
+            }
+
+            .hero-text .h4 {
+                font-size: 1rem;
+            }
+
+            .card-method {
+                padding: 1.5rem 1rem;
+            }
+
+            .payment-section h2 {
+                font-size: 1.6rem;
+            }
+        }
     </style>
 
     <script>
@@ -154,10 +186,8 @@
         <img src="Images/Paymentbackground.png" alt="Paying for your policy" class="loaded" />
         <div class="hero-text">
             <h1>Pay for Your Insurance Plan</h1>
-            <asp:Label ID="lblPlanName" runat="server" CssClass="h3 fw-bold" />
-            <br />
-            <asp:Label ID="lblAmountDue" runat="server" CssClass="h4 text-warning" />
-            <br />
+            <asp:Label ID="lblPlanName" runat="server" CssClass="h3 fw-bold d-block mb-1" />
+            <asp:Label ID="lblAmountDue" runat="server" CssClass="h4 text-warning d-block mb-2" />
         </div>
     </div>
 

@@ -50,11 +50,17 @@ namespace Singlife
 
                 -- Total successful payments made (all methods combined)
                 (SELECT COUNT(*) 
- FROM PaymentHistory PH 
- WHERE PH.PurchaseID = P.PurchaseID AND PH.Status = 'Success') + 1 AS TotalPaymentCount
+                 FROM PaymentHistory PH 
+                 WHERE PH.PurchaseID = P.PurchaseID AND PH.Status = 'Success') + 1 AS TotalPaymentCount,
+
+                -- Flag to indicate GIRO is active
+                CASE 
+                    WHEN RP.PaymentMethod = 'GIRO' AND RP.Status = 'Active' AND RP.GIROFormPath IS NOT NULL THEN CAST(1 AS BIT)
+                    ELSE CAST(0 AS BIT)
+                END AS IsGiroActive
 
             FROM Purchases P
-            LEFT JOIN RecurringPayment RP ON P.PurchaseID = RP.PurchaseID AND RP.Status = 'Active'
+            LEFT JOIN RecurringPayment RP ON P.PurchaseID = RP.PurchaseID AND RP.Status IN ('Active', 'Pending')
             WHERE P.AccountID = @AccountID
             ORDER BY P.PurchaseDate DESC";
 
@@ -72,6 +78,7 @@ namespace Singlife
                 }
             }
         }
+
 
         // Helper method to calculate next billing date based on PaymentFrequency
         private DateTime CalculateNextBillingDate(int purchaseId)
@@ -564,31 +571,39 @@ Singlife Support Team"
         }
 
         protected void rptPlans_ItemDataBound(object sender, RepeaterItemEventArgs e)
+{
+    if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
+    {
+        // Get data item
+        DataRowView row = (DataRowView)e.Item.DataItem;
+
+        // Get controls
+        PlaceHolder phGiroActive = (PlaceHolder)e.Item.FindControl("phGiroActive");
+        Button btnPayNow = (Button)e.Item.FindControl("btnPayNow");
+        Button btnCard = (Button)e.Item.FindControl("btnCard");
+        Button btnConfirmPayNow = (Button)e.Item.FindControl("btnConfirmPayNow");
+
+        // Assume you have a boolean column "IsGiroActive" in your DataTable
+        bool isGiroActive = row["IsGiroActive"] != DBNull.Value && Convert.ToBoolean(row["IsGiroActive"]);
+
+        // Show/hide GIRO section
+        phGiroActive.Visible = isGiroActive;
+
+        // Disable PayNow and Card if GIRO is active
+        if (isGiroActive)
         {
-            if (e.Item.ItemType == ListItemType.Item || e.Item.ItemType == ListItemType.AlternatingItem)
-            {
-                var data = (DataRowView)e.Item.DataItem;
-                string paymentMethod = data["PaymentMethod"]?.ToString() ?? "";
-                string status = data["Status"]?.ToString() ?? "";
+            btnPayNow.Enabled = false;
+            btnPayNow.CssClass += " disabled";
 
-                bool isGiroActive = paymentMethod.Equals("GIRO", StringComparison.OrdinalIgnoreCase)
-                                    && status.Equals("Active", StringComparison.OrdinalIgnoreCase);
+            btnCard.Enabled = false;
+            btnCard.CssClass += " disabled";
 
-                // Find controls
-                Button btnPayNow = (Button)e.Item.FindControl("btnPayNow");
-                Button btnCard = (Button)e.Item.FindControl("btnCard");
-                Button btnConfirmPayNow = (Button)e.Item.FindControl("btnConfirmPayNow");
-                PlaceHolder phGiroActive = (PlaceHolder)e.Item.FindControl("phGiroActive");
-
-                // Enable or disable buttons based on GIRO active status
-                if (btnPayNow != null) btnPayNow.Enabled = !isGiroActive;
-                if (btnCard != null) btnCard.Enabled = !isGiroActive;
-                if (btnConfirmPayNow != null) btnConfirmPayNow.Enabled = !isGiroActive;
-
-                // Show GIRO active message if GIRO is active
-                if (phGiroActive != null) phGiroActive.Visible = isGiroActive;
-            }
+            btnConfirmPayNow.Enabled = false;
+            btnConfirmPayNow.CssClass += " disabled";
         }
+    }
+}
+
 
 
 
