@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Reflection;
 using System.Web.UI.WebControls;
 
 namespace Singlife
@@ -24,13 +25,15 @@ namespace Singlife
             {
                 conn.Open();
 
-                string sql = @"
-                    SELECT RP.RecurringPaymentID, P.PurchaseID, P.AccountID, A.CustomerName,
-                           RP.Amount, RP.NextBillingDate, RP.Status, RP.GiroFormPath
-                    FROM RecurringPayment RP
-                    INNER JOIN Purchases P ON RP.PurchaseID = P.PurchaseID
-                    INNER JOIN Accounts A ON P.AccountID = A.AccountID
-                    WHERE RP.PaymentMethod = 'GIRO'";
+          
+string sql = @"
+    SELECT RP.RecurringPaymentID, P.PurchaseID, P.AccountID, U.Name AS CustomerName,
+           RP.Amount, RP.NextBillingDate, RP.Status, RP.GiroFormPath
+    FROM RecurringPayment RP
+    INNER JOIN Purchases P ON RP.PurchaseID = P.PurchaseID
+    INNER JOIN Users U ON P.AccountID = U.AccountID
+    WHERE RP.PaymentMethod = 'GIRO'";
+;
 
                 if (!string.IsNullOrEmpty(accountFilter))
                 {

@@ -278,161 +278,106 @@
     </div>
 
     <!-- Payment Plans Repeater -->
-    <asp:Repeater ID="rptPlans" runat="server" OnItemDataBound="rptPlans_ItemDataBound">
+
+    <asp:Repeater ID="rptPlans" runat="server" OnItemCommand="rptPlans_ItemCommand" OnItemDataBound="rptPlans_ItemDataBound">
         <ItemTemplate>
-            <div class="card mb-4 shadow-sm mx-auto" style="max-width: 500px;">
+            <div class="card mb-3">
                 <div class="card-body">
-                    <h4 class="card-title"><%# Eval("PlanName") %></h4>
-                    <p><strong>Amount Due: <%# Eval("AmountDue", "{0:C2}") %></strong></p>
-                    <p class="card-text">Payment Frequency: <%# Eval("PaymentFrequency") %></p>
-                    <p class="card-text">Next Billing Date: <%# Eval("NextBillingDate", "{0:dd MMM yyyy}") %></p>
-                    <p class="card-text fw-semibold">Total Payments Made: <%# Eval("TotalPaymentCount") %></p>
+                    <h5 class="card-title"><%# Eval("PlanName") %></h5>
+                    <p class="card-text">
+                        <strong>Payment Frequency:</strong> <%# Eval("PaymentFrequency") %><br />
+                        <strong>Next Billing Date:</strong> <%# Eval("NextBillingDate", "{0:yyyy-MM-dd}") %><br />
+                        <strong>Amount Due:</strong> $<%# Eval("AmountDue") %>
+                    </p>
 
-                    <div class="d-flex flex-wrap gap-2 justify-content-center mt-3">
-                        <asp:Button ID="btnPayNow" runat="server" CssClass="btn btn-outline-danger btn-sm"
-                            Text="PayNow"
-                            CommandArgument='<%# Eval("PurchaseID") %>'
-                            OnClientClick='<%# "event.preventDefault(); var modal = new bootstrap.Modal(document.getElementById(\"payNowModal_" + Eval("PurchaseID") + "\")); modal.show();" %>' />
+                    <div class="d-flex flex-wrap gap-2">
+                        <asp:Button ID="btnPayNow" runat="server" Text="PayNow" CssClass="btn btn-warning"
+                            CommandName="ShowPayNowModal" CommandArgument='<%# Eval("PurchaseID") %>' />
 
-                        <asp:Button ID="btnCard" runat="server" CssClass="btn btn-outline-danger btn-sm"
-                            Text="Card"
-                            CommandArgument='<%# Eval("PurchaseID") %>'
-                            OnClientClick='<%# "event.preventDefault(); var modal = new bootstrap.Modal(document.getElementById(\"cardModal_" + Eval("PurchaseID") + "\")); modal.show();" %>' />
+                        <asp:Button ID="btnCard" runat="server" Text="Pay with Card" CssClass="btn btn-primary"
+                            CommandName="ShowCardModal" CommandArgument='<%# Eval("PurchaseID") %>' />
 
-                        <button type="button" class="btn btn-outline-primary btn-sm"
-                            data-bs-toggle="modal"
-                            data-bs-target='<%# "#giroModal_" + Eval("PurchaseID") %>'>
-                            GIRO
-                        </button>
-
-                        <asp:Button ID="btnConfirmPayNow" runat="server" CssClass="btn btn-outline-success btn-sm"
-                            Text="Confirm PayNow Payment"
-                            CommandArgument='<%# Eval("PurchaseID") %>'
-                            OnClientClick='<%# "event.preventDefault(); var modal = new bootstrap.Modal(document.getElementById(\"payNowConfirmModal_" + Eval("PurchaseID") + "\")); modal.show();" %>' />
+                        <asp:Button ID="btnGiroUpload" runat="server" Text="Upload GIRO Form" CssClass="btn btn-success"
+                            CommandName="ShowGiroModal" CommandArgument='<%# Eval("PurchaseID") %>' />
                     </div>
 
                     <asp:PlaceHolder ID="phGiroActive" runat="server" Visible="false">
-                        <div class="text-success fw-bold mt-3">
-                            GIRO Payment Active - Auto deduction enabled
+                        <div class="alert alert-info mt-3">
+                            GIRO is active for this plan.
+                            <asp:Button ID="btnCancelGiro" runat="server" Text="Cancel GIRO" CssClass="btn btn-outline-danger btn-sm ms-2"
+                                OnClick="btnCancelGiro_Click" CommandArgument='<%# Eval("PurchaseID") %>' />
+                            <asp:Label ID="lblGiroCancelMessage" runat="server" CssClass="ms-2" />
                         </div>
-                        <asp:Button ID="btnCancelGiro" runat="server" Text="Cancel GIRO" CssClass="btn btn-outline-danger mt-2"
-                            data-bs-toggle="modal" data-bs-target='<%# "#cancelGiroModal_" + Eval("PurchaseID") %>' UseSubmitBehavior="false" />
                     </asp:PlaceHolder>
                 </div>
+            </div>
 
-                <!-- Cancel GIRO Modal -->
-                <div class="modal fade" id='<%# "cancelGiroModal_" + Eval("PurchaseID") %>' tabindex="-1" aria-labelledby="cancelGiroModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content p-4">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Confirm GIRO Cancellation</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <p>Are you sure you want to cancel GIRO for this plan? This will disable all future automatic deductions.</p>
-                            </div>
-                            <div class="modal-footer">
-                                <asp:Button ID="btnConfirmCancelGiro" runat="server" CssClass="btn btn-danger" Text="Yes, Cancel GIRO" OnClick="btnCancelGiro_Click" CommandArgument='<%# Eval("PurchaseID") %>' />
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Keep GIRO</button>
-                            </div>
+            <!-- PayNow Modal -->
+            <div class="modal fade" id='payNowModal_<%# Eval("PurchaseID") %>' tabindex="-1" aria-labelledby="payNowModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">PayNow Payment</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <asp:TextBox ID="txtPayNowRef" runat="server" CssClass="form-control mb-2" placeholder="Transaction Reference" />
+                            <asp:FileUpload ID="fuPayNowReceipt" runat="server" CssClass="form-control mb-2" />
+                            <asp:Label ID="lblPayNowMessage" runat="server" CssClass="text-danger" />
+                        </div>
+                        <div class="modal-footer">
+                            <asp:Button ID="btnConfirmPayNow" runat="server" Text="Submit Payment" CssClass="btn btn-success"
+                                CommandArgument='<%# Eval("PurchaseID") %>' OnClick="btnSubmitPayNow_Click" />
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- PayNow QR Modal -->
-                <div class="modal fade" id='<%# "payNowModal_" + Eval("PurchaseID") %>' tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content text-center p-4">
-                            <div class="modal-header">
-                                <h5 class="modal-title">PayNow QR Code</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <img src="Images/UM_bank_OCBC_paynow_qr-code_480x480.jpg" alt="PayNow QR Code" style="max-width: 200px; margin: auto; display: block;" />
-                                <p>Scan this QR code with your banking app to pay.</p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                            </div>
+            <!-- Card Modal -->
+            <div class="modal fade" id='cardModal_<%# Eval("PurchaseID") %>' tabindex="-1" aria-labelledby="cardModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Card Payment</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <asp:TextBox ID="txtCardholderName" runat="server" CssClass="form-control mb-2" placeholder="Cardholder Name" />
+                            <asp:TextBox ID="txtCardNumber" runat="server" CssClass="form-control mb-2" placeholder="Card Number" MaxLength="16" />
+                            <asp:TextBox ID="txtExpiry" runat="server" CssClass="form-control mb-2" placeholder="MM/YY" />
+                            <asp:TextBox ID="txtCVV" runat="server" CssClass="form-control mb-2" placeholder="CVV" MaxLength="4" />
+                            <asp:Label ID="lblCardMessage" runat="server" CssClass="text-danger" />
+                        </div>
+                        <div class="modal-footer">
+                            <asp:Button ID="btnSubmitCard" runat="server" Text="Submit Payment" CssClass="btn btn-primary"
+                                CommandArgument='<%# Eval("PurchaseID") %>' OnClick="btnSubmitCard_Click" />
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Card Payment Modal -->
-                <div class="modal fade" id='<%# "cardModal_" + Eval("PurchaseID") %>' tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content p-4">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Card Payment</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <asp:Label ID="lblCardMessage" runat="server" CssClass="text-danger" />
-                                <asp:TextBox ID="txtCardholderName" runat="server" CssClass="form-control mb-2" Placeholder="Cardholder Name" MaxLength="100" />
-                                <asp:TextBox ID="txtCardNumber" runat="server" CssClass="form-control mb-2" Placeholder="Card Number" MaxLength="16" />
-                                <div class="row g-2 mb-2">
-                                    <div class="col">
-                                        <asp:TextBox ID="txtExpiry" runat="server" CssClass="form-control" Placeholder="MM/YY" MaxLength="5" />
-                                    </div>
-                                    <div class="col">
-                                        <asp:TextBox ID="txtCVV" runat="server" CssClass="form-control" Placeholder="CVV" MaxLength="4" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <asp:Button ID="btnSubmitCard" runat="server" CssClass="btn btn-danger" Text="Pay" OnClick="btnSubmitCard_Click" CommandArgument='<%# Eval("PurchaseID") %>' />
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            </div>
+            <!-- GIRO Modal -->
+            <div class="modal fade" id='giroModal_<%# Eval("PurchaseID") %>' tabindex="-1" aria-labelledby="giroModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Upload GIRO Form</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <asp:FileUpload ID="fuGiroForm" runat="server" CssClass="form-control mb-2" />
+                            <asp:Label ID="lblGiroUploadMessage" runat="server" CssClass="text-danger" />
+                        </div>
+                        <div class="modal-footer">
+                            <asp:Button ID="btnUploadGiro" runat="server" Text="Upload" CssClass="btn btn-success"
+                                CommandArgument='<%# Eval("PurchaseID") %>' OnClick="btnUploadGiro_Click" />
                         </div>
                     </div>
                 </div>
-
-                <!-- GIRO Modal -->
-                <div class="modal fade" id='<%# "giroModal_" + Eval("PurchaseID") %>' tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content p-4">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Upload GIRO Authorization Form (PDF)</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <asp:Label ID="lblGiroUploadMessage" runat="server" CssClass="text-danger" />
-                                <asp:FileUpload ID="fuGiroForm" runat="server" CssClass="form-control" Accept=".pdf" />
-                                <small class="form-text text-muted mt-2">Please upload a scanned GIRO authorization PDF.</small>
-                            </div>
-                            <div class="modal-footer">
-                                <asp:Button ID="btnUploadGiro" runat="server" CssClass="btn btn-primary" Text="Submit GIRO" OnClick="btnUploadGiro_Click" CommandArgument='<%# Eval("PurchaseID") %>' />
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PayNow Confirmation Modal -->
-                <div class="modal fade" id='<%# "payNowConfirmModal_" + Eval("PurchaseID") %>' tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content p-4">
-                            <div class="modal-header">
-                                <h5 class="modal-title">Confirm PayNow Payment</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <asp:Label ID="lblPayNowMessage" runat="server" CssClass="text-danger" />
-                                <asp:TextBox ID="txtPayNowRef" runat="server" CssClass="form-control mb-3" Placeholder="Enter transaction reference" MaxLength="100" />
-                                <asp:FileUpload ID="fuPayNowReceipt" runat="server" CssClass="form-control" Accept=".jpg,.png,.pdf" />
-                                <small class="form-text text-muted mt-2">Upload payment receipt (optional)</small>
-                            </div>
-                            <div class="modal-footer">
-                                <asp:Button ID="btnSubmitPayNow" runat="server" CssClass="btn btn-danger" Text="Confirm Payment" OnClick="btnSubmitPayNow_Click" CommandArgument='<%# Eval("PurchaseID") %>' />
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </ItemTemplate>
     </asp:Repeater>
+
 
     <section class="container my-5">
         <h3 class="text-danger fw-bold mb-4">Frequently Asked Questions</h3>
