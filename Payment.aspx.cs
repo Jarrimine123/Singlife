@@ -566,38 +566,39 @@ ORDER BY P.PurchaseDate DESC";
                 bool isGiroActive = giroStatus == "active";
                 bool isGiroPending = giroStatus == "pending";
 
-                // ✅ Show correct GIRO status text
+                // ✅ Show GIRO status and Cancel button if Active or Pending
                 if (phGiroStatus != null && lblGiroStatusText != null && btnCancelGiro != null)
                 {
-                    if (isGiroActive)
+                    if (isGiroActive || isGiroPending)
                     {
                         phGiroStatus.Visible = true;
-                        lblGiroStatusText.Text = "GIRO is active for this plan.";
-                        btnCancelGiro.Visible = true;
-                    }
-                    else if (isGiroPending)
-                    {
-                        phGiroStatus.Visible = true;
-                        lblGiroStatusText.Text = "GIRO form uploaded. Awaiting approval.";
-                        btnCancelGiro.Visible = false;
+
+                        if (isGiroActive)
+                            lblGiroStatusText.Text = "GIRO is active for this plan.";
+                        else
+                            lblGiroStatusText.Text = "GIRO form uploaded. Awaiting approval.";
+
+                        btnCancelGiro.Visible = true; // ✅ Show cancel button for both active and pending
                     }
                     else
                     {
                         phGiroStatus.Visible = false;
+                        btnCancelGiro.Visible = false;
                     }
                 }
 
-                // 🚫 Disable all payment buttons if GIRO is active or pending
+                // 🚫 Disable PayNow & Card if GIRO is active or pending
                 bool disablePayments = isGiroActive || isGiroPending;
 
                 ToggleButtonState(btnPayNow, !disablePayments);
                 ToggleButtonState(btnCard, !disablePayments);
                 ToggleButtonState(btnConfirmPayNow, !disablePayments);
 
-                // GIRO Upload disabled only when Active (not Pending)
+                // 📝 GIRO Upload only disabled when active
                 ToggleButtonState(btnGiroUpload, !isGiroActive);
             }
         }
+
 
         // ✅ Utility: Add or remove 'disabled' CSS class
         private string AddDisabledClass(string cssClass)
@@ -620,9 +621,7 @@ ORDER BY P.PurchaseDate DESC";
 
         protected void rptPlans_ItemCommand(object source, RepeaterCommandEventArgs e)
         {
-            string purchaseId = e.CommandArgument?.ToString();
-
-            if (string.IsNullOrEmpty(purchaseId))
+            if (!int.TryParse(e.CommandArgument?.ToString(), out int purchaseId))
                 return;
 
             switch (e.CommandName)
@@ -644,19 +643,25 @@ ORDER BY P.PurchaseDate DESC";
                     break;
 
                 case "ProcessGiroPayment":
-                    ProcessGiroPayment(Convert.ToInt32(purchaseId));
+                    ProcessGiroPayment(purchaseId);
                     break;
 
-                // Add CancelGiro case here
                 case "CancelGiro":
                     {
-                        int pid = Convert.ToInt32(purchaseId);
+                        // 🛠️ Ensure lblGiroCancelMessage exists
                         Label lblMessage = (Label)e.Item.FindControl("lblGiroCancelMessage");
-                        CancelGiro(pid, lblMessage);
+                        if (lblMessage == null)
+                        {
+                            lblMessage = new Label();
+                            e.Item.Controls.Add(lblMessage);
+                        }
+
+                        CancelGiro(purchaseId, lblMessage);
                         break;
                     }
             }
         }
+
 
         private void CancelGiro(int purchaseId, Label lblMessage)
         {
