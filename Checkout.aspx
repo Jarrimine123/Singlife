@@ -1,12 +1,10 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/Customer.Master" AutoEventWireup="true" CodeBehind="Checkout.aspx.cs" Inherits="Singlife.Checkout" %>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder2" runat="server">
-
     <script type="text/javascript">
         function formatExpiry(input) {
-            let value = input.value.replace(/\D/g, ''); // Remove non-digits
-            if (value.length > 4) value = value.substring(0, 4); // Limit to 4 digits
-
+            let value = input.value.replace(/\D/g, '');
+            if (value.length > 4) value = value.substring(0, 4);
             if (value.length >= 3) {
                 input.value = value.substring(0, 2) + '/' + value.substring(2);
             } else {
@@ -22,13 +20,15 @@
             <Columns>
                 <asp:BoundField DataField="ProductName" HeaderText="Product" />
                 <asp:BoundField DataField="PlanName" HeaderText="Plan" />
-                <asp:BoundField DataField="CoverageAmount" HeaderText="Coverage" DataFormatString="{0:C}" />
+                <asp:TemplateField HeaderText="Coverage">
+                    <ItemTemplate>
+                        <%# GetCoverageDisplay(Container.DataItem) %>
+                    </ItemTemplate>
+                </asp:TemplateField>
                 <asp:BoundField DataField="PaymentFrequency" HeaderText="Payment Frequency" />
                 <asp:TemplateField HeaderText="Premium">
                     <ItemTemplate>
-                        <%# Eval("PaymentFrequency").ToString() == "Monthly" 
-                            ? ((decimal)Eval("AnnualPremium") / 12).ToString("C") 
-                            : ((decimal)Eval("AnnualPremium")).ToString("C") %>
+                        <%# GetPremiumDisplay(Container.DataItem) %>
                     </ItemTemplate>
                 </asp:TemplateField>
             </Columns>
@@ -70,9 +70,7 @@
         </div>
 
         <div class="mt-4">
-            <!-- ✅ Add message label to show email or validation messages -->
             <asp:Label ID="lblMessage" runat="server" CssClass="d-block mb-3" ForeColor="Red" Visible="false" />
-            
             <asp:Button ID="btnPlaceOrder" runat="server" CssClass="btn btn-primary" Text="Place Order" OnClick="btnPlaceOrder_Click" />
         </div>
     </div>

@@ -85,7 +85,7 @@
                                     <h6 class="text-primary">Lifestyle Insurance</h6>
                                     <a class="dropdown-item" href="#">CareCircle Legacy Plan</a>
                                     <a class="dropdown-item" href="#">LifeFlex Wellness Plan</a>
-                                    <a class="dropdown-item" href="#">GlobeEase Travel Plan</a>
+                                    <a class="dropdown-item" href="GlobalEase.aspx">GlobeEase Travel Plan</a>
                                 </div>
                                 <div class="col-md-3">
                                     <h6 class="text-primary">Invest</h6>

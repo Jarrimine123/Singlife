@@ -167,11 +167,7 @@ namespace Singlife
                     string frequency = row["PaymentFrequency"].ToString();
                     string paymentMethod = frequency == "Monthly" ? "Card Monthly" : "Card Annual";
                     DateTime purchaseDate = DateTime.Now;
-
-                    // ✅ NEW: Calculate NextBillingDate
-                    DateTime nextBillingDate = frequency == "Monthly"
-                        ? purchaseDate.AddMonths(1)
-                        : purchaseDate.AddYears(1);
+                    DateTime nextBillingDate = frequency == "Monthly" ? purchaseDate.AddMonths(1) : purchaseDate.AddYears(1);
 
                     string insertQuery = @"
                         INSERT INTO Purchases 
@@ -211,9 +207,7 @@ namespace Singlife
                 }
             }
 
-            // ✅ Send confirmation email
             SendEmailAlert(email, dt);
-
             Response.Redirect("ThankYou.aspx");
         }
 
@@ -244,7 +238,7 @@ namespace Singlife
 
                 MailMessage message = new MailMessage();
                 message.To.Add(email);
-                message.From = new MailAddress("singlifeeeeeeke@gmail.com");
+                message.From = new MailAddress("singlifeeeeeeke@gmail.com", "Singlife Team");
                 message.Subject = "🛒 Singlife Insurance Purchase Confirmation";
                 message.Body = $"Thank you for your purchase!\n\nYou’ve successfully purchased the following plan(s):\n\n{planSummary}" +
                                "\nYour policy will be processed and activated shortly.\n\nRegards,\nSinglife Team";
@@ -262,6 +256,41 @@ namespace Singlife
                 lblMessage.CssClass = "text-danger";
                 lblMessage.Visible = true;
             }
+        }
+
+        protected string GetCoverageDisplay(object dataItem)
+        {
+            var row = dataItem as System.Data.DataRowView;
+            if (row == null) return "";
+
+            string product = row["ProductName"]?.ToString() ?? "";
+            decimal amount = row["CoverageAmount"] != DBNull.Value ? Convert.ToDecimal(row["CoverageAmount"]) : 0;
+
+            return product == "Travel Insurance" ? $"{amount:N0} days" : $"SGD {amount:N0}";
+        }
+
+        protected string GetPremiumDisplay(object dataItem)
+        {
+            var row = dataItem as System.Data.DataRowView;
+            if (row == null) return "";
+
+            string product = row["ProductName"]?.ToString() ?? "";
+            decimal annual = row["AnnualPremium"] != DBNull.Value ? Convert.ToDecimal(row["AnnualPremium"]) : 0;
+
+            decimal monthly = 0;
+            if (row.Row.Table.Columns.Contains("MonthlyPremium") && row["MonthlyPremium"] != DBNull.Value)
+                monthly = Convert.ToDecimal(row["MonthlyPremium"]);
+            else
+                monthly = annual / 12;
+
+            string frequency = row["PaymentFrequency"]?.ToString() ?? "Annual";
+
+            if (product == "Travel Insurance")
+                return $"SGD {annual:F2} (One-Time)";
+            else
+                return frequency == "Monthly"
+                    ? $"SGD {monthly:F2} / mo"
+                    : $"SGD {annual:F2} / yr";
         }
     }
 }

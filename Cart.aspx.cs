@@ -29,9 +29,9 @@ namespace Singlife
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string query = @"
-            SELECT CartID, PlanName, CoverageAmount, AnnualPremium, MonthlyPremium, PaymentFrequency, DateAdded 
-            FROM CartItems 
-            WHERE AccountID = @AccountID";
+                    SELECT CartID, ProductName, PlanName, CoverageAmount, AnnualPremium, MonthlyPremium, PaymentFrequency, DateAdded 
+                    FROM CartItems 
+                    WHERE AccountID = @AccountID";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
@@ -87,6 +87,46 @@ namespace Singlife
         protected void btnCheckout_Click(object sender, EventArgs e)
         {
             Response.Redirect("Checkout.aspx");
+        }
+
+        // 🔄 Dynamic Column Display Methods
+
+        protected string GetCoverageOrDuration(object dataItem)
+        {
+            var row = dataItem as DataRowView;
+            if (row == null) return "";
+
+            string product = row["ProductName"]?.ToString() ?? "";
+            string display = "SGD 0";
+
+            if (row["CoverageAmount"] != DBNull.Value)
+            {
+                decimal amount = Convert.ToDecimal(row["CoverageAmount"]);
+                display = (product == "Travel Insurance") ? $"{amount:N0} days" : $"SGD {amount:N0}";
+            }
+
+            return display;
+        }
+
+        protected string GetPremiumDisplay(object dataItem)
+        {
+            var row = dataItem as DataRowView;
+            if (row == null) return "";
+
+            string product = row["ProductName"]?.ToString() ?? "";
+            decimal annual = 0;
+            decimal monthly = 0;
+
+            if (row["AnnualPremium"] != DBNull.Value)
+                annual = Convert.ToDecimal(row["AnnualPremium"]);
+
+            if (row["MonthlyPremium"] != DBNull.Value)
+                monthly = Convert.ToDecimal(row["MonthlyPremium"]);
+
+            if (product == "Travel Insurance")
+                return $"SGD {annual:F2} (One-Time)";
+            else
+                return $"Annual: SGD {annual:F2}<br/>Monthly: SGD {monthly:F2}";
         }
     }
 }

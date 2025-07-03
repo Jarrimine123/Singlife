@@ -9,31 +9,42 @@
         <h2 class="text-center mb-4">🛒 Your Cart</h2>
 
         <asp:Panel ID="pnlCart" runat="server" Visible="true">
-            <asp:GridView ID="gvCart" runat="server" AutoGenerateColumns="False"
-                CssClass="table table-striped table-hover align-middle"
-                DataKeyNames="CartID" OnRowCommand="gvCart_RowCommand"
-                HeaderStyle-CssClass="table-dark" EmptyDataText="Your cart is currently empty.">
-                <Columns>
-                    <asp:BoundField DataField="PlanName" HeaderText="Plan Name" ItemStyle-Width="25%" />
-                    <asp:BoundField DataField="CoverageAmount" HeaderText="Coverage (SGD)" DataFormatString="{0:N0}" ItemStyle-Width="15%" />
-                    <asp:BoundField DataField="AnnualPremium" HeaderText="Annual Premium (SGD)" DataFormatString="{0:F2}" ItemStyle-Width="15%" />
-                    <asp:BoundField DataField="MonthlyPremium" HeaderText="Monthly Premium (SGD)" DataFormatString="{0:F2}" ItemStyle-Width="15%" />
-                    <asp:BoundField DataField="PaymentFrequency" HeaderText="Payment Frequency" ItemStyle-Width="15%" />
-                    
-                    <asp:TemplateField HeaderText=" " ItemStyle-Width="10%" ItemStyle-HorizontalAlign="Center">
-                        <ItemTemplate>
-                            <asp:LinkButton runat="server"
-                                CssClass="btn btn-outline-danger btn-sm"
-                                ToolTip="Remove Item"
-                                CommandName="DeleteItem"
-                                CommandArgument='<%# Container.DataItemIndex %>'
-                                OnClientClick="return confirm('Are you sure you want to remove this item?');">
-                                <i class="bi bi-trash"></i>
-                            </asp:LinkButton>
-                        </ItemTemplate>
-                    </asp:TemplateField>
-                </Columns>
-            </asp:GridView>
+<asp:GridView ID="gvCart" runat="server" AutoGenerateColumns="False"
+    CssClass="table table-striped table-hover align-middle"
+    DataKeyNames="CartID"
+    OnRowCommand="gvCart_RowCommand"
+    HeaderStyle-CssClass="table-dark"
+    EmptyDataText="Your cart is currently empty.">
+    <Columns>
+      
+        <asp:BoundField DataField="PlanName" HeaderText="Plan Name" />
+        <asp:TemplateField HeaderText="Coverage">
+            <ItemTemplate>
+                <%# GetCoverageOrDuration(Container.DataItem) %>
+            </ItemTemplate>
+        </asp:TemplateField>
+        <asp:TemplateField HeaderText="Premium">
+            <ItemTemplate>
+                <%# GetPremiumDisplay(Container.DataItem) %>
+            </ItemTemplate>
+        </asp:TemplateField>
+
+     
+        <asp:TemplateField HeaderText="Action">
+            <ItemTemplate>
+                <asp:LinkButton runat="server"
+                    CommandName="DeleteItem"
+                    CommandArgument='<%# Container.DataItemIndex %>'
+                    CssClass="btn btn-danger btn-sm"
+                    OnClientClick="return confirm('Are you sure you want to remove this item?');">
+                    Delete
+                </asp:LinkButton>
+            </ItemTemplate>
+        </asp:TemplateField>
+    </Columns>
+</asp:GridView>
+
+
 
             <div class="text-center mt-4">
                 <asp:Button ID="btnCheckout" runat="server"
@@ -50,6 +61,6 @@
         </asp:Panel>
     </div>
 
-    <!-- Bootstrap Icons CDN (make sure this is not duplicated in your MasterPage) -->
+    <!-- Bootstrap Icons CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
 </asp:Content>
