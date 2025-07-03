@@ -32,34 +32,39 @@ namespace Singlife
                 conn.Open();
 
                 string sql = @"
-                SELECT 
-                    P.PurchaseID, 
-                    P.PlanName, 
-                    P.MonthlyPremium,
-                    P.AnnualPremium,
-                    P.PaymentFrequency,
-                    ISNULL(RP.NextBillingDate, P.NextBillingDate) AS NextBillingDate,
-                    ISNULL(RP.PaymentMethod, 'None') AS PaymentMethod, 
-                    RP.Status,
+SELECT 
+    P.PurchaseID, 
+    P.PlanName, 
+    P.MonthlyPremium,
+    P.AnnualPremium,
+    P.PaymentFrequency,
+    ISNULL(RP.NextBillingDate, P.NextBillingDate) AS NextBillingDate,
+    ISNULL(RP.PaymentMethod, 'None') AS PaymentMethod,
+    ISNULL(RP.Status, 'None') AS GiroStatus, -- ✅ Ensure available for Eval
+    P.PurchaseDate,
 
-                    CASE 
-                        WHEN P.PaymentFrequency = 'Annual' THEN P.AnnualPremium
-                        ELSE P.MonthlyPremium
-                    END AS AmountDue,
+    CASE 
+        WHEN P.PaymentFrequency = 'Annual' THEN P.AnnualPremium
+        ELSE P.MonthlyPremium
+    END AS AmountDue,
 
-                    (SELECT COUNT(*) 
-                     FROM PaymentHistory PH 
-                     WHERE PH.PurchaseID = P.PurchaseID AND PH.Status = 'Success') + 1 AS TotalPaymentCount,
+    -- ✅ Total successful payments +1 for display
+    (SELECT COUNT(*) 
+     FROM PaymentHistory PH 
+     WHERE PH.PurchaseID = P.PurchaseID AND PH.Status = 'Success') + 1 AS TotalPaymentCount,
 
-                    CASE 
-                        WHEN RP.PaymentMethod = 'GIRO' AND RP.GIROFormPath IS NOT NULL AND RP.Status IN ('Active', 'Pending') THEN CAST(1 AS BIT)
-                        ELSE CAST(0 AS BIT)
-                    END AS IsGiroActive
+    -- ✅ Flag for whether GIRO is active
+    CASE 
+        WHEN RP.PaymentMethod = 'GIRO' AND RP.GIROFormPath IS NOT NULL AND LOWER(RP.Status) = 'active' THEN CAST(1 AS BIT)
+        ELSE CAST(0 AS BIT)
+    END AS IsGiroActive
 
-                FROM Purchases P
-                LEFT JOIN RecurringPayment RP ON P.PurchaseID = RP.PurchaseID AND RP.Status IN ('Active', 'Pending')
-                WHERE P.AccountID = @AccountID
-                ORDER BY P.PurchaseDate DESC";
+FROM Purchases P
+LEFT JOIN RecurringPayment RP 
+    ON RP.PurchaseID = P.PurchaseID 
+    AND LOWER(RP.Status) IN ('active', 'pending')
+WHERE P.AccountID = @AccountID
+ORDER BY P.PurchaseDate DESC";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
@@ -75,6 +80,8 @@ namespace Singlife
                 }
             }
         }
+
+
 
         // Corrected to get amount based on payment frequency
         private decimal GetAmountDueForPurchase(int purchaseId)
@@ -220,6 +227,14 @@ namespace Singlife
                     string insertPaymentSql = @"
                         INSERT INTO PaymentHistory (PurchaseID, Amount, PaymentDate, Method, Status)
                         VALUES (@PurchaseID, @Amount, GETDATE(), 'Card', 'Success')";
+
+                    string updatePurchaseSql = @"UPDATE Purchases SET NextBillingDate = @NextDate WHERE PurchaseID = @PurchaseID";
+                    using (SqlCommand cmd = new SqlCommand(updatePurchaseSql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@NextDate", nextBillingDate);
+                        cmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
+                        cmd.ExecuteNonQuery();
+                    }
                     using (SqlCommand cmdPayment = new SqlCommand(insertPaymentSql, conn))
                     {
                         cmdPayment.Parameters.AddWithValue("@PurchaseID", purchaseId);
@@ -335,6 +350,14 @@ namespace Singlife
                         (AccountID, PurchaseID, Amount, PaymentDate, Method, Status, Remarks)
                         VALUES (@AccountID, @PurchaseID, @Amount, GETDATE(), 'PayNow', 'Success', @Remarks)";
 
+                    string updatePurchaseSql = @"UPDATE Purchases SET NextBillingDate = @NextDate WHERE PurchaseID = @PurchaseID";
+                    using (SqlCommand cmd = new SqlCommand(updatePurchaseSql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@NextDate", nextBillingDate);
+                        cmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
+                        cmd.ExecuteNonQuery();
+                    }
+
                     using (SqlCommand cmd = new SqlCommand(sqlPaymentHistory, conn))
                     {
                         cmd.Parameters.AddWithValue("@AccountID", accountId);
@@ -373,7 +396,7 @@ namespace Singlife
             RepeaterItem item = (RepeaterItem)btn.NamingContainer;
 
             FileUpload fuGiroForm = (FileUpload)item.FindControl("fuGiroForm");
-            Label lblMessage = GetOrCreateLabel(item, "lblGiroUploadMessage");
+            Label lblMessage = (Label)item.FindControl("lblGiroUploadMessage");
 
             lblMessage.Text = "";
             lblMessage.CssClass = "text-danger";
@@ -404,7 +427,7 @@ namespace Singlife
                     conn.Open();
 
                     string checkSql = @"SELECT TOP 1 RecurringPaymentID FROM RecurringPayment 
-                                        WHERE PurchaseID = @PurchaseID AND PaymentMethod = 'GIRO' AND Status IN ('Active', 'Pending')";
+                                WHERE PurchaseID = @PurchaseID AND PaymentMethod = 'GIRO'";
 
                     object existingId;
                     using (SqlCommand cmdCheck = new SqlCommand(checkSql, conn))
@@ -417,8 +440,8 @@ namespace Singlife
                     if (existingId != null)
                     {
                         sql = @"UPDATE RecurringPayment 
-                                SET NextBillingDate = @NextDate, GiroFormPath = @GiroFormPath, Amount = @Amount, Status = 'Pending'
-                                WHERE RecurringPaymentID = @RecurringPaymentID";
+                        SET NextBillingDate = @NextDate, GiroFormPath = @GiroFormPath, Amount = @Amount, Status = 'Pending'
+                        WHERE RecurringPaymentID = @RecurringPaymentID";
 
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
                         {
@@ -432,8 +455,8 @@ namespace Singlife
                     else
                     {
                         sql = @"INSERT INTO RecurringPayment 
-                                (AccountID, PurchaseID, Amount, PaymentMethod, GiroFormPath, NextBillingDate, PaymentFrequency, Status)
-                                VALUES (@AccountID, @PurchaseID, @Amount, 'GIRO', @GiroFormPath, @NextDate, 'Monthly', 'Pending')";
+                        (AccountID, PurchaseID, Amount, PaymentMethod, GiroFormPath, NextBillingDate, PaymentFrequency, Status)
+                        VALUES (@AccountID, @PurchaseID, @Amount, 'GIRO', @GiroFormPath, @NextDate, 'Monthly', 'Pending')";
 
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
                         {
@@ -448,7 +471,7 @@ namespace Singlife
                 }
 
                 lblMessage.CssClass = "text-success";
-                lblMessage.Text = "GIRO form uploaded. Awaiting activation.";
+                lblMessage.Text = "GIRO form uploaded. Awaiting approval.";
 
                 SendEmailNotification(
                     Session["UserEmail"]?.ToString() ?? "user@example.com",
@@ -461,65 +484,6 @@ namespace Singlife
             catch (Exception ex)
             {
                 lblMessage.Text = "Failed to upload GIRO form: " + ex.Message;
-            }
-        }
-
-        protected void btnCancelGiro_Click(object sender, EventArgs e)
-        {
-            Button btn = (Button)sender;
-            int purchaseId = Convert.ToInt32(btn.CommandArgument);
-            RepeaterItem item = (RepeaterItem)btn.NamingContainer;
-            Label lblMessage = GetOrCreateLabel(item, "lblGiroCancelMessage");
-
-            lblMessage.Text = "";
-            lblMessage.CssClass = "text-danger";
-
-            try
-            {
-                string connStr = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
-                using (SqlConnection conn = new SqlConnection(connStr))
-                {
-                    conn.Open();
-
-                    string sql = @"UPDATE RecurringPayment 
-                                   SET Status = 'Cancelled', NextBillingDate = NULL 
-                                   WHERE PurchaseID = @PurchaseID AND PaymentMethod = 'GIRO' AND Status IN ('Active', 'Pending')";
-
-                    using (SqlCommand cmd = new SqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
-                        int rows = cmd.ExecuteNonQuery();
-
-                        if (rows > 0)
-                        {
-                            lblMessage.CssClass = "text-success";
-                            lblMessage.Text = "GIRO has been successfully cancelled.";
-                        }
-                        else
-                        {
-                            lblMessage.Text = "No active GIRO found to cancel.";
-                        }
-                    }
-                }
-
-                SendEmailNotification(
-                    Session["UserEmail"]?.ToString() ?? "user@example.com",
-                    "GIRO Payment Cancellation Confirmed",
-                    $@"Dear Customer,
-
-Your GIRO arrangement for Purchase ID {purchaseId} has been successfully cancelled.
-
-You may now choose to pay using other available methods such as Card or PayNow.
-
-Thank you,
-Singlife Support Team"
-                );
-
-                LoadUserPlans();
-            }
-            catch (Exception ex)
-            {
-                lblMessage.Text = "Failed to cancel GIRO: " + ex.Message;
             }
         }
 
@@ -588,61 +552,70 @@ Singlife Support Team"
             {
                 DataRowView row = (DataRowView)e.Item.DataItem;
 
-                PlaceHolder phGiroActive = (PlaceHolder)e.Item.FindControl("phGiroActive");
+                // 🔍 Get controls
+                PlaceHolder phGiroStatus = (PlaceHolder)e.Item.FindControl("phGiroStatus");
+                Label lblGiroStatusText = (Label)e.Item.FindControl("lblGiroStatusText");
+                Button btnCancelGiro = (Button)e.Item.FindControl("btnCancelGiro");
                 Button btnPayNow = (Button)e.Item.FindControl("btnPayNow");
                 Button btnCard = (Button)e.Item.FindControl("btnCard");
                 Button btnConfirmPayNow = (Button)e.Item.FindControl("btnConfirmPayNow");
+                Button btnGiroUpload = (Button)e.Item.FindControl("btnGiroUpload");
 
-                bool isGiroActive = row["IsGiroActive"] != DBNull.Value && Convert.ToBoolean(row["IsGiroActive"]);
+                // 🧠 Check GIRO status
+                string giroStatus = row["GiroStatus"] != DBNull.Value ? row["GiroStatus"].ToString().ToLower() : "";
+                bool isGiroActive = giroStatus == "active";
+                bool isGiroPending = giroStatus == "pending";
 
-                if (phGiroActive != null)
+                // ✅ Show correct GIRO status text
+                if (phGiroStatus != null && lblGiroStatusText != null && btnCancelGiro != null)
                 {
-                    phGiroActive.Visible = isGiroActive;
+                    if (isGiroActive)
+                    {
+                        phGiroStatus.Visible = true;
+                        lblGiroStatusText.Text = "GIRO is active for this plan.";
+                        btnCancelGiro.Visible = true;
+                    }
+                    else if (isGiroPending)
+                    {
+                        phGiroStatus.Visible = true;
+                        lblGiroStatusText.Text = "GIRO form uploaded. Awaiting approval.";
+                        btnCancelGiro.Visible = false;
+                    }
+                    else
+                    {
+                        phGiroStatus.Visible = false;
+                    }
                 }
 
-                if (isGiroActive)
-                {
-                    if (btnPayNow != null)
-                    {
-                        btnPayNow.Enabled = false;
-                        if (!btnPayNow.CssClass.Contains("disabled"))
-                            btnPayNow.CssClass += " disabled";
-                    }
+                // 🚫 Disable all payment buttons if GIRO is active or pending
+                bool disablePayments = isGiroActive || isGiroPending;
 
-                    if (btnCard != null)
-                    {
-                        btnCard.Enabled = false;
-                        if (!btnCard.CssClass.Contains("disabled"))
-                            btnCard.CssClass += " disabled";
-                    }
+                ToggleButtonState(btnPayNow, !disablePayments);
+                ToggleButtonState(btnCard, !disablePayments);
+                ToggleButtonState(btnConfirmPayNow, !disablePayments);
 
-                    if (btnConfirmPayNow != null)
-                    {
-                        btnConfirmPayNow.Enabled = false;
-                        if (!btnConfirmPayNow.CssClass.Contains("disabled"))
-                            btnConfirmPayNow.CssClass += " disabled";
-                    }
-                }
-                else
-                {
-                    // Optional: Re-enable buttons if needed
-                    if (btnPayNow != null)
-                    {
-                        btnPayNow.Enabled = true;
-                        btnPayNow.CssClass = btnPayNow.CssClass.Replace(" disabled", "");
-                    }
-                    if (btnCard != null)
-                    {
-                        btnCard.Enabled = true;
-                        btnCard.CssClass = btnCard.CssClass.Replace(" disabled", "");
-                    }
-                    if (btnConfirmPayNow != null)
-                    {
-                        btnConfirmPayNow.Enabled = true;
-                        btnConfirmPayNow.CssClass = btnConfirmPayNow.CssClass.Replace(" disabled", "");
-                    }
-                }
+                // GIRO Upload disabled only when Active (not Pending)
+                ToggleButtonState(btnGiroUpload, !isGiroActive);
             }
+        }
+
+        // ✅ Utility: Add or remove 'disabled' CSS class
+        private string AddDisabledClass(string cssClass)
+        {
+            return cssClass.Contains("disabled") ? cssClass : cssClass.Trim() + " disabled";
+        }
+
+        private string RemoveDisabledClass(string cssClass)
+        {
+            return cssClass.Replace("disabled", "").Trim();
+        }
+
+        private void ToggleButtonState(Button btn, bool enabled)
+        {
+            if (btn == null) return;
+
+            btn.Enabled = enabled;
+            btn.CssClass = enabled ? RemoveDisabledClass(btn.CssClass) : AddDisabledClass(btn.CssClass);
         }
 
         protected void rptPlans_ItemCommand(object source, RepeaterCommandEventArgs e)
@@ -666,9 +639,86 @@ Singlife Support Team"
                     ShowModal("payNowConfirmModal_" + purchaseId);
                     break;
 
-                    // You can add more commands if needed
+                case "ShowGiroModal":
+                    ShowModal("giroModal_" + purchaseId);
+                    break;
+
+                case "ProcessGiroPayment":
+                    ProcessGiroPayment(Convert.ToInt32(purchaseId));
+                    break;
+
+                // Add CancelGiro case here
+                case "CancelGiro":
+                    {
+                        int pid = Convert.ToInt32(purchaseId);
+                        Label lblMessage = (Label)e.Item.FindControl("lblGiroCancelMessage");
+                        CancelGiro(pid, lblMessage);
+                        break;
+                    }
             }
         }
+
+        private void CancelGiro(int purchaseId, Label lblMessage)
+        {
+            if (lblMessage == null) return;
+
+            lblMessage.Text = "";
+            lblMessage.CssClass = "text-danger";
+
+            try
+            {
+                string connStr = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
+                int rows = 0;
+
+                using (SqlConnection conn = new SqlConnection(connStr))
+                {
+                    conn.Open();
+
+                    string sql = @"UPDATE RecurringPayment 
+                           SET Status = 'Cancelled', NextBillingDate = NULL 
+                           WHERE PurchaseID = @PurchaseID 
+                             AND LOWER(PaymentMethod) = 'giro' 
+                             AND LOWER(Status) IN ('active', 'pending')";
+
+                    using (SqlCommand cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
+                        rows = cmd.ExecuteNonQuery();
+                    }
+                }
+
+                if (rows > 0)
+                {
+                    lblMessage.CssClass = "text-success";
+                    lblMessage.Text = "GIRO has been successfully cancelled.";
+
+                    SendEmailNotification(
+                        Session["UserEmail"]?.ToString() ?? "user@example.com",
+                        "GIRO Payment Cancellation Confirmed",
+                        $@"Dear Customer,
+
+Your GIRO arrangement for Purchase ID {purchaseId} has been successfully cancelled.
+
+You may now choose to pay using other available methods such as Card or PayNow.
+
+Thank you,
+Singlife Support Team"
+                    );
+                }
+                else
+                {
+                    lblMessage.Text = $"No active or pending GIRO found to cancel for Purchase ID {purchaseId}.";
+                }
+
+                LoadUserPlans();
+            }
+            catch (Exception ex)
+            {
+                lblMessage.Text = "Failed to cancel GIRO: " + ex.Message;
+            }
+        }
+
+
 
         // Helper method to trigger Bootstrap modal display via JavaScript
         private void ShowModal(string modalId)
@@ -676,6 +726,90 @@ Singlife Support Team"
             string script = $"var myModal = new bootstrap.Modal(document.getElementById('{modalId}')); myModal.show();";
             ScriptManager.RegisterStartupScript(this, this.GetType(), modalId + "_show", script, true);
         }
+
+
+        private void ProcessGiroPayment(int purchaseId)
+        {
+            string connStr = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
+            decimal amountDue = GetAmountDueForPurchase(purchaseId);
+            DateTime nextBillingDate = CalculateNextBillingDate(purchaseId);
+            int accountId = Session["AccountID"] != null ? Convert.ToInt32(Session["AccountID"]) : 0;
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connStr))
+                {
+                    conn.Open();
+
+                    // 1. Insert into PaymentHistory
+                    string insertPaymentSql = @"
+                INSERT INTO PaymentHistory (AccountID, PurchaseID, Amount, PaymentDate, Method, Status, Remarks)
+                VALUES (@AccountID, @PurchaseID, @Amount, GETDATE(), 'GIRO', 'Success', 'Auto deduction')";
+                    using (SqlCommand cmd = new SqlCommand(insertPaymentSql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@AccountID", accountId);
+                        cmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
+                        cmd.Parameters.AddWithValue("@Amount", amountDue);
+                        int inserted = cmd.ExecuteNonQuery();
+                        System.Diagnostics.Debug.WriteLine($"[DEBUG] PaymentHistory inserted: {inserted}");
+                    }
+
+                    // 2. Update RecurringPayment with case-insensitive match
+                    string updateRecurringSql = @"
+                UPDATE RecurringPayment 
+                SET NextBillingDate = @NextDate
+                WHERE PurchaseID = @PurchaseID 
+                  AND LOWER(PaymentMethod) = 'giro' 
+                  AND LOWER(Status) = 'active'";
+                    int updatedRecurring = 0;
+                    using (SqlCommand cmd = new SqlCommand(updateRecurringSql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@NextDate", nextBillingDate);
+                        cmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
+                        updatedRecurring = cmd.ExecuteNonQuery();
+                        System.Diagnostics.Debug.WriteLine($"[DEBUG] RecurringPayment updated: {updatedRecurring}");
+                    }
+
+                    // 3. Update Purchases (optional but good to track)
+                    string updatePurchaseSql = @"
+                UPDATE Purchases 
+                SET NextBillingDate = @NextDate 
+                WHERE PurchaseID = @PurchaseID";
+                    int updatedPurchase = 0;
+                    using (SqlCommand cmd = new SqlCommand(updatePurchaseSql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@NextDate", nextBillingDate);
+                        cmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
+                        updatedPurchase = cmd.ExecuteNonQuery();
+                        System.Diagnostics.Debug.WriteLine($"[DEBUG] Purchases updated: {updatedPurchase}");
+                    }
+
+                    if (updatedRecurring == 0)
+                    {
+                        // If GIRO deduction logic didn’t match any records
+                        System.Diagnostics.Debug.WriteLine($"[WARNING] No active GIRO found for PurchaseID {purchaseId}");
+                        // Optional: show user message
+                        // lblErrorMessage.Text = "GIRO deduction failed. Please ensure GIRO is active.";
+                    }
+                }
+
+                // Send confirmation email
+                SendEmailNotification(
+                    Session["UserEmail"]?.ToString() ?? "user@example.com",
+                    "GIRO Payment Successful",
+                    $"Dear user,\n\nWe have successfully deducted ${amountDue:F2} via GIRO for Purchase ID {purchaseId}.\n\nThank you,\nSinglife Team"
+                );
+
+                LoadUserPlans(); // Refresh UI
+            }
+            catch (Exception ex)
+            {
+                // Optional: log or show error
+                System.Diagnostics.Debug.WriteLine($"[ERROR] GIRO Payment failed: {ex.Message}");
+            }
+        }
+
+
 
     }
 }
