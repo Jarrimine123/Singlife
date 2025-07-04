@@ -30,7 +30,6 @@ namespace Singlife
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
-
                 string sql = @"
 SELECT 
     P.PurchaseID, 
@@ -40,7 +39,7 @@ SELECT
     P.PaymentFrequency,
     ISNULL(RP.NextBillingDate, P.NextBillingDate) AS NextBillingDate,
     ISNULL(RP.PaymentMethod, 'None') AS PaymentMethod,
-    ISNULL(RP.Status, 'None') AS GiroStatus, -- ✅ Ensure available for Eval
+    ISNULL(RP.Status, 'None') AS GiroStatus,
     P.PurchaseDate,
 
     CASE 
@@ -48,12 +47,10 @@ SELECT
         ELSE P.MonthlyPremium
     END AS AmountDue,
 
-    -- ✅ Total successful payments +1 for display
     (SELECT COUNT(*) 
      FROM PaymentHistory PH 
      WHERE PH.PurchaseID = P.PurchaseID AND PH.Status = 'Success') + 1 AS TotalPaymentCount,
 
-    -- ✅ Flag for whether GIRO is active
     CASE 
         WHEN RP.PaymentMethod = 'GIRO' AND RP.GIROFormPath IS NOT NULL AND LOWER(RP.Status) = 'active' THEN CAST(1 AS BIT)
         ELSE CAST(0 AS BIT)
@@ -64,7 +61,9 @@ LEFT JOIN RecurringPayment RP
     ON RP.PurchaseID = P.PurchaseID 
     AND LOWER(RP.Status) IN ('active', 'pending')
 WHERE P.AccountID = @AccountID
+  AND P.PaymentFrequency <> 'One-Time'
 ORDER BY P.PurchaseDate DESC";
+
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
@@ -193,6 +192,18 @@ ORDER BY P.PurchaseDate DESC";
                 {
                     conn.Open();
 
+                    // ✅ Cancel any existing GIRO entries
+                    string cancelGiroSql = @"
+                UPDATE RecurringPayment
+                SET Status = 'Cancelled', NextBillingDate = NULL
+                WHERE PurchaseID = @PurchaseID AND PaymentMethod = 'GIRO' AND LOWER(Status) IN ('active', 'pending')";
+                    using (SqlCommand cancelGiroCmd = new SqlCommand(cancelGiroSql, conn))
+                    {
+                        cancelGiroCmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
+                        cancelGiroCmd.ExecuteNonQuery();
+                    }
+
+                    // ✅ Insert or Update Card RecurringPayment WITHOUT Status
                     string checkSql = "SELECT COUNT(*) FROM RecurringPayment WHERE PurchaseID = @PurchaseID AND PaymentMethod = 'Card'";
                     using (SqlCommand cmdCheck = new SqlCommand(checkSql, conn))
                     {
@@ -203,14 +214,14 @@ ORDER BY P.PurchaseDate DESC";
                         if (count > 0)
                         {
                             sql = @"UPDATE RecurringPayment 
-                                    SET NextBillingDate = @NextDate, CardLast4 = @CardLast4, Amount = @Amount, Status = 'Active'
-                                    WHERE PurchaseID = @PurchaseID AND PaymentMethod = 'Card'";
+                            SET NextBillingDate = @NextDate, CardLast4 = @CardLast4, Amount = @Amount, Status = NULL
+                            WHERE PurchaseID = @PurchaseID AND PaymentMethod = 'Card'";
                         }
                         else
                         {
                             sql = @"INSERT INTO RecurringPayment 
-                                    (AccountID, PurchaseID, Amount, PaymentMethod, CardLast4, NextBillingDate, PaymentFrequency, Status)
-                                    VALUES (@AccountID, @PurchaseID, @Amount, 'Card', @CardLast4, @NextDate, 'Monthly', 'Active')";
+                            (AccountID, PurchaseID, Amount, PaymentMethod, CardLast4, NextBillingDate, PaymentFrequency)
+                            VALUES (@AccountID, @PurchaseID, @Amount, 'Card', @CardLast4, @NextDate, 'Monthly')";
                         }
 
                         using (SqlCommand cmd = new SqlCommand(sql, conn))
@@ -224,10 +235,18 @@ ORDER BY P.PurchaseDate DESC";
                         }
                     }
 
+                    // ✅ Insert into PaymentHistory
                     string insertPaymentSql = @"
-                        INSERT INTO PaymentHistory (PurchaseID, Amount, PaymentDate, Method, Status)
-                        VALUES (@PurchaseID, @Amount, GETDATE(), 'Card', 'Success')";
+                INSERT INTO PaymentHistory (PurchaseID, Amount, PaymentDate, Method, Status)
+                VALUES (@PurchaseID, @Amount, GETDATE(), 'Card', 'Success')";
+                    using (SqlCommand cmdPayment = new SqlCommand(insertPaymentSql, conn))
+                    {
+                        cmdPayment.Parameters.AddWithValue("@PurchaseID", purchaseId);
+                        cmdPayment.Parameters.AddWithValue("@Amount", amountDue);
+                        cmdPayment.ExecuteNonQuery();
+                    }
 
+                    // ✅ Update Purchases table's NextBillingDate
                     string updatePurchaseSql = @"UPDATE Purchases SET NextBillingDate = @NextDate WHERE PurchaseID = @PurchaseID";
                     using (SqlCommand cmd = new SqlCommand(updatePurchaseSql, conn))
                     {
@@ -235,14 +254,9 @@ ORDER BY P.PurchaseDate DESC";
                         cmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
                         cmd.ExecuteNonQuery();
                     }
-                    using (SqlCommand cmdPayment = new SqlCommand(insertPaymentSql, conn))
-                    {
-                        cmdPayment.Parameters.AddWithValue("@PurchaseID", purchaseId);
-                        cmdPayment.Parameters.AddWithValue("@Amount", amountDue);
-                        cmdPayment.ExecuteNonQuery();
-                    }
                 }
 
+                // ✅ UI Feedback
                 lblMessage.CssClass = "text-success";
                 lblMessage.Text = "Payment successful! Thank you.";
 
@@ -252,19 +266,20 @@ ORDER BY P.PurchaseDate DESC";
                     $"Dear user,\n\nYour payment of ${amountDue:F2} for Purchase ID {purchaseId} has been successfully processed.\n\nThank you,\nSinglife Team"
                 );
 
-                // Clear fields
+                // ✅ Clear input fields
                 txtCardholderName.Text = "";
                 txtCardNumber.Text = "";
                 txtExpiry.Text = "";
                 txtCVV.Text = "";
 
-                LoadUserPlans();
+                LoadUserPlans(); // ✅ Refresh UI
             }
             catch (Exception ex)
             {
                 lblMessage.Text = "Payment failed: " + ex.Message;
             }
         }
+
 
         protected void btnSubmitPayNow_Click(object sender, EventArgs e)
         {
@@ -286,91 +301,76 @@ ORDER BY P.PurchaseDate DESC";
             }
 
             string receiptFileName = null;
-            if (fuPayNowReceipt.HasFile)
-            {
-                string ext = Path.GetExtension(fuPayNowReceipt.FileName).ToLower();
-                if (ext != ".jpg" && ext != ".png" && ext != ".pdf")
-                {
-                    lblMessage.Text = "Only JPG, PNG or PDF files are accepted for receipt.";
-                    return;
-                }
-
-                string folderPath = Server.MapPath("~/PayNowReceipts/");
-                if (!Directory.Exists(folderPath))
-                    Directory.CreateDirectory(folderPath);
-
-                receiptFileName = $"PayNow_{purchaseId}_{DateTime.Now:yyyyMMddHHmmss}{ext}";
-                string savePath = Path.Combine(folderPath, receiptFileName);
-                fuPayNowReceipt.SaveAs(savePath);
-            }
-
-            decimal amountDue = GetAmountDueForPurchase(purchaseId);
-            int accountId = Session["AccountID"] != null ? Convert.ToInt32(Session["AccountID"]) : 0;
-            DateTime nextBillingDate = CalculateNextBillingDate(purchaseId);
 
             try
             {
+                // 📎 Save receipt file if uploaded
+                if (fuPayNowReceipt.HasFile)
+                {
+                    string ext = Path.GetExtension(fuPayNowReceipt.FileName).ToLower();
+                    if (ext != ".jpg" && ext != ".png" && ext != ".pdf")
+                    {
+                        lblMessage.Text = "Only JPG, PNG, or PDF files are accepted for the receipt.";
+                        return;
+                    }
+
+                    string folderPath = Server.MapPath("~/PayNowReceipts/");
+                    if (!Directory.Exists(folderPath))
+                        Directory.CreateDirectory(folderPath);
+
+                    receiptFileName = $"PayNow_{purchaseId}_{DateTime.Now:yyyyMMddHHmmss}{ext}";
+                    string savePath = Path.Combine(folderPath, receiptFileName);
+                    fuPayNowReceipt.SaveAs(savePath);
+                }
+
+                decimal amountDue = GetAmountDueForPurchase(purchaseId);
+                DateTime nextBillingDate = CalculateNextBillingDate(purchaseId);
+
                 string connStr = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
                 using (SqlConnection conn = new SqlConnection(connStr))
                 {
                     conn.Open();
 
-                    string checkSql = "SELECT COUNT(*) FROM RecurringPayment WHERE PurchaseID = @PurchaseID AND PaymentMethod = 'PayNow'";
-                    using (SqlCommand cmdCheck = new SqlCommand(checkSql, conn))
+                    // ✅ Insert into PaymentHistory (without AccountID/Remarks)
+                    using (SqlCommand cmd = new SqlCommand(@"
+                INSERT INTO PaymentHistory
+                (PurchaseID, Amount, PaymentDate, Method, Status)
+                VALUES (@PurchaseID, @Amount, GETDATE(), 'PayNow', 'Success')", conn))
                     {
-                        cmdCheck.Parameters.AddWithValue("@PurchaseID", purchaseId);
-                        int count = (int)cmdCheck.ExecuteScalar();
-
-                        string sql;
-                        if (count > 0)
-                        {
-                            sql = @"UPDATE RecurringPayment
-                                    SET NextBillingDate = @NextDate, Amount = @Amount, Status = 'Active'
-                                    WHERE PurchaseID = @PurchaseID AND PaymentMethod = 'PayNow'";
-                        }
-                        else
-                        {
-                            sql = @"INSERT INTO RecurringPayment 
-                                    (AccountID, PurchaseID, Amount, PaymentMethod, NextBillingDate, PaymentFrequency, Status)
-                                    VALUES (@AccountID, @PurchaseID, @Amount, 'PayNow', @NextDate, 'Monthly', 'Active')";
-                        }
-
-                        using (SqlCommand cmd = new SqlCommand(sql, conn))
-                        {
-                            cmd.Parameters.AddWithValue("@AccountID", accountId);
-                            cmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
-                            cmd.Parameters.AddWithValue("@Amount", amountDue);
-                            cmd.Parameters.AddWithValue("@NextDate", nextBillingDate);
-                            cmd.ExecuteNonQuery();
-                        }
+                        cmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
+                        cmd.Parameters.AddWithValue("@Amount", amountDue);
+                        cmd.ExecuteNonQuery();
                     }
 
-                    string sqlPaymentHistory = @"
-                        INSERT INTO PaymentHistory
-                        (AccountID, PurchaseID, Amount, PaymentDate, Method, Status, Remarks)
-                        VALUES (@AccountID, @PurchaseID, @Amount, GETDATE(), 'PayNow', 'Success', @Remarks)";
-
-                    string updatePurchaseSql = @"UPDATE Purchases SET NextBillingDate = @NextDate WHERE PurchaseID = @PurchaseID";
-                    using (SqlCommand cmd = new SqlCommand(updatePurchaseSql, conn))
+                    // ✅ Update Purchases with NextBillingDate
+                    using (SqlCommand cmd = new SqlCommand(@"
+                UPDATE Purchases 
+                SET NextBillingDate = @NextDate 
+                WHERE PurchaseID = @PurchaseID", conn))
                     {
                         cmd.Parameters.AddWithValue("@NextDate", nextBillingDate);
                         cmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
                         cmd.ExecuteNonQuery();
                     }
 
-                    using (SqlCommand cmd = new SqlCommand(sqlPaymentHistory, conn))
+                    // ✅ Insert into PayNowPayments
+                    using (SqlCommand cmd = new SqlCommand(@"
+                INSERT INTO PayNowPayments 
+                (PurchaseID, ReferenceNumber, ReceiptPath)
+                VALUES (@PurchaseID, @ReferenceNumber, @ReceiptPath)", conn))
                     {
-                        cmd.Parameters.AddWithValue("@AccountID", accountId);
                         cmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
-                        cmd.Parameters.AddWithValue("@Amount", amountDue);
-                        cmd.Parameters.AddWithValue("@Remarks", txtPayNowRef.Text + (receiptFileName != null ? " | Receipt: " + receiptFileName : ""));
+                        cmd.Parameters.AddWithValue("@ReferenceNumber", txtPayNowRef.Text.Trim());
+                        cmd.Parameters.AddWithValue("@ReceiptPath", receiptFileName ?? (object)DBNull.Value);
                         cmd.ExecuteNonQuery();
                     }
                 }
 
+                // ✅ Success feedback
                 lblMessage.CssClass = "text-success";
                 lblMessage.Text = "PayNow payment confirmed successfully! Thank you.";
 
+                // ✅ Send email notification
                 SendEmailNotification(
                     Session["UserEmail"]?.ToString() ?? "user@example.com",
                     "PayNow Payment Confirmation",
@@ -378,15 +378,19 @@ ORDER BY P.PurchaseDate DESC";
                 );
 
                 txtPayNowRef.Text = "";
-                // Note: Cannot programmatically clear FileUpload control easily without page reload.
+                // ⚠️ FileUpload control cannot be cleared without a page reload
 
-                LoadUserPlans();
+                LoadUserPlans(); // Refresh UI
             }
             catch (Exception ex)
             {
-                lblMessage.Text = "Failed to confirm PayNow payment: " + ex.Message;
+                lblMessage.Text = "❌ Failed to confirm PayNow payment: " + ex.Message;
+                System.Diagnostics.Debug.WriteLine("❌ PayNow Exception: " + ex.ToString());
             }
         }
+
+
+
 
         protected void btnUploadGiro_Click(object sender, EventArgs e)
         {
@@ -394,7 +398,6 @@ ORDER BY P.PurchaseDate DESC";
             int purchaseId = Convert.ToInt32(btn.CommandArgument);
 
             RepeaterItem item = (RepeaterItem)btn.NamingContainer;
-
             FileUpload fuGiroForm = (FileUpload)item.FindControl("fuGiroForm");
             Label lblMessage = (Label)item.FindControl("lblGiroUploadMessage");
 
@@ -419,8 +422,6 @@ ORDER BY P.PurchaseDate DESC";
                 fuGiroForm.SaveAs(savePath);
 
                 int accountId = Session["AccountID"] != null ? Convert.ToInt32(Session["AccountID"]) : 0;
-                decimal amountDue = GetAmountDueForPurchase(purchaseId);
-                DateTime nextBillingDate = CalculateNextBillingDate(purchaseId);
 
                 using (SqlConnection conn = new SqlConnection(connStr))
                 {
@@ -436,35 +437,32 @@ ORDER BY P.PurchaseDate DESC";
                         existingId = cmdCheck.ExecuteScalar();
                     }
 
-                    string sql;
                     if (existingId != null)
                     {
-                        sql = @"UPDATE RecurringPayment 
-                        SET NextBillingDate = @NextDate, GiroFormPath = @GiroFormPath, Amount = @Amount, Status = 'Pending'
-                        WHERE RecurringPaymentID = @RecurringPaymentID";
+                        // 🛠️ UPDATE only GIROFormPath and set status to Pending
+                        string updateSql = @"UPDATE RecurringPayment 
+                    SET GiroFormPath = @GiroFormPath, Status = 'Pending'
+                    WHERE RecurringPaymentID = @RecurringPaymentID";
 
-                        using (SqlCommand cmd = new SqlCommand(sql, conn))
+                        using (SqlCommand cmd = new SqlCommand(updateSql, conn))
                         {
-                            cmd.Parameters.AddWithValue("@NextDate", nextBillingDate);
                             cmd.Parameters.AddWithValue("@GiroFormPath", filename);
-                            cmd.Parameters.AddWithValue("@Amount", amountDue);
                             cmd.Parameters.AddWithValue("@RecurringPaymentID", Convert.ToInt32(existingId));
                             cmd.ExecuteNonQuery();
                         }
                     }
                     else
                     {
-                        sql = @"INSERT INTO RecurringPayment 
-                        (AccountID, PurchaseID, Amount, PaymentMethod, GiroFormPath, NextBillingDate, PaymentFrequency, Status)
-                        VALUES (@AccountID, @PurchaseID, @Amount, 'GIRO', @GiroFormPath, @NextDate, 'Monthly', 'Pending')";
+                        // 🛠️ INSERT only basic data without NextBillingDate or Amount
+                        string insertSql = @"INSERT INTO RecurringPayment 
+                    (AccountID, PurchaseID, PaymentMethod, GiroFormPath, PaymentFrequency, Status)
+                    VALUES (@AccountID, @PurchaseID, 'GIRO', @GiroFormPath, 'Monthly', 'Pending')";
 
-                        using (SqlCommand cmd = new SqlCommand(sql, conn))
+                        using (SqlCommand cmd = new SqlCommand(insertSql, conn))
                         {
                             cmd.Parameters.AddWithValue("@AccountID", accountId);
                             cmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
-                            cmd.Parameters.AddWithValue("@Amount", amountDue);
                             cmd.Parameters.AddWithValue("@GiroFormPath", filename);
-                            cmd.Parameters.AddWithValue("@NextDate", nextBillingDate);
                             cmd.ExecuteNonQuery();
                         }
                     }
@@ -552,52 +550,59 @@ ORDER BY P.PurchaseDate DESC";
             {
                 DataRowView row = (DataRowView)e.Item.DataItem;
 
-                // 🔍 Get controls
-                PlaceHolder phGiroStatus = (PlaceHolder)e.Item.FindControl("phGiroStatus");
-                Label lblGiroStatusText = (Label)e.Item.FindControl("lblGiroStatusText");
-                Button btnCancelGiro = (Button)e.Item.FindControl("btnCancelGiro");
-                Button btnPayNow = (Button)e.Item.FindControl("btnPayNow");
-                Button btnCard = (Button)e.Item.FindControl("btnCard");
-                Button btnConfirmPayNow = (Button)e.Item.FindControl("btnConfirmPayNow");
-                Button btnGiroUpload = (Button)e.Item.FindControl("btnGiroUpload");
+                // Get controls
+                var phGiroStatus = (PlaceHolder)e.Item.FindControl("phGiroStatus");
+                var lblGiroStatusText = (Label)e.Item.FindControl("lblGiroStatusText");
+                var btnCancelGiro = (Button)e.Item.FindControl("btnCancelGiro");
+                var lblGiroCancelMessage = (Label)e.Item.FindControl("lblGiroCancelMessage");
 
-                // 🧠 Check GIRO status
+                var btnPayNow = (Button)e.Item.FindControl("btnPayNow");
+                var btnCard = (Button)e.Item.FindControl("btnCard");
+                var btnConfirmPayNow = (Button)e.Item.FindControl("btnConfirmPayNow");
+                var btnGiroUpload = (Button)e.Item.FindControl("btnGiroUpload");
+
+                // Read Giro Status
                 string giroStatus = row["GiroStatus"] != DBNull.Value ? row["GiroStatus"].ToString().ToLower() : "";
+                string paymentMethod = row["PaymentMethod"] != DBNull.Value ? row["PaymentMethod"].ToString().ToLower() : "";
+
                 bool isGiroActive = giroStatus == "active";
                 bool isGiroPending = giroStatus == "pending";
+                bool isGiroOn = isGiroActive || isGiroPending;
 
-                // ✅ Show GIRO status and Cancel button if Active or Pending
-                if (phGiroStatus != null && lblGiroStatusText != null && btnCancelGiro != null)
+                // Show GIRO status and message
+                if (phGiroStatus != null)
                 {
-                    if (isGiroActive || isGiroPending)
-                    {
-                        phGiroStatus.Visible = true;
+                    phGiroStatus.Visible = (paymentMethod == "giro") && isGiroOn;
 
-                        if (isGiroActive)
-                            lblGiroStatusText.Text = "GIRO is active for this plan.";
-                        else
-                            lblGiroStatusText.Text = "GIRO form uploaded. Awaiting approval.";
-
-                        btnCancelGiro.Visible = true; // ✅ Show cancel button for both active and pending
-                    }
-                    else
+                    if (phGiroStatus.Visible)
                     {
-                        phGiroStatus.Visible = false;
-                        btnCancelGiro.Visible = false;
+                        if (lblGiroStatusText != null)
+                        {
+                            lblGiroStatusText.Text = isGiroActive
+                                ? "GIRO Payment Active - Auto deduction enabled"
+                                : "GIRO Pending - Awaiting approval";
+                        }
+
+                        if (btnCancelGiro != null)
+                            btnCancelGiro.Visible = true;
+
+                        if (lblGiroCancelMessage != null)
+                            lblGiroCancelMessage.Text = "";
                     }
                 }
 
-                // 🚫 Disable PayNow & Card if GIRO is active or pending
-                bool disablePayments = isGiroActive || isGiroPending;
+                // Disable PayNow & Card buttons if GIRO is active or pending
+                bool disablePayments = isGiroOn;
 
                 ToggleButtonState(btnPayNow, !disablePayments);
                 ToggleButtonState(btnCard, !disablePayments);
                 ToggleButtonState(btnConfirmPayNow, !disablePayments);
 
-                // 📝 GIRO Upload only disabled when active
+                // GIRO upload only disabled if GIRO is active
                 ToggleButtonState(btnGiroUpload, !isGiroActive);
             }
         }
+
 
 
         // ✅ Utility: Add or remove 'disabled' CSS class
@@ -648,7 +653,6 @@ ORDER BY P.PurchaseDate DESC";
 
                 case "CancelGiro":
                     {
-                        // 🛠️ Ensure lblGiroCancelMessage exists
                         Label lblMessage = (Label)e.Item.FindControl("lblGiroCancelMessage");
                         if (lblMessage == null)
                         {
@@ -738,7 +742,9 @@ Singlife Support Team"
             string connStr = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
             decimal amountDue = GetAmountDueForPurchase(purchaseId);
             DateTime nextBillingDate = CalculateNextBillingDate(purchaseId);
-            int accountId = Session["AccountID"] != null ? Convert.ToInt32(Session["AccountID"]) : 0;
+
+            int accountId = 0;
+            string userEmail = "user@example.com";
 
             try
             {
@@ -746,75 +752,76 @@ Singlife Support Team"
                 {
                     conn.Open();
 
-                    // 1. Insert into PaymentHistory
-                    string insertPaymentSql = @"
-                INSERT INTO PaymentHistory (AccountID, PurchaseID, Amount, PaymentDate, Method, Status, Remarks)
-                VALUES (@AccountID, @PurchaseID, @Amount, GETDATE(), 'GIRO', 'Success', 'Auto deduction')";
-                    using (SqlCommand cmd = new SqlCommand(insertPaymentSql, conn))
+                    // 🔍 Step 1: Fetch AccountID and Email
+                    using (SqlCommand cmd = new SqlCommand(@"
+                SELECT U.AccountID, U.Email 
+                FROM Purchases P
+                INNER JOIN Users U ON P.AccountID = U.AccountID
+                WHERE P.PurchaseID = @PurchaseID", conn))
                     {
-                        cmd.Parameters.AddWithValue("@AccountID", accountId);
+                        cmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                accountId = Convert.ToInt32(reader["AccountID"]);
+                                userEmail = reader["Email"].ToString();
+                            }
+                        }
+                    }
+
+                    if (accountId == 0)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"❌ No AccountID found for PurchaseID {purchaseId}");
+                        return;
+                    }
+
+                    // 💳 Step 2: Insert into PaymentHistory
+                    using (SqlCommand cmd = new SqlCommand(@"
+                INSERT INTO PaymentHistory (PurchaseID, Amount, PaymentDate, Method, Status)
+                VALUES (@PurchaseID, @Amount, GETDATE(), 'GIRO', 'Success')", conn))
+                    {
                         cmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
                         cmd.Parameters.AddWithValue("@Amount", amountDue);
-                        int inserted = cmd.ExecuteNonQuery();
-                        System.Diagnostics.Debug.WriteLine($"[DEBUG] PaymentHistory inserted: {inserted}");
+                        cmd.ExecuteNonQuery();
                     }
 
-                    // 2. Update RecurringPayment with case-insensitive match
-                    string updateRecurringSql = @"
+                    // 🔁 Step 3: Update RecurringPayment only if GIRO is Active
+                    using (SqlCommand cmd = new SqlCommand(@"
                 UPDATE RecurringPayment 
                 SET NextBillingDate = @NextDate
-                WHERE PurchaseID = @PurchaseID 
-                  AND LOWER(PaymentMethod) = 'giro' 
-                  AND LOWER(Status) = 'active'";
-                    int updatedRecurring = 0;
-                    using (SqlCommand cmd = new SqlCommand(updateRecurringSql, conn))
+                WHERE PurchaseID = @PurchaseID AND LOWER(PaymentMethod) = 'giro' AND LOWER(Status) = 'active'", conn))
                     {
                         cmd.Parameters.AddWithValue("@NextDate", nextBillingDate);
                         cmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
-                        updatedRecurring = cmd.ExecuteNonQuery();
-                        System.Diagnostics.Debug.WriteLine($"[DEBUG] RecurringPayment updated: {updatedRecurring}");
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        System.Diagnostics.Debug.WriteLine($"[DEBUG] RecurringPayment updated: {rowsAffected}");
                     }
 
-                    // 3. Update Purchases (optional but good to track)
-                    string updatePurchaseSql = @"
-                UPDATE Purchases 
-                SET NextBillingDate = @NextDate 
-                WHERE PurchaseID = @PurchaseID";
-                    int updatedPurchase = 0;
-                    using (SqlCommand cmd = new SqlCommand(updatePurchaseSql, conn))
+                    // 📅 Step 4: Update Purchases
+                    using (SqlCommand cmd = new SqlCommand(@"
+                UPDATE Purchases SET NextBillingDate = @NextDate WHERE PurchaseID = @PurchaseID", conn))
                     {
                         cmd.Parameters.AddWithValue("@NextDate", nextBillingDate);
                         cmd.Parameters.AddWithValue("@PurchaseID", purchaseId);
-                        updatedPurchase = cmd.ExecuteNonQuery();
-                        System.Diagnostics.Debug.WriteLine($"[DEBUG] Purchases updated: {updatedPurchase}");
-                    }
-
-                    if (updatedRecurring == 0)
-                    {
-                        // If GIRO deduction logic didn’t match any records
-                        System.Diagnostics.Debug.WriteLine($"[WARNING] No active GIRO found for PurchaseID {purchaseId}");
-                        // Optional: show user message
-                        // lblErrorMessage.Text = "GIRO deduction failed. Please ensure GIRO is active.";
+                        cmd.ExecuteNonQuery();
                     }
                 }
 
-                // Send confirmation email
+                // 📧 Step 5: Notify user
                 SendEmailNotification(
-                    Session["UserEmail"]?.ToString() ?? "user@example.com",
+                    userEmail,
                     "GIRO Payment Successful",
                     $"Dear user,\n\nWe have successfully deducted ${amountDue:F2} via GIRO for Purchase ID {purchaseId}.\n\nThank you,\nSinglife Team"
                 );
 
-                LoadUserPlans(); // Refresh UI
+                LoadUserPlans(); // Refresh UI if applicable
             }
             catch (Exception ex)
             {
-                // Optional: log or show error
-                System.Diagnostics.Debug.WriteLine($"[ERROR] GIRO Payment failed: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"❌ ProcessGiroPayment failed: {ex.Message}");
             }
         }
-
-
 
     }
 }

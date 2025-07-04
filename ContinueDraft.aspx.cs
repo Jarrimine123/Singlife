@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.IO;
@@ -30,7 +31,6 @@ namespace Singlife
                 }
 
                 ViewState["claimId"] = claimId;
-
                 LoadDraft(claimId, accountId);
             }
             else
@@ -93,8 +93,8 @@ namespace Singlife
 
         protected void btnSaveDraft_Click(object sender, EventArgs e)
         {
-            string uploadedFilePath = SaveUploadedFile();
-            SaveClaim("DRAFT", uploadedFilePath);
+            var filePaths = SaveUploadedFiles();
+            SaveClaim("DRAFT", filePaths);
         }
 
         protected void btnSubmit_Click(object sender, EventArgs e)
@@ -106,8 +106,8 @@ namespace Singlife
                 return;
             }
 
-            string uploadedFilePath = SaveUploadedFile();
-            SaveClaim("SUBMITTED", uploadedFilePath);
+            var filePaths = SaveUploadedFiles();
+            SaveClaim("SUBMITTED", filePaths);
         }
 
         protected void btnDiscard_Click(object sender, EventArgs e)
@@ -135,24 +135,42 @@ namespace Singlife
             return true;
         }
 
-        private string SaveUploadedFile()
+        private Dictionary<string, string> SaveUploadedFiles()
         {
+            string folderPath = Server.MapPath("~/Uploads/");
+            if (!Directory.Exists(folderPath))
+                Directory.CreateDirectory(folderPath);
+
+            var filePaths = new Dictionary<string, string>();
+
             if (fileUploadTreatment.HasFile)
             {
-                string folderPath = Server.MapPath("~/Uploads/");
-                if (!Directory.Exists(folderPath))
-                    Directory.CreateDirectory(folderPath);
-
-                string fileName = Path.GetFileName(fileUploadTreatment.FileName);
+                string fileName = Guid.NewGuid() + Path.GetExtension(fileUploadTreatment.FileName);
                 string filePath = Path.Combine(folderPath, fileName);
                 fileUploadTreatment.SaveAs(filePath);
-                return "Uploads/" + fileName;
+                filePaths["TreatmentFilePath"] = "Uploads/" + fileName;
             }
 
-            return null;
+            if (fileUploadScreening.HasFile)
+            {
+                string fileName = Guid.NewGuid() + Path.GetExtension(fileUploadScreening.FileName);
+                string filePath = Path.Combine(folderPath, fileName);
+                fileUploadScreening.SaveAs(filePath);
+                filePaths["ScreeningFilePath"] = "Uploads/" + fileName;
+            }
+
+            if (fileUploadOthers.HasFile)
+            {
+                string fileName = Guid.NewGuid() + Path.GetExtension(fileUploadOthers.FileName);
+                string filePath = Path.Combine(folderPath, fileName);
+                fileUploadOthers.SaveAs(filePath);
+                filePaths["OtherFilesPath"] = "Uploads/" + fileName;
+            }
+
+            return filePaths;
         }
 
-        private void SaveClaim(string status, string filePath)
+        private void SaveClaim(string status, Dictionary<string, string> filePaths)
         {
             string connStr = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
 
@@ -172,6 +190,8 @@ namespace Singlife
                         UsedFreeScreening = @UsedFreeScreening,
                         DeclarationConfirmed = @DeclarationConfirmed,
                         TreatmentFilePath = @TreatmentFilePath,
+                        ScreeningFilePath = @ScreeningFilePath,
+                        OtherFilesPath = @OtherFilesPath,
                         Status = @Status,
                         ModifiedDate = GETDATE()
                     WHERE ClaimID = @ClaimID AND AccountID = @AccountID";
@@ -189,7 +209,9 @@ namespace Singlife
                 cmd.Parameters.AddWithValue("@TherapyType", therapyType.Value);
                 cmd.Parameters.AddWithValue("@UsedFreeScreening", screeningYes.Checked);
                 cmd.Parameters.AddWithValue("@DeclarationConfirmed", declaration.Checked);
-                cmd.Parameters.AddWithValue("@TreatmentFilePath", string.IsNullOrEmpty(filePath) ? (object)DBNull.Value : filePath);
+                cmd.Parameters.AddWithValue("@TreatmentFilePath", filePaths.ContainsKey("TreatmentFilePath") ? filePaths["TreatmentFilePath"] : (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@ScreeningFilePath", filePaths.ContainsKey("ScreeningFilePath") ? filePaths["ScreeningFilePath"] : (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@OtherFilesPath", filePaths.ContainsKey("OtherFilesPath") ? filePaths["OtherFilesPath"] : (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@Status", status);
                 cmd.Parameters.AddWithValue("@ClaimID", claimId);
                 cmd.Parameters.AddWithValue("@AccountID", accountId);

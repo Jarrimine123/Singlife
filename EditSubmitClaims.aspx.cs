@@ -3,7 +3,6 @@ using System.Configuration;
 using System.Data.SqlClient;
 using System.IO;
 using System.Web;
-using System.Xml.Linq;
 
 namespace Singlife
 {
@@ -41,8 +40,8 @@ namespace Singlife
                     if (reader.Read())
                     {
                         diagnosisDate.Value = reader["DiagnosisDate"] is DBNull ? "" : Convert.ToDateTime(reader["DiagnosisDate"]).ToString("yyyy-MM-dd");
-                        treatmentCountry.Value = reader["TreatmentCountry"].ToString();
-                        cancerType.Value = reader["CancerType"].ToString();
+                        treatmentCountry.Value = reader["TreatmentCountry"] is DBNull ? "" : reader["TreatmentCountry"].ToString();
+                        cancerType.Value = reader["CancerType"] is DBNull ? "" : reader["CancerType"].ToString();
 
                         bool firstDiagnosis = reader["FirstDiagnosis"] is DBNull ? false : Convert.ToBoolean(reader["FirstDiagnosis"]);
                         firstYes.Checked = firstDiagnosis;
@@ -57,8 +56,8 @@ namespace Singlife
                         confirmedNo.Checked = !confirmed;
 
                         treatmentDate.Value = reader["TreatmentStartDate"] is DBNull ? "" : Convert.ToDateTime(reader["TreatmentStartDate"]).ToString("yyyy-MM-dd");
-                        hospital.Value = reader["Hospital"].ToString();
-                        therapyType.Value = reader["TherapyType"].ToString();
+                        hospital.Value = reader["Hospital"] is DBNull ? "" : reader["Hospital"].ToString();
+                        therapyType.Value = reader["TherapyType"] is DBNull ? "" : reader["TherapyType"].ToString();
 
                         bool usedScreening = reader["UsedFreeScreening"] is DBNull ? false : Convert.ToBoolean(reader["UsedFreeScreening"]);
                         screeningYes.Checked = usedScreening;
@@ -67,9 +66,9 @@ namespace Singlife
                         bool declarationConfirmed = reader["DeclarationConfirmed"] is DBNull ? false : Convert.ToBoolean(reader["DeclarationConfirmed"]);
                         declaration.Checked = declarationConfirmed;
 
-                        litTreatmentFile.Text = GenerateFileBlock(reader["TreatmentFilePath"].ToString(), "Treatment");
-                        litScreeningFile.Text = GenerateFileBlock(reader["ScreeningFilePath"].ToString(), "Screening");
-                        litOtherFiles.Text = GenerateFileBlock(reader["OtherFilesPath"].ToString(), "Other");
+                        litTreatmentFile.Text = GenerateFileBlock(reader["TreatmentFilePath"] is DBNull ? null : reader["TreatmentFilePath"].ToString(), "Treatment");
+                        litScreeningFile.Text = GenerateFileBlock(reader["ScreeningFilePath"] is DBNull ? null : reader["ScreeningFilePath"].ToString(), "Screening");
+                        litOtherFiles.Text = GenerateFileBlock(reader["OtherFilesPath"] is DBNull ? null : reader["OtherFilesPath"].ToString(), "Other");
                     }
                     else
                     {
@@ -103,10 +102,10 @@ namespace Singlife
             {
                 conn.Open();
 
-                // Get current file path
                 SqlCommand getCmd = new SqlCommand($"SELECT {columnName} FROM Claims WHERE ClaimID = @ClaimID", conn);
                 getCmd.Parameters.AddWithValue("@ClaimID", claimId);
-                string existingPath = (string)getCmd.ExecuteScalar();
+                var pathObj = getCmd.ExecuteScalar();
+                string existingPath = pathObj is DBNull ? null : pathObj.ToString();
 
                 if (!string.IsNullOrEmpty(existingPath))
                 {
@@ -124,7 +123,6 @@ namespace Singlife
 
         protected void btnUpdateClaim_Click(object sender, EventArgs e)
         {
-            // Validate diagnosis date
             if (!DateTime.TryParse(diagnosisDate.Value, out DateTime diagDate))
             {
                 lblError.Text = "Invalid diagnosis date.";
@@ -139,7 +137,6 @@ namespace Singlife
                 return;
             }
 
-            // Check 2-day edit limit (using CreatedDate)
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
@@ -154,7 +151,6 @@ namespace Singlife
                 }
             }
 
-            // Update claim fields
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string sql = @"
@@ -196,7 +192,6 @@ namespace Singlife
                 cmd.ExecuteNonQuery();
             }
 
-            // Handle file uploads
             HandleFileUpload(fuTreatment, "TreatmentFilePath");
             HandleFileUpload(fuScreening, "ScreeningFilePath");
             HandleFileUpload(fuOthers, "OtherFilesPath");
@@ -205,7 +200,7 @@ namespace Singlife
             lblError.Text = "Claim updated successfully.";
             lblError.Visible = true;
 
-            LoadClaimData(claimId); // Reload to refresh file links and UI
+            LoadClaimData(claimId);
         }
 
         private void HandleFileUpload(System.Web.UI.WebControls.FileUpload fu, string columnName)
