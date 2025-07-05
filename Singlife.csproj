@@ -89,6 +89,7 @@
     <Content Include="EverContinueDraft.aspx" />
     <Content Include="EverEditClaims.aspx" />
     <Content Include="GiroApproval.aspx" />
+    <Content Include="GlobalClaim.aspx" />
     <Content Include="GlobalEase.aspx" />
     <Content Include="GlobalEaseQuote.aspx" />
     <Content Include="HomePage.aspx" />
@@ -296,6 +297,13 @@
     </Compile>
     <Compile Include="GiroApproval.aspx.designer.cs">
       <DependentUpon>GiroApproval.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="GlobalClaim.aspx.cs">
+      <DependentUpon>GlobalClaim.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GlobalClaim.aspx.designer.cs">
+      <DependentUpon>GlobalClaim.aspx</DependentUpon>
     </Compile>
     <Compile Include="GlobalEase.aspx.cs">
       <DependentUpon>GlobalEase.aspx</DependentUpon>
