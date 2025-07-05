@@ -110,6 +110,7 @@
                     <li class="nav-item"><a class="nav-link" href="#">Promotions</a></li>
                     <li class="nav-item"><a class="nav-link" href="ClaimService.aspx">Claims</a></li>
                     <li class="nav-item"><a class="nav-link" href="Payment.aspx">Payments</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Pages/Journey_Growth/Journey/Add.aspx">Journey &amp; Growth</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">About Us</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Blog</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Support</a></li>

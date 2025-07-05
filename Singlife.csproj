@@ -125,7 +125,9 @@
     <Content Include="OncoshieldPlan.aspx" />
     <Content Include="OncoShieldQuote.aspx" />
     <Content Include="OncoShieldTimeClaim.aspx" />
+    <Content Include="Pages\Journey_Growth\Journey\Add.aspx" />
     <Content Include="Pages\Journey_Growth\test.aspx" />
+    <Content Include="Pages\Prompts\Pages-Prompt.txt" />
     <Content Include="Pages\Prompts\PromptSrc.txt" />
     <Content Include="Pages\Prompts\TablePrompts.txt" />
     <Content Include="Payment.aspx" />
@@ -410,6 +412,13 @@
     <Compile Include="OncoShieldTimeClaim.aspx.designer.cs">
       <DependentUpon>OncoShieldTimeClaim.aspx</DependentUpon>
     </Compile>
+    <Compile Include="Pages\Journey_Growth\Journey\Add.aspx.cs">
+      <DependentUpon>Add.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="Pages\Journey_Growth\Journey\Add.aspx.designer.cs">
+      <DependentUpon>Add.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Pages\Journey_Growth\test.aspx.cs">
       <DependentUpon>test.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -417,12 +426,12 @@
     <Compile Include="Pages\Journey_Growth\test.aspx.designer.cs">
       <DependentUpon>test.aspx</DependentUpon>
     </Compile>
-    <Compile Include="Pages\Master\jng.Master.cs">
-      <DependentUpon>jng.Master</DependentUpon>
+    <Compile Include="Pages\Master\Journey.Master.cs">
+      <DependentUpon>Journey.Master</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="Pages\Master\jng.Master.designer.cs">
-      <DependentUpon>jng.Master</DependentUpon>
+    <Compile Include="Pages\Master\Journey.Master.designer.cs">
+      <DependentUpon>Journey.Master</DependentUpon>
     </Compile>
     <Compile Include="Payment.aspx.cs">
       <DependentUpon>Payment.aspx</DependentUpon>
@@ -500,7 +509,7 @@
     <Content Include="Customer.Master" />
     <Content Include="Admin.Master" />
     <None Include="packages.config" />
-    <Content Include="Pages\Master\jng.Master" />
+    <Content Include="Pages\Master\Journey.Master" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
