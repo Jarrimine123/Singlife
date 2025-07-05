@@ -1,7 +1,0 @@
-version: "3.1"
-
-stories:
-- story: user asks bot identity
-  steps:
-    - intent: bot_challenge
-    - action: utter_iamabot
