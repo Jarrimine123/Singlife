@@ -142,5 +142,15 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+     <df-messenger
+     chat-title="Singlife Assistant"
+     agent-id="c24473df-a901-4b25-bf50-d5d87b2c31d5"
+     language-code="en"
+     chat-icon="Images/logo.png"
+     background-color="#e60012"
+     text-color="#ffffff"
+     font-family="Arial, sans-serif">
+ </df-messenger>
 </body>
 </html>

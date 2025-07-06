@@ -508,8 +508,8 @@
   <ItemGroup>
     <Content Include="Customer.Master" />
     <Content Include="Admin.Master" />
-    <None Include="packages.config" />
     <Content Include="Pages\Master\Journey.Master" />
+    <None Include="packages.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
