@@ -5,13 +5,12 @@
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-
     <div class="container mt-4">
         <h2>GIRO Approvals and History</h2>
 
         <asp:Label ID="lblMessage" runat="server" CssClass="text-success mb-3"></asp:Label>
 
-        <!-- Optional filters -->
+        <!-- Filters -->
         <div class="mb-3">
             <asp:Label runat="server" Text="Account ID: " AssociatedControlID="txtAccountFilter" />
             <asp:TextBox ID="txtAccountFilter" runat="server" CssClass="form-control d-inline-block w-auto" />
@@ -49,16 +48,16 @@
                     <td><%# Eval("CustomerName") %></td>
                     <td><%# Eval("Amount", "{0:C}") %></td>
                     <td><%# Eval("NextBillingDate", "{0:yyyy-MM-dd}") %></td>
+                    <td><%# Eval("Status") %></td>
                     <td>
-                        <%# Eval("Status") %>
+                        <%# 
+                            Eval("GiroFormPath") != DBNull.Value && 
+                            !string.IsNullOrEmpty(Eval("GiroFormPath").ToString()) 
+                            ? $"<a href='{ResolveUrl("~/GiroForms/" + Eval("GiroFormPath"))}' target='_blank'>Download</a>" 
+                            : "No File" 
+                        %>
                     </td>
                     <td>
-                        <%# Eval("GiroFormPath") != DBNull.Value && !string.IsNullOrEmpty(Eval("GiroFormPath").ToString()) ? 
-                            $"<a href='{ResolveUrl("~/GiroForms/" + Eval("GiroFormPath"))}' target='_blank'>Download</a>" : 
-                            "No File" %>
-                    </td>
-                    <td>
-                        <%-- Only show Approve/Reject if status is Pending --%>
                         <asp:Button ID="btnApprove" runat="server" Text="Approve" CssClass="btn btn-success btn-sm me-2"
                             CommandArgument='<%# Eval("RecurringPaymentID") %>' CommandName="Approve"
                             Visible='<%# Eval("Status").ToString().Equals("Pending", StringComparison.OrdinalIgnoreCase) %>' />
@@ -75,5 +74,4 @@
             </FooterTemplate>
         </asp:Repeater>
     </div>
-
 </asp:Content>

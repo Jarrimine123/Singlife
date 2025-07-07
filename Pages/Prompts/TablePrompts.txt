@@ -1,0 +1,65 @@
+﻿Readiness Profile
+===
+
+CREATE TABLE ReadinessProfile
+(
+    ProfileID INT PRIMARY KEY,
+    AccountID INT NOT NULL,
+    Q1Answer INT NOT NULL,
+    Q2Answer INT NOT NULL,
+    Q3Answer INT NOT NULL,
+    Q4Answer INT NOT NULL,
+    Q5Answer INT NOT NULL,
+    TotalScore INT NOT NULL,
+    ReadinessLevel INT NOT NULL,
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+
+
+);
+
+------------------------------------------------------------------------
+
+Virtual Time Machine
+===
+
+CREATE TABLE VirtualTimeMachine
+(
+    AccountID INT NOT NULL,
+    GeneratedDate DATETIME NOT NULL DEFAULT GETDATE(),
+
+
+);
+
+---------------------------------------------------------------------------
+
+Rewards Type
+===
+
+-- Create the table
+CREATE TABLE RewardsType
+(
+    VoucherTypeID INT PRIMARY KEY,
+    VoucherName NVARCHAR(50) NOT NULL,
+    Value INT NOT NULL
+);
+
+-- Insert the values
+INSERT INTO RewardsType (VoucherTypeID, VoucherName, Value) VALUES (1, 'NTUC Vouchers', 10);
+INSERT INTO RewardsType (VoucherTypeID, VoucherName, Value) VALUES (2, 'Grab Food Vouchers', 20);
+INSERT INTO RewardsType (VoucherTypeID, VoucherName, Value) VALUES (3, 'CapitaLand Vouchers', 25);
+
+-----------------------------------------------------------------------
+
+Rewards Claimed
+===
+
+CREATE TABLE RewardsClaimed
+(
+    RewardID INT IDENTITY(1,1) PRIMARY KEY,
+    AccountID INT NOT NULL,
+    VoucherTypeID INT NOT NULL,
+    AmountClaim INT NOT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
+
+);
+

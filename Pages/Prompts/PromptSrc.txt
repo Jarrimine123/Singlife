@@ -1,0 +1,332 @@
+﻿JourneyMapping data layer
+==========================
+
+Create a data layer in .net C# web forms 4.8
+
+It will have 4 functions
+
+bool AddJourneyMapping(int accountID, int year, string title, string description)
+bool EditJourneyMapping(int milestoneID, int year, string title, string description)
+bool DeleteJourneyMapping(MilestoneID)
+JourneyMapping ReadJourneyMapping(int accountID)
+
+You will also need to create a new class file for 'JourneyMapping'
+this is the DB structure of it:
+
+Column Name		Data Type	Key
+MilestoneID		INT			PK
+AccountID		INT			FK
+Year			INT	
+Title			NVARCHAR	
+Description		NVARCHAR(MAX)	
+CreatedDate		DATETIME	
+ModifiedDate	DATETIME	
+isDeleted		BOOL	
+DeleteDate		DATETIME
+
+the db us using mssql (local), the connection string is defined in web config:
+<connectionStrings>
+		<add name="Singlife"
+			 connectionString="Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Singlife.mdf;Integrated Security=True"
+			 providerName="System.Data.SqlClient" />
+	</connectionStrings>
+
+
+the output will be
+a. JourneyMapping.cs (the class file model)
+b. data layer named (JourneyMappingData.cs)
+
+the name space for data layer is is: namespace Singlife.Data
+the name space for model is is: namespace Singlife.Model
+
+
+JourneyMapping SQL for table
+============================
+
+Generate an SQL for MSSQL DB where table name is 'JourneyMapping' and fields are defined below
+
+Column Name		Data Type	Key
+MilestoneID		INT			PK
+AccountID		INT			FK
+Year			INT	
+Title			NVARCHAR(50)	
+Description		NVARCHAR(255)	
+CreatedDate		DATETIME	
+ModifiedDate	DATETIME	
+isDeleted		BOOL	
+DeleteDate		DATETIME
+
+__________________________________
+
+*Readiness Profile
+==========================
+
+Create a data layer in .net C# web forms 4.8
+
+It will have 2 functions
+
+Bool AddReadinessProfile (int accountID, int profileID, int q1ans , int q2 ans, int q3 ans, int q4, int q5, int ReadinessLevel)
+ReadReadinessProfile ( int AccountID )
+
+You will also need to create a new class file for 'ReadinessProfile'
+this is the DB structure of it:
+
+Column Name		Data Type	Key
+ProfileID		INT			PK
+AccountID		INT			FK
+Q1Answer		INT	
+Q2Answer		INT	
+Q3Answer		INT	
+Q4Answer		INT	
+Q5Answer		INT	
+TotalScore		INT	
+ReadinessLevel	INT	
+CreatedDate		DATETIME	
+		
+the db us using mssql (local), the connection string is defined in web config:
+<connectionStrings>
+		<add name="Singlife"
+			 connectionString="Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Singlife.mdf;Integrated Security=True"
+			 providerName="System.Data.SqlClient" />
+	</connectionStrings>
+
+
+the output will be
+a. ReadinessProfile.cs (the class file model)
+b. data layer named (ReadinessProfile.cs)
+
+the name space for data layer is is: namespace Singlife.Data
+the name space for model is is: namespace Singlife.Model
+
+
+Readiness Profile SQL for table
+============================
+
+Generate an SQL for MSSQL DB where table name is 'ReadinessProfile' and fields are defined below
+
+Column Name		Data Type	Key
+ProfileID		INT			PK
+AccountID		INT			FK
+Q1Answer		INT	
+Q2Answer		INT	
+Q3Answer		INT	
+Q4Answer		INT	
+Q5Answer		INT	
+TotalScore		INT	
+ReadinessLevel	INT	
+CreatedDate		DATETIME
+
+********************
+
+CREATE TABLE ReadinessProfile
+(
+    ProfileID INT PRIMARY KEY,
+    AccountID INT NOT NULL,
+    Q1Answer INT NOT NULL,
+    Q2Answer INT NOT NULL,
+    Q3Answer INT NOT NULL,
+    Q4Answer INT NOT NULL,
+    Q5Answer INT NOT NULL,
+    TotalScore INT NOT NULL,
+    ReadinessLevel INT NOT NULL,
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+
+    CONSTRAINT FK_ReadinessProfile_Account FOREIGN KEY (AccountID)
+        REFERENCES Account(AccountID)
+);
+
+***************************
+
+-------------------------
+
+Virtual Time Machine
+======================
+Create a data layer in .net C# web forms 4.8
+
+It will have 2 functions
+
+Bool AddVirtualTimeMachine(int AccountID)
+Datetime Read(int accountID)
+
+You will also need to create a new class file for 'VirtualTimeMachine'
+this is the DB structure of it:
+
+Column Name		Data Type	Key
+AccountID    	INT			FK
+GeneratedDate	DATETIME	
+		
+the db us using mssql (local), the connection string is defined in web config:
+<connectionStrings>
+		<add name="Singlife"
+			 connectionString="Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Singlife.mdf;Integrated Security=True"
+			 providerName="System.Data.SqlClient" />
+	</connectionStrings>
+
+
+the output will be
+a. VirtualTimeMachine.cs (the class file model)
+b. data layer named (VirtualTimeMachine.cs)
+
+the name space for data layer is is: namespace Singlife.Data
+the name space for model is is: namespace Singlife.Model
+
+Virtual Time Machine SQL for table
+============================
+
+Generate an SQL for MSSQL DB where table name is 'Virtual Time Machine' and fields are defined below
+
+Column Name		Data Type	Key
+AccountID    	INT			FK
+GeneratedDate	DATETIME	
+
+*******************
+
+CREATE TABLE VirtualTimeMachine
+(
+    AccountID INT NOT NULL,
+    GeneratedDate DATETIME NOT NULL DEFAULT GETDATE(),
+
+    CONSTRAINT FK_VirtualTimeMachine_Account FOREIGN KEY (AccountID)
+        REFERENCES Account(AccountID)
+);
+
+***************
+
+--------------------
+
+Rewards type SQL for table
+============================
+
+Generate an SQL for MSSQL DB where table name is 'Rewards Type' and fields are defined below
+
+Column Name		Data Type	Key
+VoucherTypeID	     INT
+VoucherName	         INT
+Value                INT
+
+Insert these values in the table
+
+VoucherTypeID	VoucherName	    Value
+1	            NTUC	        50
+2	            GRAB	        20
+3	            CAPITALAND	    30
+
+***************
+
+-- Create the table
+CREATE TABLE RewardsType
+(
+    VoucherTypeID INT PRIMARY KEY,
+    VoucherName NVARCHAR(50) NOT NULL,
+    Value INT NOT NULL
+);
+
+-- Insert the values
+INSERT INTO RewardsType (VoucherTypeID, VoucherName, Value) VALUES (1, 'NTUC', 50);
+INSERT INTO RewardsType (VoucherTypeID, VoucherName, Value) VALUES (2, 'GRAB', 20);
+INSERT INTO RewardsType (VoucherTypeID, VoucherName, Value) VALUES (3, 'CAPITALAND', 30);
+
+***********************
+
+-------------------------------
+
+
+Rewards Claimed
+======================
+Create a data layer in .net C# web forms 4.8
+
+It will have 2 functions
+
+AddRewardsClaimed(int AccountID, int VoucherID, int AmountClaim, datetime DateCreated)
+RewardsClaimed ReadRewardsClaimed(accountID. VoucherID)
+
+You will also need to create a new class file for 'RewardsClaimed'
+this is the DB structure of it:
+
+Column Name		Data Type	Key
+RewardID		INT
+AccountID    	INT			FK
+VoucherID		INT
+AmountClaim		INT
+DateCreated 	DATETIME	
+		
+the db us using mssql (local), the connection string is defined in web config:
+<connectionStrings>
+		<add name="Singlife"
+			 connectionString="Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Singlife.mdf;Integrated Security=True"
+			 providerName="System.Data.SqlClient" />
+	</connectionStrings>
+
+
+the output will be
+a. RewardsClaimed.cs (the class file model)
+b. data layer named (RewardsClaimed.cs)
+
+the name space for data layer is is: namespace Singlife.Data
+the name space for model is is: namespace Singlife.Model
+
+Rewards Claimed SQL for table
+============================
+
+Generate an SQL for MSSQL DB where table name is 'Rewards Claimed' and fields are defined below
+
+Column Name		Data Type	Key
+RewardID		INT
+AccountID    	INT			FK
+VoucherID		INT
+AmountClaim		INT
+DateCreated 	DATETIME
+
+******************
+
+CREATE TABLE RewardsClaimed
+(
+    RewardID INT IDENTITY(1,1) PRIMARY KEY,
+    AccountID INT NOT NULL,
+    VoucherID INT NOT NULL,
+    AmountClaim INT NOT NULL,
+    DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
+
+    CONSTRAINT FK_RewardsClaimed_Account FOREIGN KEY (AccountID)
+        REFERENCES Account(AccountID)
+);
+
+**************************
+
+
+rewards type
+=============
+
+RewardsType ReadRewardsType()
+
+Create a data layer in .net C# web forms 4.8
+
+It will have 1 function
+
+RewardsType ReadRewardsType()
+
+
+You will also need to create a new class file for 'RewardsClaimed'
+this is the DB structure of it:
+
+CREATE TABLE RewardsType
+(
+    VoucherTypeID INT PRIMARY KEY,
+    VoucherName NVARCHAR(50) NOT NULL,
+    Value INT NOT NULL
+);
+		
+the db us using mssql (local), the connection string is defined in web config:
+<connectionStrings>
+		<add name="Singlife"
+			 connectionString="Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\Singlife.mdf;Integrated Security=True"
+			 providerName="System.Data.SqlClient" />
+	</connectionStrings>
+
+
+the output will be
+a. RewardsType.cs (the class file model)
+b. data layer named (RewardsTypeData.cs)
+
+the name space for data layer is is: namespace Singlife.Data
+the name space for model is is: namespace Singlife.Model

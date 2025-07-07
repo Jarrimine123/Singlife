@@ -9,7 +9,7 @@
         <div class="alert alert-warning d-flex align-items-center mb-4" role="alert">
             <i class="bi bi-clock-fill me-2"></i>
             <div>
-                <strong>Estimated time to complete:</strong> 15–20 mins<br />
+                <strong>Estimated time to complete:</strong> 10–15 mins<br />
                 <small>You can save your submission as a draft anytime and continue later.</small>
             </div>
         </div>

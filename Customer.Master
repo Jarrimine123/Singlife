@@ -85,7 +85,7 @@
                                     <h6 class="text-primary">Lifestyle Insurance</h6>
                                     <a class="dropdown-item" href="#">CareCircle Legacy Plan</a>
                                     <a class="dropdown-item" href="#">LifeFlex Wellness Plan</a>
-                                    <a class="dropdown-item" href="#">GlobeEase Travel Plan</a>
+                                    <a class="dropdown-item" href="GlobalEase.aspx">GlobeEase Travel Plan</a>
                                 </div>
                                 <div class="col-md-3">
                                     <h6 class="text-primary">Invest</h6>
@@ -110,6 +110,7 @@
                     <li class="nav-item"><a class="nav-link" href="#">Promotions</a></li>
                     <li class="nav-item"><a class="nav-link" href="ClaimService.aspx">Claims</a></li>
                     <li class="nav-item"><a class="nav-link" href="Payment.aspx">Payments</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Pages/Journey_Growth/Journey/Add.aspx">Journey &amp; Growth</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">About Us</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Blog</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Support</a></li>
@@ -120,7 +121,7 @@
                             <img src="Images/Cart.jpg" height="24" alt="Cart" />
                         </a>
                     </li>
-                    <li class="nav-item"><a class="nav-link" href="#">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="Login.aspx">Login</a></li>
                 </ul>
             </div>
         </nav>
@@ -141,5 +142,15 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://www.gstatic.com/dialogflow-console/fast/messenger/bootstrap.js?v=1"></script>
+     <df-messenger
+     chat-title="Singlife Assistant"
+     agent-id="c24473df-a901-4b25-bf50-d5d87b2c31d5"
+     language-code="en"
+     chat-icon="Images/logo.png"
+     background-color="#e60012"
+     text-color="#ffffff"
+     font-family="Arial, sans-serif">
+ </df-messenger>
 </body>
 </html>
