@@ -150,15 +150,6 @@ namespace Singlife
         protected global::System.Web.UI.WebControls.FileUpload fuHospitalDoc;
 
         /// <summary>
-        /// btnDeleteHospitalDoc control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnDeleteHospitalDoc;
-
-        /// <summary>
         /// litFollowupDoc control.
         /// </summary>
         /// <remarks>
@@ -177,15 +168,6 @@ namespace Singlife
         protected global::System.Web.UI.WebControls.FileUpload fuFollowupDoc;
 
         /// <summary>
-        /// btnDeleteFollowupDoc control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnDeleteFollowupDoc;
-
-        /// <summary>
         /// litOtherFiles control.
         /// </summary>
         /// <remarks>
@@ -202,15 +184,6 @@ namespace Singlife
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.FileUpload fuOtherFiles;
-
-        /// <summary>
-        /// btnDeleteOtherFiles control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnDeleteOtherFiles;
 
         /// <summary>
         /// btnUpdateClaim control.

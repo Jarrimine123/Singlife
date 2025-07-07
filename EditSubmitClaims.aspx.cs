@@ -2,7 +2,8 @@
 using System.Configuration;
 using System.Data.SqlClient;
 using System.IO;
-using System.Web;
+using System.Web.UI.WebControls;
+using System.Xml.Linq;
 
 namespace Singlife
 {
@@ -39,9 +40,9 @@ namespace Singlife
                 {
                     if (reader.Read())
                     {
-                        diagnosisDate.Value = reader["DiagnosisDate"] is DBNull ? "" : Convert.ToDateTime(reader["DiagnosisDate"]).ToString("yyyy-MM-dd");
-                        treatmentCountry.Value = reader["TreatmentCountry"] is DBNull ? "" : reader["TreatmentCountry"].ToString();
-                        cancerType.Value = reader["CancerType"] is DBNull ? "" : reader["CancerType"].ToString();
+                        diagnosisDate.Text = reader["DiagnosisDate"] is DBNull ? "" : Convert.ToDateTime(reader["DiagnosisDate"]).ToString("yyyy-MM-dd");
+                        treatmentCountry.Text = reader["TreatmentCountry"] is DBNull ? "" : reader["TreatmentCountry"].ToString();
+                        cancerType.Text = reader["CancerType"] is DBNull ? "" : reader["CancerType"].ToString();
 
                         bool firstDiagnosis = reader["FirstDiagnosis"] is DBNull ? false : Convert.ToBoolean(reader["FirstDiagnosis"]);
                         firstYes.Checked = firstDiagnosis;
@@ -55,9 +56,9 @@ namespace Singlife
                         confirmedYes.Checked = confirmed;
                         confirmedNo.Checked = !confirmed;
 
-                        treatmentDate.Value = reader["TreatmentStartDate"] is DBNull ? "" : Convert.ToDateTime(reader["TreatmentStartDate"]).ToString("yyyy-MM-dd");
-                        hospital.Value = reader["Hospital"] is DBNull ? "" : reader["Hospital"].ToString();
-                        therapyType.Value = reader["TherapyType"] is DBNull ? "" : reader["TherapyType"].ToString();
+                        treatmentDate.Text = reader["TreatmentStartDate"] is DBNull ? "" : Convert.ToDateTime(reader["TreatmentStartDate"]).ToString("yyyy-MM-dd");
+                        hospital.Text = reader["Hospital"] is DBNull ? "" : reader["Hospital"].ToString();
+                        therapyType.SelectedValue = reader["TherapyType"] is DBNull ? "" : reader["TherapyType"].ToString();
 
                         bool usedScreening = reader["UsedFreeScreening"] is DBNull ? false : Convert.ToBoolean(reader["UsedFreeScreening"]);
                         screeningYes.Checked = usedScreening;
@@ -66,9 +67,9 @@ namespace Singlife
                         bool declarationConfirmed = reader["DeclarationConfirmed"] is DBNull ? false : Convert.ToBoolean(reader["DeclarationConfirmed"]);
                         declaration.Checked = declarationConfirmed;
 
-                        litTreatmentFile.Text = GenerateFileBlock(reader["TreatmentFilePath"] is DBNull ? null : reader["TreatmentFilePath"].ToString(), "Treatment");
-                        litScreeningFile.Text = GenerateFileBlock(reader["ScreeningFilePath"] is DBNull ? null : reader["ScreeningFilePath"].ToString(), "Screening");
-                        litOtherFiles.Text = GenerateFileBlock(reader["OtherFilesPath"] is DBNull ? null : reader["OtherFilesPath"].ToString(), "Other");
+                        litTreatmentFile.Text = GenerateFileBlock(reader["TreatmentFilePath"] is DBNull ? null : reader["TreatmentFilePath"].ToString());
+                        litScreeningFile.Text = GenerateFileBlock(reader["ScreeningFilePath"] is DBNull ? null : reader["ScreeningFilePath"].ToString());
+                        litOtherFiles.Text = GenerateFileBlock(reader["OtherFilesPath"] is DBNull ? null : reader["OtherFilesPath"].ToString());
                     }
                     else
                     {
@@ -79,11 +80,11 @@ namespace Singlife
             }
         }
 
-        private string GenerateFileBlock(string filePath, string type)
+        private string GenerateFileBlock(string filePath)
         {
             if (string.IsNullOrEmpty(filePath))
             {
-                return $"<div class='text-muted'>No file uploaded.</div>";
+                return "<div class='text-muted'>No file uploaded.</div>";
             }
             string fileName = Path.GetFileName(filePath);
             return $@"
@@ -92,38 +93,9 @@ namespace Singlife
                 </div>";
         }
 
-        protected void btnDeleteTreatment_Click(object sender, EventArgs e) => DeleteFile("TreatmentFilePath");
-        protected void btnDeleteScreening_Click(object sender, EventArgs e) => DeleteFile("ScreeningFilePath");
-        protected void btnDeleteOthers_Click(object sender, EventArgs e) => DeleteFile("OtherFilesPath");
-
-        private void DeleteFile(string columnName)
-        {
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                conn.Open();
-
-                SqlCommand getCmd = new SqlCommand($"SELECT {columnName} FROM Claims WHERE ClaimID = @ClaimID", conn);
-                getCmd.Parameters.AddWithValue("@ClaimID", claimId);
-                var pathObj = getCmd.ExecuteScalar();
-                string existingPath = pathObj is DBNull ? null : pathObj.ToString();
-
-                if (!string.IsNullOrEmpty(existingPath))
-                {
-                    string fullPath = Server.MapPath("~/" + existingPath);
-                    if (File.Exists(fullPath))
-                        File.Delete(fullPath);
-
-                    SqlCommand clearCmd = new SqlCommand($"UPDATE Claims SET {columnName} = NULL WHERE ClaimID = @ClaimID", conn);
-                    clearCmd.Parameters.AddWithValue("@ClaimID", claimId);
-                    clearCmd.ExecuteNonQuery();
-                }
-            }
-            Response.Redirect(Request.RawUrl);
-        }
-
         protected void btnUpdateClaim_Click(object sender, EventArgs e)
         {
-            if (!DateTime.TryParse(diagnosisDate.Value, out DateTime diagDate))
+            if (!DateTime.TryParse(diagnosisDate.Text, out DateTime diagDate))
             {
                 lblError.Text = "Invalid diagnosis date.";
                 lblError.Visible = true;
@@ -171,19 +143,19 @@ namespace Singlife
 
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@DiagnosisDate", diagDate);
-                cmd.Parameters.AddWithValue("@TreatmentCountry", treatmentCountry.Value);
-                cmd.Parameters.AddWithValue("@CancerType", cancerType.Value);
+                cmd.Parameters.AddWithValue("@TreatmentCountry", treatmentCountry.Text);
+                cmd.Parameters.AddWithValue("@CancerType", cancerType.Text);
                 cmd.Parameters.AddWithValue("@FirstDiagnosis", firstYes.Checked);
                 cmd.Parameters.AddWithValue("@ReceivedTreatment", treatmentYes.Checked);
                 cmd.Parameters.AddWithValue("@ConfirmedBySpecialist", confirmedYes.Checked);
 
-                if (string.IsNullOrEmpty(treatmentDate.Value))
+                if (string.IsNullOrEmpty(treatmentDate.Text))
                     cmd.Parameters.AddWithValue("@TreatmentStartDate", DBNull.Value);
                 else
-                    cmd.Parameters.AddWithValue("@TreatmentStartDate", DateTime.Parse(treatmentDate.Value));
+                    cmd.Parameters.AddWithValue("@TreatmentStartDate", DateTime.Parse(treatmentDate.Text));
 
-                cmd.Parameters.AddWithValue("@Hospital", hospital.Value);
-                cmd.Parameters.AddWithValue("@TherapyType", therapyType.Value);
+                cmd.Parameters.AddWithValue("@Hospital", hospital.Text);
+                cmd.Parameters.AddWithValue("@TherapyType", therapyType.SelectedValue);
                 cmd.Parameters.AddWithValue("@UsedFreeScreening", screeningYes.Checked);
                 cmd.Parameters.AddWithValue("@DeclarationConfirmed", declaration.Checked);
                 cmd.Parameters.AddWithValue("@ClaimID", claimId);
@@ -203,7 +175,7 @@ namespace Singlife
             LoadClaimData(claimId);
         }
 
-        private void HandleFileUpload(System.Web.UI.WebControls.FileUpload fu, string columnName)
+        private void HandleFileUpload(FileUpload fu, string columnName)
         {
             if (fu.HasFile)
             {

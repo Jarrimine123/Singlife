@@ -1,7 +1,6 @@
 ﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="EverEditClaims.aspx.cs" Inherits="Singlife.EverEditClaims" %>
 
 <!DOCTYPE html>
-
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head runat="server">
     <title>Edit EverCare Claim</title>
@@ -40,6 +39,11 @@
         }
         .file-actions {
             margin-top: 10px;
+        }
+        .file-note {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 4px;
         }
     </style>
 </head>
@@ -106,7 +110,7 @@
                             <asp:Literal ID="litHospitalDoc" runat="server" />
                             <div class="file-actions">
                                 <asp:FileUpload ID="fuHospitalDoc" runat="server" CssClass="form-control" />
-                                <asp:Button ID="btnDeleteHospitalDoc" runat="server" Text="Delete Hospital Document" CssClass="btn btn-outline-danger btn-sm mt-2" OnClick="btnDeleteHospitalDoc_Click" />
+                                <div class="file-note">You may re-upload. Previously uploaded files are kept in company records.</div>
                             </div>
                         </div>
 
@@ -115,7 +119,7 @@
                             <asp:Literal ID="litFollowupDoc" runat="server" />
                             <div class="file-actions">
                                 <asp:FileUpload ID="fuFollowupDoc" runat="server" CssClass="form-control" />
-                                <asp:Button ID="btnDeleteFollowupDoc" runat="server" Text="Delete Follow-up Document" CssClass="btn btn-outline-danger btn-sm mt-2" OnClick="btnDeleteFollowupDoc_Click" />
+                                <div class="file-note">You may re-upload. Previously uploaded files are kept in company records.</div>
                             </div>
                         </div>
 
@@ -124,7 +128,7 @@
                             <asp:Literal ID="litOtherFiles" runat="server" />
                             <div class="file-actions">
                                 <asp:FileUpload ID="fuOtherFiles" runat="server" CssClass="form-control" />
-                                <asp:Button ID="btnDeleteOtherFiles" runat="server" Text="Delete Other Documents" CssClass="btn btn-outline-danger btn-sm mt-2" OnClick="btnDeleteOtherFiles_Click" />
+                                <div class="file-note">You may re-upload. Previously uploaded files are kept in company records.</div>
                             </div>
                         </div>
                     </div>

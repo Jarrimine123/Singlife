@@ -48,7 +48,10 @@ namespace Singlife
 
             DataRow row = dt.NewRow();
             row["ProductName"] = "Medical Insurance";
-            row["PlanName"] = productName == "EverCare" ? "EverCare Plan" : productName + " Plan";
+
+            // ✅ Changed: Use productName directly without appending " Plan"
+            row["PlanName"] = productName;
+
             row["CoverageAmount"] = coverage;
             row["AnnualPremium"] = annualPremium;
             row["MonthlyPremium"] = monthlyPremium;
@@ -63,6 +66,7 @@ namespace Singlife
             decimal totalPremium = (frequency == "Monthly") ? monthlyPremium : annualPremium;
             lblTotalMonthly.Text = totalPremium.ToString("C");
         }
+
 
         private void LoadCartItems()
         {
@@ -245,7 +249,7 @@ namespace Singlife
                 message.IsBodyHtml = false;
 
                 SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
-                client.Credentials = new NetworkCredential("singlifeeeeeeke@gmail.com", "pnfupbxiznvokifd");
+                client.Credentials = new NetworkCredential("singlifeeeeeeke@gmail.com", "szuajgjjwtoxazzy");
                 client.EnableSsl = true;
 
                 client.Send(message);
