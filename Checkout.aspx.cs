@@ -166,12 +166,18 @@ namespace Singlife
                     decimal monthly = annual / 12;
                     string frequency = row["PaymentFrequency"].ToString();
                     string paymentMethod = frequency == "Monthly" ? "Card Monthly" : "Card Annual";
+                    DateTime purchaseDate = DateTime.Now;
+
+                    // ✅ NEW: Calculate NextBillingDate
+                    DateTime nextBillingDate = frequency == "Monthly"
+                        ? purchaseDate.AddMonths(1)
+                        : purchaseDate.AddYears(1);
 
                     string insertQuery = @"
                         INSERT INTO Purchases 
-                        (PurchaseGroupID, AccountID, FullName, Email, Phone, Address, ProductName, PlanName, CoverageAmount, AnnualPremium, MonthlyPremium, PaymentMethod, CardLast4, PaymentFrequency)
+                        (PurchaseGroupID, AccountID, FullName, Email, Phone, Address, ProductName, PlanName, CoverageAmount, AnnualPremium, MonthlyPremium, PaymentMethod, CardLast4, PaymentFrequency, NextBillingDate)
                         VALUES 
-                        (@PurchaseGroupID, @AccountID, @FullName, @Email, @Phone, @Address, @ProductName, @PlanName, @CoverageAmount, @AnnualPremium, @MonthlyPremium, @PaymentMethod, @CardLast4, @PaymentFrequency)";
+                        (@PurchaseGroupID, @AccountID, @FullName, @Email, @Phone, @Address, @ProductName, @PlanName, @CoverageAmount, @AnnualPremium, @MonthlyPremium, @PaymentMethod, @CardLast4, @PaymentFrequency, @NextBillingDate)";
 
                     using (SqlCommand cmd = new SqlCommand(insertQuery, conn))
                     {
@@ -189,6 +195,7 @@ namespace Singlife
                         cmd.Parameters.AddWithValue("@PaymentMethod", paymentMethod);
                         cmd.Parameters.AddWithValue("@CardLast4", cardNumber.Substring(cardNumber.Length - 4));
                         cmd.Parameters.AddWithValue("@PaymentFrequency", frequency);
+                        cmd.Parameters.AddWithValue("@NextBillingDate", nextBillingDate);
 
                         cmd.ExecuteNonQuery();
                     }
