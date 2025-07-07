@@ -125,6 +125,8 @@
     <Content Include="Payment.aspx" />
     <Content Include="SaveAsDraft.aspx" />
     <Content Include="Staffclaim.aspx" />
+    <Content Include="StaffHomePage.aspx" />
+    <Content Include="StaffLogin.aspx" />
     <Content Include="StaffPurchase.aspx" />
     <Content Include="StaffReview.aspx" />
     <Content Include="startclaim.aspx" />
@@ -393,6 +395,20 @@
     </Compile>
     <Compile Include="Staffclaim.aspx.designer.cs">
       <DependentUpon>Staffclaim.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StaffHomePage.aspx.cs">
+      <DependentUpon>StaffHomePage.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StaffHomePage.aspx.designer.cs">
+      <DependentUpon>StaffHomePage.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="StaffLogin.aspx.cs">
+      <DependentUpon>StaffLogin.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="StaffLogin.aspx.designer.cs">
+      <DependentUpon>StaffLogin.aspx</DependentUpon>
     </Compile>
     <Compile Include="StaffPurchase.aspx.cs">
       <DependentUpon>StaffPurchase.aspx</DependentUpon>
