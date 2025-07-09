@@ -242,14 +242,14 @@ namespace Singlife
 
                 MailMessage message = new MailMessage();
                 message.To.Add(email);
-                message.From = new MailAddress("singlifeeeeeeke@gmail.com", "Singlife Team");
+                message.From = new MailAddress("singlifeteam@gmail.com", "Singlife Team");
                 message.Subject = "🛒 Singlife Insurance Purchase Confirmation";
                 message.Body = $"Thank you for your purchase!\n\nYou’ve successfully purchased the following plan(s):\n\n{planSummary}" +
                                "\nYour policy will be processed and activated shortly.\n\nRegards,\nSinglife Team";
                 message.IsBodyHtml = false;
 
                 SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
-                client.Credentials = new NetworkCredential("singlifeeeeeeke@gmail.com", "szuajgjjwtoxazzy");
+                client.Credentials = new NetworkCredential("singlifeteam@gmail.com", "lfpafqorspawhzag");
                 client.EnableSsl = true;
 
                 client.Send(message);

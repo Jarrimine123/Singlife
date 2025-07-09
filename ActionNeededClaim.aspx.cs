@@ -152,13 +152,13 @@ namespace Singlife
             {
                 MailMessage message = new MailMessage();
                 message.To.Add(email);
-                message.From = new MailAddress("singlifeeeeeeke@gmail.com");
+                message.From = new MailAddress("singlifeteam@gmail.com");
                 message.Subject = "Claim Document Re-uploaded";
                 message.Body = "We’ve received your updated document. Your claim status is now 'Successfully Reuploaded'. Our team will review it shortly.";
                 message.IsBodyHtml = false;
 
                 SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
-                client.Credentials = new NetworkCredential("singlifeeeeeeke@gmail.com", "pnfupbxiznvokifd");
+                client.Credentials = new NetworkCredential("singlifeteam@gmail.com", "lfpafqorspawhzag");
                 client.EnableSsl = true;
 
                 client.Send(message);

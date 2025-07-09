@@ -503,9 +503,9 @@ ORDER BY P.PurchaseDate DESC";
         {
             try
             {
-                var fromAddress = new MailAddress("singlifeeeeeeke@gmail.com", "Singlife Team");
+                var fromAddress = new MailAddress("singlifeteam@gmail.com", "Singlife Team");
                 var toAddress = new MailAddress(toEmail);
-                const string fromPassword = "szuajgjjwtoxazzy"; // Gmail App Password
+                const string fromPassword = "lfpafqorspawhzag"; // Gmail App Password
 
                 var smtp = new SmtpClient
                 {
