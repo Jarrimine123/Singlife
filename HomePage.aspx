@@ -5,8 +5,8 @@
     <div class="container">
         <h1>Welcome to SingLife</h1>
         <p>Your one-stop solution for all insurance needs.</p>
-        <p>Test again</p>
-        <p>Testing testing</p>
+
+
     </div>
 </asp:Content>
 
