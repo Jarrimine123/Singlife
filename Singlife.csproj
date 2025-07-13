@@ -88,6 +88,7 @@
     <Content Include="EverCareTimeClaim.aspx" />
     <Content Include="EverContinueDraft.aspx" />
     <Content Include="EverEditClaims.aspx" />
+    <Content Include="GetInTouch.aspx" />
     <Content Include="GiroApproval.aspx" />
     <Content Include="GlobalTimeClaim.aspx" />
     <Content Include="GlobalEase.aspx" />
@@ -95,6 +96,7 @@
     <Content Include="HomePage.aspx" />
     <Content Include="Images\background.png" />
     <Content Include="Images\Cart.jpg" />
+    <Content Include="Images\Retireconsult.jpg" />
     <Content Include="Images\Evercare.jpg" />
     <Content Include="Images\Evercare.PNG" />
     <Content Include="Images\GAIr.jpg" />
@@ -132,6 +134,9 @@
     <Content Include="Payment.aspx" />
     <Content Include="PayoutCalculator.aspx" />
     <Content Include="PremiumCalculator.aspx" />
+    <Content Include="RetirementCalculators.aspx" />
+    <Content Include="RetirementDetails.aspx" />
+    <Content Include="RetirementInfo.aspx" />
     <Content Include="SaveAsDraft.aspx" />
     <Content Include="SQL\JourneyMapping_table.sql" />
     <Content Include="Staffclaim.aspx" />
@@ -305,6 +310,13 @@
     <Compile Include="EverEditClaims.aspx.designer.cs">
       <DependentUpon>EverEditClaims.aspx</DependentUpon>
     </Compile>
+    <Compile Include="GetInTouch.aspx.cs">
+      <DependentUpon>GetInTouch.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="GetInTouch.aspx.designer.cs">
+      <DependentUpon>GetInTouch.aspx</DependentUpon>
+    </Compile>
     <Compile Include="GiroApproval.aspx.cs">
       <DependentUpon>GiroApproval.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -450,6 +462,27 @@
     </Compile>
     <Compile Include="PremiumCalculator.aspx.designer.cs">
       <DependentUpon>PremiumCalculator.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="RetirementCalculators.aspx.cs">
+      <DependentUpon>RetirementCalculators.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="RetirementCalculators.aspx.designer.cs">
+      <DependentUpon>RetirementCalculators.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="RetirementDetails.aspx.cs">
+      <DependentUpon>RetirementDetails.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="RetirementDetails.aspx.designer.cs">
+      <DependentUpon>RetirementDetails.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="RetirementInfo.aspx.cs">
+      <DependentUpon>RetirementInfo.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="RetirementInfo.aspx.designer.cs">
+      <DependentUpon>RetirementInfo.aspx</DependentUpon>
     </Compile>
     <Compile Include="SaveAsDraft.aspx.cs">
       <DependentUpon>SaveAsDraft.aspx</DependentUpon>

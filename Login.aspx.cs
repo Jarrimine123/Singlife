@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
 using System.Web.UI;
-using System.Web.UI.WebControls;
 
 namespace Singlife
 {
@@ -14,7 +10,6 @@ namespace Singlife
         protected void Page_Load(object sender, EventArgs e)
         {
             UnobtrusiveValidationMode = System.Web.UI.UnobtrusiveValidationMode.None;
-
         }
 
         protected void btnLogin_Click(object sender, EventArgs e)
@@ -40,25 +35,28 @@ namespace Singlife
                         string storedPassword = reader["PasswordHash"].ToString();
                         if (password == storedPassword)
                         {
-                            // ✅ Save both AccountID and UserEmail to session
                             Session["UserEmail"] = email;
                             Session["AccountID"] = reader["AccountID"];
-
-                            Response.Redirect("HomePage.aspx"); // Redirect to quote page or homepage
+                            Response.Redirect("HomePage.aspx");
                         }
                         else
                         {
-                            lblError.Text = "Incorrect password.";
+                            ShowCustomModal("Incorrect password.");
                         }
                     }
                     else
                     {
-                        lblError.Text = "Email not found.";
+                        ShowCustomModal("Email not found.");
                     }
                 }
             }
         }
 
+        private void ShowCustomModal(string message)
+        {
+            string safeMessage = message.Replace("'", "\\'");
+            string script = $"showModal('{safeMessage}');";
+            ClientScript.RegisterStartupScript(this.GetType(), "CustomModal", script, true);
+        }
     }
 }
-
