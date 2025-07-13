@@ -143,11 +143,13 @@ namespace Singlife
             decimal annualPremium = coverage * finalRate;
             decimal monthlyPremium = annualPremium / 12;
 
-            string url = $"Checkout.aspx?product=EverCarePlan&coverage={coverage}&preExisting={preExisting}&criticalIllness={criticalIllness}&frequency={frequency}&annual={annualPremium}&monthly={monthlyPremium}";
+            // ✅ Match PlanName format with Add to Cart (add the space)
+            string url = $"Checkout.aspx?product=EverCare Plan&coverage={coverage}&preExisting={preExisting}&criticalIllness={criticalIllness}&frequency={frequency}&annual={annualPremium}&monthly={monthlyPremium}";
 
             ResetForm();
             Response.Redirect(url);
         }
+
 
         private void ShowValidationError(string message)
         {

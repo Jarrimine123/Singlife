@@ -36,8 +36,10 @@
             margin-top: 10px;
             background-color: #f8f9fa;
         }
-        .file-actions {
-            margin-top: 10px;
+        .file-note {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 4px;
         }
     </style>
 </head>
@@ -53,61 +55,55 @@
                     <div class="form-section">
                         <h5>Claim Details</h5>
                         <div class="mb-3">
-                            <label class="form-label" for="diagnosisDate">Date of Diagnosis</label>
-                            <input type="date" id="diagnosisDate" runat="server" class="form-control" />
+                            <label for="diagnosisDate" class="form-label">Diagnosis Date</label>
+                           <asp:TextBox ID="diagnosisDate" runat="server" CssClass="form-control" TextMode="Date" />
                         </div>
                         <div class="mb-3">
-                            <label class="form-label" for="treatmentCountry">Country of Treatment</label>
-                            <input type="text" id="treatmentCountry" runat="server" class="form-control" />
+                            <label for="treatmentCountry" class="form-label">Country of Treatment</label>
+                            <asp:TextBox ID="treatmentCountry" runat="server" CssClass="form-control" />
                         </div>
                         <div class="mb-3">
-                            <label class="form-label" for="cancerType">Type of Cancer Diagnosed</label>
-                            <input type="text" id="cancerType" runat="server" class="form-control" />
+                            <label for="cancerType" class="form-label">Type of Cancer Diagnosed</label>
+                            <asp:TextBox ID="cancerType" runat="server" CssClass="form-control" />
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Is this your first cancer diagnosis?</label><br />
-                            <input type="radio" id="firstYes" runat="server" name="firstDiagnosis" class="form-check-input" />
-                            <label for="firstYes" class="form-check-label me-3">Yes</label>
-                            <input type="radio" id="firstNo" runat="server" name="firstDiagnosis" class="form-check-input" />
-                            <label for="firstNo" class="form-check-label">No</label>
+                            <asp:RadioButton ID="firstYes" GroupName="firstDiagnosis" runat="server" Text="Yes" CssClass="form-check-input" />
+                            <asp:RadioButton ID="firstNo" GroupName="firstDiagnosis" runat="server" Text="No" CssClass="form-check-input" />
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Have you received treatment?</label><br />
-                            <input type="radio" id="treatmentYes" runat="server" name="receivedTreatment" class="form-check-input" />
-                            <label for="treatmentYes" class="form-check-label me-3">Yes</label>
-                            <input type="radio" id="treatmentNo" runat="server" name="receivedTreatment" class="form-check-input" />
-                            <label for="treatmentNo" class="form-check-label">No</label>
+                            <asp:RadioButton ID="treatmentYes" GroupName="receivedTreatment" runat="server" Text="Yes" CssClass="form-check-input" />
+                            <asp:RadioButton ID="treatmentNo" GroupName="receivedTreatment" runat="server" Text="No" CssClass="form-check-input" />
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Was this diagnosis confirmed by a specialist?</label><br />
-                            <input type="radio" id="confirmedYes" runat="server" name="confirmed" class="form-check-input" />
-                            <label for="confirmedYes" class="form-check-label me-3">Yes</label>
-                            <input type="radio" id="confirmedNo" runat="server" name="confirmed" class="form-check-input" />
-                            <label for="confirmedNo" class="form-check-label">No</label>
+                            <asp:RadioButton ID="confirmedYes" GroupName="confirmed" runat="server" Text="Yes" CssClass="form-check-input" />
+                            <asp:RadioButton ID="confirmedNo" GroupName="confirmed" runat="server" Text="No" CssClass="form-check-input" />
                         </div>
                     </div>
 
                     <div class="form-section">
                         <h5>Treatment Information</h5>
                         <div class="mb-3">
-                            <label class="form-label" for="treatmentDate">Treatment Start Date</label>
-                            <input type="date" id="treatmentDate" runat="server" class="form-control" />
+                            <label for="treatmentDate" class="form-label">Treatment Start Date</label>
+                            <asp:TextBox ID="treatmentDate" runat="server" CssClass="form-control" TextMode="Date" />
                         </div>
                         <div class="mb-3">
-                            <label class="form-label" for="hospital">Which clinic or hospital?</label>
-                            <input type="text" id="hospital" runat="server" class="form-control" />
+                            <label for="hospital" class="form-label">Which clinic or hospital?</label>
+                            <asp:TextBox ID="hospital" runat="server" CssClass="form-control" />
                         </div>
                         <div class="mb-3">
-                            <label class="form-label" for="therapyType">Type of Therapy</label>
-                            <select id="therapyType" runat="server" class="form-select">
-                                <option value="">-- Select therapy --</option>
-                                <option>Chemotherapy</option>
-                                <option>Targeted Therapy</option>
-                                <option>Proton Beam Therapy</option>
-                                <option>Gene Therapy</option>
-                                <option>Cell Therapy</option>
-                                <option>Other</option>
-                            </select>
+                            <label for="therapyType" class="form-label">Type of Therapy</label>
+                            <asp:DropDownList ID="therapyType" runat="server" CssClass="form-select">
+                                <asp:ListItem Value="" Text="-- Select therapy --" />
+                                <asp:ListItem Text="Chemotherapy" />
+                                <asp:ListItem Text="Targeted Therapy" />
+                                <asp:ListItem Text="Proton Beam Therapy" />
+                                <asp:ListItem Text="Gene Therapy" />
+                                <asp:ListItem Text="Cell Therapy" />
+                                <asp:ListItem Text="Other" />
+                            </asp:DropDownList>
                         </div>
                     </div>
 
@@ -118,21 +114,21 @@
                             <label class="form-label">Treatment File</label>
                             <asp:Literal ID="litTreatmentFile" runat="server" />
                             <asp:FileUpload ID="fuTreatment" runat="server" CssClass="form-control mt-2" />
-                            <asp:Button ID="btnDeleteTreatment" runat="server" Text="Delete Treatment File" CssClass="btn btn-outline-danger btn-sm mt-2" OnClick="btnDeleteTreatment_Click" />
+                            <div class="file-note">You may re-upload. Previously uploaded files are kept in company records.</div>
                         </div>
 
                         <div class="file-section">
                             <label class="form-label">Screening File</label>
                             <asp:Literal ID="litScreeningFile" runat="server" />
                             <asp:FileUpload ID="fuScreening" runat="server" CssClass="form-control mt-2" />
-                            <asp:Button ID="btnDeleteScreening" runat="server" Text="Delete Screening File" CssClass="btn btn-outline-danger btn-sm mt-2" OnClick="btnDeleteScreening_Click" />
+                            <div class="file-note">You may re-upload. Previously uploaded files are kept in company records.</div>
                         </div>
 
                         <div class="file-section">
                             <label class="form-label">Other Documents</label>
                             <asp:Literal ID="litOtherFiles" runat="server" />
                             <asp:FileUpload ID="fuOthers" runat="server" CssClass="form-control mt-2" />
-                            <asp:Button ID="btnDeleteOthers" runat="server" Text="Delete Other File" CssClass="btn btn-outline-danger btn-sm mt-2" OnClick="btnDeleteOthers_Click" />
+                            <div class="file-note">You may re-upload. Previously uploaded files are kept in company records.</div>
                         </div>
                     </div>
 
@@ -140,16 +136,14 @@
                         <h5>Annual Screening</h5>
                         <div class="mb-3">
                             <label class="form-label">Did you use your free cancer screening this year?</label><br />
-                            <input type="radio" id="screeningYes" runat="server" name="usedScreening" class="form-check-input" />
-                            <label for="screeningYes" class="form-check-label me-3">Yes</label>
-                            <input type="radio" id="screeningNo" runat="server" name="usedScreening" class="form-check-input" />
-                            <label for="screeningNo" class="form-check-label">No</label>
+                            <asp:RadioButton ID="screeningYes" GroupName="usedScreening" runat="server" Text="Yes" CssClass="form-check-input" />
+                            <asp:RadioButton ID="screeningNo" GroupName="usedScreening" runat="server" Text="No" CssClass="form-check-input" />
                         </div>
                     </div>
 
                     <div class="form-section">
                         <h5>Declaration</h5>
-                        <input type="checkbox" id="declaration" runat="server" class="form-check-input" />
+                        <asp:CheckBox ID="declaration" runat="server" CssClass="form-check-input" />
                         <label for="declaration" class="form-check-label ms-2">I declare that the information is true and accurate.</label>
                     </div>
                 </div>

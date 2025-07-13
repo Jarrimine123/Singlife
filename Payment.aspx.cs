@@ -503,9 +503,9 @@ ORDER BY P.PurchaseDate DESC";
         {
             try
             {
-                var fromAddress = new MailAddress("singlifeeeeeeke@gmail.com", "Singlife Team");
+                var fromAddress = new MailAddress("singlifeteam@gmail.com", "Singlife Team");
                 var toAddress = new MailAddress(toEmail);
-                const string fromPassword = "pnfupbxiznvokifd"; // Gmail App Password
+                const string fromPassword = "lfpafqorspawhzag"; // Gmail App Password
 
                 var smtp = new SmtpClient
                 {
@@ -527,10 +527,11 @@ ORDER BY P.PurchaseDate DESC";
                     smtp.Send(message);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Swallow email sending exceptions silently
+                Response.Write("<p style='color:red;'>Email Send Error: " + ex.Message + "</p>");
             }
+
         }
 
         private Label GetOrCreateLabel(RepeaterItem item, string labelId)

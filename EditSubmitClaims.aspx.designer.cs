@@ -14,256 +14,54 @@ namespace Singlife
     public partial class EditSubmitClaims
     {
 
-        /// <summary>
-        /// form1 control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlForm form1;
+        protected global::System.Web.UI.WebControls.TextBox diagnosisDate;
 
-        /// <summary>
-        /// lblError control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Label lblError;
+        protected global::System.Web.UI.WebControls.TextBox treatmentCountry;
 
-        /// <summary>
-        /// diagnosisDate control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputGenericControl diagnosisDate;
+        protected global::System.Web.UI.WebControls.TextBox cancerType;
 
-        /// <summary>
-        /// treatmentCountry control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputText treatmentCountry;
+        protected global::System.Web.UI.WebControls.RadioButton firstYes;
 
-        /// <summary>
-        /// cancerType control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputText cancerType;
+        protected global::System.Web.UI.WebControls.RadioButton firstNo;
 
-        /// <summary>
-        /// firstYes control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton firstYes;
+        protected global::System.Web.UI.WebControls.RadioButton treatmentYes;
 
-        /// <summary>
-        /// firstNo control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton firstNo;
+        protected global::System.Web.UI.WebControls.RadioButton treatmentNo;
 
-        /// <summary>
-        /// treatmentYes control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton treatmentYes;
+        protected global::System.Web.UI.WebControls.RadioButton confirmedYes;
 
-        /// <summary>
-        /// treatmentNo control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton treatmentNo;
+        protected global::System.Web.UI.WebControls.RadioButton confirmedNo;
 
-        /// <summary>
-        /// confirmedYes control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton confirmedYes;
+        protected global::System.Web.UI.WebControls.TextBox treatmentDate;
 
-        /// <summary>
-        /// confirmedNo control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton confirmedNo;
+        protected global::System.Web.UI.WebControls.TextBox hospital;
 
-        /// <summary>
-        /// treatmentDate control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputGenericControl treatmentDate;
+        protected global::System.Web.UI.WebControls.DropDownList therapyType;
 
-        /// <summary>
-        /// hospital control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputText hospital;
+        protected global::System.Web.UI.WebControls.RadioButton screeningYes;
 
-        /// <summary>
-        /// therapyType control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlSelect therapyType;
+        protected global::System.Web.UI.WebControls.RadioButton screeningNo;
 
-        /// <summary>
-        /// litTreatmentFile control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
+        protected global::System.Web.UI.WebControls.CheckBox declaration;
+
         protected global::System.Web.UI.WebControls.Literal litTreatmentFile;
 
-        /// <summary>
-        /// fuTreatment control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.FileUpload fuTreatment;
-
-        /// <summary>
-        /// btnDeleteTreatment control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnDeleteTreatment;
-
-        /// <summary>
-        /// litScreeningFile control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
         protected global::System.Web.UI.WebControls.Literal litScreeningFile;
 
-        /// <summary>
-        /// fuScreening control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.FileUpload fuScreening;
-
-        /// <summary>
-        /// btnDeleteScreening control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnDeleteScreening;
-
-        /// <summary>
-        /// litOtherFiles control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
         protected global::System.Web.UI.WebControls.Literal litOtherFiles;
 
-        /// <summary>
-        /// fuOthers control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblError;
+
+        protected global::System.Web.UI.WebControls.FileUpload fuTreatment;
+
+        protected global::System.Web.UI.WebControls.FileUpload fuScreening;
+
         protected global::System.Web.UI.WebControls.FileUpload fuOthers;
 
-        /// <summary>
-        /// btnDeleteOthers control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnDeleteOthers;
-
-        /// <summary>
-        /// screeningYes control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton screeningYes;
-
-        /// <summary>
-        /// screeningNo control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputRadioButton screeningNo;
-
-        /// <summary>
-        /// declaration control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.HtmlControls.HtmlInputCheckBox declaration;
-
-        /// <summary>
-        /// btnUpdateClaim control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnUpdateClaim;
 
-        /// <summary>
-        /// btnCancel control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnCancel;
+
+        protected global::System.Web.UI.HtmlControls.HtmlForm form1;
     }
 }

@@ -2,7 +2,6 @@
 using System.Configuration;
 using System.Data.SqlClient;
 using System.IO;
-using System.Web;
 using System.Web.UI.WebControls;
 
 namespace Singlife
@@ -40,30 +39,26 @@ namespace Singlife
                 {
                     if (reader.Read())
                     {
-                        // Fill form fields
                         txtAdmissionDate.Text = reader["AdmissionDate"] is DBNull ? "" : Convert.ToDateTime(reader["AdmissionDate"]).ToString("yyyy-MM-dd");
                         txtDischargeDate.Text = reader["DischargeDate"] is DBNull ? "" : Convert.ToDateTime(reader["DischargeDate"]).ToString("yyyy-MM-dd");
                         txtHospitalName.Text = reader["HospitalName"].ToString();
                         txtWardType.Text = reader["WardType"].ToString();
 
-                        bool didTestsBefore = reader["DidTestsBefore"] is DBNull ? false : Convert.ToBoolean(reader["DidTestsBefore"]);
-                        rbTestsYes.Checked = didTestsBefore;
-                        rbTestsNo.Checked = !didTestsBefore;
+                        rbTestsYes.Checked = reader["DidTestsBefore"] != DBNull.Value && Convert.ToBoolean(reader["DidTestsBefore"]);
+                        rbTestsNo.Checked = !rbTestsYes.Checked;
 
-                        bool didFollowupAfter = reader["DidFollowUpAfter"] is DBNull ? false : Convert.ToBoolean(reader["DidFollowUpAfter"]);
-                        rbFollowupYes.Checked = didFollowupAfter;
-                        rbFollowupNo.Checked = !didFollowupAfter;
+                        rbFollowupYes.Checked = reader["DidFollowUpAfter"] != DBNull.Value && Convert.ToBoolean(reader["DidFollowUpAfter"]);
+                        rbFollowupNo.Checked = !rbFollowupYes.Checked;
 
-                        bool cpfUsed = reader["CpfUsed"] is DBNull ? false : Convert.ToBoolean(reader["CpfUsed"]);
-                        rbCpfYes.Checked = cpfUsed;
-                        rbCpfNo.Checked = !cpfUsed;
+                        rbCpfYes.Checked = reader["CpfUsed"] != DBNull.Value && Convert.ToBoolean(reader["CpfUsed"]);
+                        rbCpfNo.Checked = !rbCpfYes.Checked;
 
-                        chkDeclaration.Checked = reader["DeclarationConfirmed"] is DBNull ? false : Convert.ToBoolean(reader["DeclarationConfirmed"]);
+                        chkDeclaration.Checked = reader["DeclarationConfirmed"] != DBNull.Value && Convert.ToBoolean(reader["DeclarationConfirmed"]);
 
-                        // Files
-                        litHospitalDoc.Text = GenerateFileBlock(reader["HospitalDocPath"].ToString(), "HospitalDoc");
-                        litFollowupDoc.Text = GenerateFileBlock(reader["FollowupDocPath"].ToString(), "FollowupDoc");
-                        litOtherFiles.Text = GenerateFileBlock(reader["OtherFilesPath"].ToString(), "OtherFiles");
+                        // Load existing file links
+                        litHospitalDoc.Text = GenerateFileBlock(reader["HospitalDocPath"].ToString());
+                        litFollowupDoc.Text = GenerateFileBlock(reader["FollowupDocPath"].ToString());
+                        litOtherFiles.Text = GenerateFileBlock(reader["OtherFilesPath"].ToString());
                     }
                     else
                     {
@@ -74,61 +69,19 @@ namespace Singlife
             }
         }
 
-        private string GenerateFileBlock(string filePath, string fileType)
+        private string GenerateFileBlock(string filePath)
         {
             if (string.IsNullOrEmpty(filePath))
             {
-                return $"<div class='text-muted'>No file uploaded.</div>";
+                return "<div class='text-muted'>No file uploaded.</div>";
             }
 
             string fileName = Path.GetFileName(filePath);
             return $@"
                 <div class='mb-2'>
                     <a class='file-link text-success' href='/{filePath}' target='_blank'>&#128206; {fileName}</a>
+                    <div class='text-muted small'>You may re-upload, but this file will remain in company records.</div>
                 </div>";
-        }
-
-        protected void btnDeleteHospitalDoc_Click(object sender, EventArgs e)
-        {
-            DeleteFileAndClearDb("HospitalDocPath");
-        }
-
-        protected void btnDeleteFollowupDoc_Click(object sender, EventArgs e)
-        {
-            DeleteFileAndClearDb("FollowupDocPath");
-        }
-
-        protected void btnDeleteOtherFiles_Click(object sender, EventArgs e)
-        {
-            DeleteFileAndClearDb("OtherFilesPath");
-        }
-
-        private void DeleteFileAndClearDb(string columnName)
-        {
-            using (SqlConnection conn = new SqlConnection(connStr))
-            {
-                conn.Open();
-
-                SqlCommand getCmd = new SqlCommand($"SELECT {columnName} FROM EverCareClaims WHERE ClaimID = @ClaimID", conn);
-                getCmd.Parameters.AddWithValue("@ClaimID", claimId);
-                string existingPath = getCmd.ExecuteScalar()?.ToString();
-
-                if (!string.IsNullOrEmpty(existingPath))
-                {
-                    string fullPath = Server.MapPath("~/" + existingPath);
-                    if (File.Exists(fullPath))
-                    {
-                        File.Delete(fullPath);
-                    }
-
-                    SqlCommand clearCmd = new SqlCommand($"UPDATE EverCareClaims SET {columnName} = NULL WHERE ClaimID = @ClaimID", conn);
-                    clearCmd.Parameters.AddWithValue("@ClaimID", claimId);
-                    clearCmd.ExecuteNonQuery();
-                }
-            }
-
-            // Refresh page after deletion
-            Response.Redirect(Request.RawUrl);
         }
 
         protected void btnUpdateClaim_Click(object sender, EventArgs e)
@@ -140,7 +93,6 @@ namespace Singlife
                 return;
             }
 
-            // Check 2-day edit window from CreatedDate
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 conn.Open();
@@ -156,14 +108,8 @@ namespace Singlife
                 }
             }
 
-            DateTime? admissionDate = null;
-            if (DateTime.TryParse(txtAdmissionDate.Text, out DateTime adDate))
-                admissionDate = adDate;
-
-            DateTime? dischargeDate = null;
-            if (DateTime.TryParse(txtDischargeDate.Text, out DateTime disDate))
-                dischargeDate = disDate;
-
+            DateTime? admissionDate = DateTime.TryParse(txtAdmissionDate.Text, out var adDate) ? adDate : (DateTime?)null;
+            DateTime? dischargeDate = DateTime.TryParse(txtDischargeDate.Text, out var disDate) ? disDate : (DateTime?)null;
             bool didTestsBefore = rbTestsYes.Checked;
             bool didFollowupAfter = rbFollowupYes.Checked;
             bool cpfUsed = rbCpfYes.Checked;
@@ -205,7 +151,7 @@ namespace Singlife
             lblError.Text = "Claim updated successfully.";
             lblError.Visible = true;
 
-            LoadClaimData(claimId); // reload to refresh files display
+            LoadClaimData(claimId);
         }
 
         private void HandleFileUpload(string fileUploadId, string columnName)
@@ -214,7 +160,7 @@ namespace Singlife
             if (fu != null && fu.HasFile)
             {
                 string ext = Path.GetExtension(fu.FileName);
-                string filename = Guid.NewGuid().ToString() + ext;
+                string filename = Guid.NewGuid() + ext;
                 string folder = "~/Uploads/";
                 string savePath = Server.MapPath(folder + filename);
                 string dbPath = "Uploads/" + filename;
