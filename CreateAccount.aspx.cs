@@ -10,7 +10,6 @@ namespace Singlife
         protected void Page_Load(object sender, EventArgs e)
         {
             UnobtrusiveValidationMode = System.Web.UI.UnobtrusiveValidationMode.None;
-
         }
 
         protected void cvDOB_ServerValidate(object source, System.Web.UI.WebControls.ServerValidateEventArgs args)
@@ -44,7 +43,6 @@ namespace Singlife
             {
                 conn.Open();
 
-                // 1. Check if email or NRIC already exists
                 string checkQuery = "SELECT COUNT(*) FROM Users WHERE Email = @Email OR NRIC = @NRIC";
                 using (SqlCommand checkCmd = new SqlCommand(checkQuery, conn))
                 {
@@ -59,7 +57,6 @@ namespace Singlife
                     }
                 }
 
-                // 2. Insert into Users table
                 string insertQuery = "INSERT INTO Users (Name, Email, DOB, NRIC, PasswordHash) VALUES (@Name, @Email, @DOB, @NRIC, @Password)";
                 using (SqlCommand insertCmd = new SqlCommand(insertQuery, conn))
                 {
@@ -72,8 +69,11 @@ namespace Singlife
                     insertCmd.ExecuteNonQuery();
                 }
 
-                // 3. Redirect to Login page
-                Response.Redirect("Login.aspx");
+                // Show popup and redirect using JavaScript
+                string script = @"
+            alert('Account created successfully! You will be redirected to Login.');
+            window.location='Login.aspx';";
+                ClientScript.RegisterStartupScript(this.GetType(), "alertRedirect", script, true);
             }
         }
     }

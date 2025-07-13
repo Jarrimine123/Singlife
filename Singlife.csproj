@@ -117,6 +117,7 @@
     <Content Include="Images\Screenshot 2025-06-27 204318.png" />
     <Content Include="Images\sl-logo-singlife.png" />
     <Content Include="Images\UM_bank_OCBC_paynow_qr-code_480x480.jpg" />
+    <Content Include="Images\RedBackground.png" />
     <Content Include="LifeGrowQuote.aspx" />
     <Content Include="LifeGrowRetirementPlus.aspx" />
     <Content Include="LifeInsurance.aspx" />
