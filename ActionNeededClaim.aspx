@@ -86,7 +86,7 @@
         </asp:Panel>
 
         <asp:Panel ID="pnlClaimDetails" runat="server" CssClass="claim-detail">
-            <h4>Claim Information</h4>
+            <h4>Claim Informatio</h4>
             <asp:Literal ID="litClaimInfo" runat="server" />
         </asp:Panel>
     </div>
