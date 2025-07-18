@@ -262,7 +262,8 @@ namespace Singlife
             }
         }
 
-        protected string GetCoverageDisplay(object dataItem)
+        public string GetCoverageDisplay(object dataItem)
+
         {
             var row = dataItem as System.Data.DataRowView;
             if (row == null) return "";
@@ -273,7 +274,8 @@ namespace Singlife
             return product == "Travel Insurance" ? $"{amount:N0} days" : $"SGD {amount:N0}";
         }
 
-        protected string GetPremiumDisplay(object dataItem)
+        public string GetPremiumDisplay(object dataItem)
+
         {
             var row = dataItem as System.Data.DataRowView;
             if (row == null) return "";

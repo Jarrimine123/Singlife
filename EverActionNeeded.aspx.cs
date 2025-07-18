@@ -27,6 +27,7 @@ namespace Singlife
                     SELECT 
                         c.PlanName, c.AdmissionDate, c.DischargeDate, c.HospitalName, c.WardType,
                         c.DidTestsBefore, c.DidFollowUpAfter, c.CpfUsed, c.DeclarationConfirmed, c.CreatedDate,
+                        c.ReuploadFilePath,
                         sc.Status, sc.Comment,
                         u.Email
                     FROM EverCareClaims c
@@ -52,7 +53,14 @@ namespace Singlife
                             <div class='value'><span class='label'>Follow-Up After:</span> {FormatBool(reader["DidFollowUpAfter"])} </div>
                             <div class='value'><span class='label'>CPF Used:</span> {FormatBool(reader["CpfUsed"])} </div>
                             <div class='value'><span class='label'>Declaration Confirmed:</span> {FormatBool(reader["DeclarationConfirmed"])} </div>
-                            <div class='value'><span class='label'>Submitted On:</span> {FormatDate(reader["CreatedDate"])}";
+                            <div class='value'><span class='label'>Submitted On:</span> {FormatDate(reader["CreatedDate"])}</div>";
+
+                        // Show reuploaded file link if exists
+                        if (reader["ReuploadFilePath"] != DBNull.Value && !string.IsNullOrEmpty(reader["ReuploadFilePath"].ToString()))
+                        {
+                            string reuploadPath = reader["ReuploadFilePath"].ToString();
+                            litClaimInfo.Text += $"<div class='value'><span class='label'>Reuploaded File:</span> <a href='{ResolveUrl("~/" + reuploadPath)}' target='_blank'>Download</a></div>";
+                        }
 
                         string status = reader["Status"]?.ToString()?.ToLower() ?? "received";
                         if (status == "action needed")
@@ -93,7 +101,7 @@ namespace Singlife
             {
                 string sql = @"
                     UPDATE EverCareClaims 
-                    SET OtherFilesPath = @FilePath, ModifiedDate = GETDATE()
+                    SET ReuploadFilePath = @FilePath, ModifiedDate = GETDATE()
                     WHERE ClaimID = @ClaimID;
 
                     UPDATE StaffEverClaims

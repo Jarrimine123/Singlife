@@ -16,23 +16,24 @@
     <div class="container py-5">
         <h2 class="mb-4">Checkout</h2>
 
-        <asp:GridView ID="gvOrderSummary" runat="server" CssClass="table table-bordered" AutoGenerateColumns="False">
-            <Columns>
-                <asp:BoundField DataField="ProductName" HeaderText="Product" />
-                <asp:BoundField DataField="PlanName" HeaderText="Plan" />
-                <asp:TemplateField HeaderText="Coverage">
-                    <ItemTemplate>
-                        <%# GetCoverageDisplay(Container.DataItem) %>
-                    </ItemTemplate>
-                </asp:TemplateField>
-                <asp:BoundField DataField="PaymentFrequency" HeaderText="Payment Frequency" />
-                <asp:TemplateField HeaderText="Premium">
-                    <ItemTemplate>
-                        <%# GetPremiumDisplay(Container.DataItem) %>
-                    </ItemTemplate>
-                </asp:TemplateField>
-            </Columns>
-        </asp:GridView>
+        <asp:GridView ID="gvOrderSummary" runat="server" CssClass="table table-bordered" AutoGenerateColumns="False" EnableViewState="true">
+    <Columns>
+        <asp:BoundField DataField="ProductName" HeaderText="Product" />
+        <asp:BoundField DataField="PlanName" HeaderText="Plan" />
+        <asp:TemplateField HeaderText="Coverage">
+            <ItemTemplate>
+                <%# ((Singlife.Checkout)Page).GetCoverageDisplay(Container.DataItem) %>
+            </ItemTemplate>
+        </asp:TemplateField>
+        <asp:BoundField DataField="PaymentFrequency" HeaderText="Payment Frequency" />
+        <asp:TemplateField HeaderText="Premium">
+            <ItemTemplate>
+                <%# ((Singlife.Checkout)Page).GetPremiumDisplay(Container.DataItem) %>
+            </ItemTemplate>
+        </asp:TemplateField>
+    </Columns>
+</asp:GridView>
+
 
         <div class="text-end mt-2">
             <strong>Total Premium: </strong><asp:Label ID="lblTotalMonthly" runat="server" CssClass="fw-bold fs-5" />
