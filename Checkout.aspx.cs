@@ -1,9 +1,12 @@
-﻿using System;
-using System.Data;
+﻿using Stripe;
+using Stripe.Checkout;
+using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
-using System.Net;
-using System.Net.Mail;
+using System.Web.UI;
+using static System.Collections.Specialized.BitVector32;
 
 namespace Singlife
 {
@@ -11,6 +14,9 @@ namespace Singlife
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            // Set your Stripe secret key from config
+            StripeConfiguration.ApiKey = ConfigurationManager.AppSettings["StripeSecretKey"];
+
             if (!IsPostBack)
             {
                 if (Session["AccountID"] == null)
@@ -48,10 +54,7 @@ namespace Singlife
 
             DataRow row = dt.NewRow();
             row["ProductName"] = "Medical Insurance";
-
-            // ✅ Changed: Use productName directly without appending " Plan"
             row["PlanName"] = productName;
-
             row["CoverageAmount"] = coverage;
             row["AnnualPremium"] = annualPremium;
             row["MonthlyPremium"] = monthlyPremium;
@@ -67,7 +70,6 @@ namespace Singlife
             lblTotalMonthly.Text = totalPremium.ToString("C");
         }
 
-
         private void LoadCartItems()
         {
             int accountId = Convert.ToInt32(Session["AccountID"]);
@@ -75,7 +77,7 @@ namespace Singlife
 
             using (SqlConnection conn = new SqlConnection(connStr))
             {
-                string query = @"SELECT CartID, ProductName, PlanName, CoverageAmount, AnnualPremium, PaymentFrequency 
+                string query = @"SELECT ProductName, PlanName, CoverageAmount, AnnualPremium, PaymentFrequency 
                                  FROM CartItems WHERE AccountID = @AccountID";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -103,23 +105,14 @@ namespace Singlife
 
         protected void btnPlaceOrder_Click(object sender, EventArgs e)
         {
-            if (Session["AccountID"] == null)
-            {
-                Response.Redirect("Login.aspx");
-                return;
-            }
+            lblMessage.Visible = false;
 
             string name = txtName.Text.Trim();
             string email = txtEmail.Text.Trim();
             string phone = txtPhone.Text.Trim();
             string address = txtAddress.Text.Trim();
-            string cardNumber = txtCardNumber.Text.Trim();
-            string expiry = txtExpiry.Text.Trim();
-            string cvv = txtCVV.Text.Trim();
 
-            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(phone) ||
-                string.IsNullOrEmpty(address) || string.IsNullOrEmpty(cardNumber) ||
-                string.IsNullOrEmpty(expiry) || string.IsNullOrEmpty(cvv))
+            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(email) || string.IsNullOrEmpty(phone) || string.IsNullOrEmpty(address))
             {
                 ShowAlert("⚠️ Please fill in all fields.");
                 return;
@@ -131,24 +124,6 @@ namespace Singlife
                 return;
             }
 
-            if (!long.TryParse(cardNumber, out _) || cardNumber.Length != 16)
-            {
-                ShowAlert("❌ Card number must be 16 digits.");
-                return;
-            }
-
-            if (!System.Text.RegularExpressions.Regex.IsMatch(expiry, @"^(0[1-9]|1[0-2])\/\d{2}$"))
-            {
-                ShowAlert("❌ Expiry date must be in MM/YY format.");
-                return;
-            }
-
-            if (!int.TryParse(cvv, out _) || (cvv.Length != 3 && cvv.Length != 4))
-            {
-                ShowAlert("❌ CVV must be 3 or 4 digits.");
-                return;
-            }
-
             DataTable dt = ViewState["CartItems"] as DataTable;
             if (dt == null || dt.Rows.Count == 0)
             {
@@ -156,63 +131,60 @@ namespace Singlife
                 return;
             }
 
-            int accountId = Convert.ToInt32(Session["AccountID"]);
-            Guid purchaseGroupId = Guid.NewGuid();
-            string connStr = ConfigurationManager.ConnectionStrings["Singlife"].ConnectionString;
-
-            using (SqlConnection conn = new SqlConnection(connStr))
+            try
             {
-                conn.Open();
+                var domain = Request.Url.GetLeftPart(UriPartial.Authority);
+
+                var options = new SessionCreateOptions
+                {
+                    PaymentMethodTypes = new List<string> { "card" },
+                    Mode = "payment",
+                    SuccessUrl = domain + "/ThankYou.aspx?session_id={CHECKOUT_SESSION_ID}",
+                    CancelUrl = domain + "/Checkout.aspx",
+                    CustomerEmail = email,
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "AccountID", Session["AccountID"].ToString() },
+                        { "FullName", name },
+                        { "Email", email },
+                        { "Phone", phone },
+                        { "Address", address }
+                    },
+                    LineItems = new List<SessionLineItemOptions>()
+                };
 
                 foreach (DataRow row in dt.Rows)
                 {
-                    decimal annual = Convert.ToDecimal(row["AnnualPremium"]);
-                    decimal monthly = annual / 12;
-                    string frequency = row["PaymentFrequency"].ToString();
-                    string paymentMethod = frequency == "Monthly" ? "Card Monthly" : "Card Annual";
-                    DateTime purchaseDate = DateTime.Now;
-                    DateTime nextBillingDate = frequency == "Monthly" ? purchaseDate.AddMonths(1) : purchaseDate.AddYears(1);
+                    decimal amountDecimal = (row["PaymentFrequency"].ToString() == "Monthly") ?
+                        Convert.ToDecimal(row["AnnualPremium"]) / 12 : Convert.ToDecimal(row["AnnualPremium"]);
 
-                    string insertQuery = @"
-                        INSERT INTO Purchases 
-                        (PurchaseGroupID, AccountID, FullName, Email, Phone, Address, ProductName, PlanName, CoverageAmount, AnnualPremium, MonthlyPremium, PaymentMethod, CardLast4, PaymentFrequency, NextBillingDate)
-                        VALUES 
-                        (@PurchaseGroupID, @AccountID, @FullName, @Email, @Phone, @Address, @ProductName, @PlanName, @CoverageAmount, @AnnualPremium, @MonthlyPremium, @PaymentMethod, @CardLast4, @PaymentFrequency, @NextBillingDate)";
+                    long amountCents = (long)(amountDecimal * 100);
 
-                    using (SqlCommand cmd = new SqlCommand(insertQuery, conn))
+                    options.LineItems.Add(new SessionLineItemOptions
                     {
-                        cmd.Parameters.AddWithValue("@PurchaseGroupID", purchaseGroupId);
-                        cmd.Parameters.AddWithValue("@AccountID", accountId);
-                        cmd.Parameters.AddWithValue("@FullName", name);
-                        cmd.Parameters.AddWithValue("@Email", email);
-                        cmd.Parameters.AddWithValue("@Phone", phone);
-                        cmd.Parameters.AddWithValue("@Address", address);
-                        cmd.Parameters.AddWithValue("@ProductName", row["ProductName"]);
-                        cmd.Parameters.AddWithValue("@PlanName", row["PlanName"]);
-                        cmd.Parameters.AddWithValue("@CoverageAmount", row["CoverageAmount"]);
-                        cmd.Parameters.AddWithValue("@AnnualPremium", annual);
-                        cmd.Parameters.AddWithValue("@MonthlyPremium", monthly);
-                        cmd.Parameters.AddWithValue("@PaymentMethod", paymentMethod);
-                        cmd.Parameters.AddWithValue("@CardLast4", cardNumber.Substring(cardNumber.Length - 4));
-                        cmd.Parameters.AddWithValue("@PaymentFrequency", frequency);
-                        cmd.Parameters.AddWithValue("@NextBillingDate", nextBillingDate);
-
-                        cmd.ExecuteNonQuery();
-                    }
+                        PriceData = new SessionLineItemPriceDataOptions
+                        {
+                            Currency = "sgd",
+                            ProductData = new SessionLineItemPriceDataProductDataOptions
+                            {
+                                Name = $"{row["ProductName"]} - {row["PlanName"]}"
+                            },
+                            UnitAmount = amountCents,
+                        },
+                        Quantity = 1,
+                    });
                 }
 
-                if (string.IsNullOrEmpty(Request.QueryString["product"]))
-                {
-                    using (SqlCommand deleteCmd = new SqlCommand("DELETE FROM CartItems WHERE AccountID = @AccountID", conn))
-                    {
-                        deleteCmd.Parameters.AddWithValue("@AccountID", accountId);
-                        deleteCmd.ExecuteNonQuery();
-                    }
-                }
+                var service = new SessionService();
+                Session session = service.Create(options);
+
+                Response.Redirect(session.Url);
             }
-
-            SendEmailAlert(email, dt);
-            Response.Redirect("ThankYou.aspx");
+            catch (Exception ex)
+            {
+                lblMessage.Text = "Error creating payment session: " + ex.Message;
+                lblMessage.Visible = true;
+            }
         }
 
         private void ShowAlert(string message)
@@ -220,50 +192,7 @@ namespace Singlife
             ClientScript.RegisterStartupScript(this.GetType(), "alert", $"alert('{message}');", true);
         }
 
-        private void SendEmailAlert(string email, DataTable cartItems)
-        {
-            if (string.IsNullOrEmpty(email) || cartItems == null || cartItems.Rows.Count == 0)
-                return;
-
-            try
-            {
-                string planSummary = "";
-                foreach (DataRow row in cartItems.Rows)
-                {
-                    string planName = row["PlanName"].ToString();
-                    string coverage = Convert.ToDecimal(row["CoverageAmount"]).ToString("C");
-                    string frequency = row["PaymentFrequency"].ToString();
-                    string premium = frequency == "Monthly"
-                        ? (Convert.ToDecimal(row["AnnualPremium"]) / 12).ToString("C")
-                        : Convert.ToDecimal(row["AnnualPremium"]).ToString("C");
-
-                    planSummary += $"- {planName}: {coverage} ({frequency}, Premium: {premium})\n";
-                }
-
-                MailMessage message = new MailMessage();
-                message.To.Add(email);
-                message.From = new MailAddress("singlifeteam@gmail.com", "Singlife Team");
-                message.Subject = "🛒 Singlife Insurance Purchase Confirmation";
-                message.Body = $"Thank you for your purchase!\n\nYou’ve successfully purchased the following plan(s):\n\n{planSummary}" +
-                               "\nYour policy will be processed and activated shortly.\n\nRegards,\nSinglife Team";
-                message.IsBodyHtml = false;
-
-                SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
-                client.Credentials = new NetworkCredential("singlifeteam@gmail.com", "lfpafqorspawhzag");
-                client.EnableSsl = true;
-
-                client.Send(message);
-            }
-            catch (Exception ex)
-            {
-                lblMessage.Text = "Purchase succeeded, but email failed: " + ex.Message;
-                lblMessage.CssClass = "text-danger";
-                lblMessage.Visible = true;
-            }
-        }
-
         public string GetCoverageDisplay(object dataItem)
-
         {
             var row = dataItem as System.Data.DataRowView;
             if (row == null) return "";
@@ -275,7 +204,6 @@ namespace Singlife
         }
 
         public string GetPremiumDisplay(object dataItem)
-
         {
             var row = dataItem as System.Data.DataRowView;
             if (row == null) return "";
