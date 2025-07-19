@@ -140,7 +140,8 @@ namespace Singlife
             }
             else if (status == "successfully reuploaded")
             {
-                return $"<a class='edit-link' href='SuccessfulUploaded.aspx?claimId={claimId}'>→ View Details</a>";
+                string successUrl = GetSuccessUrl(claimId);
+                return $"<a class='edit-link' href='{successUrl}'>→ View Details</a>";
             }
             else if (status == "action needed")
             {
@@ -162,6 +163,25 @@ namespace Singlife
             return "";
         }
 
+        private string GetSuccessUrl(int claimId)
+        {
+            string result = $"SuccessfulUploaded.aspx?claimId={claimId}"; // default to normal
+            using (SqlConnection conn = new SqlConnection(connStr))
+            {
+                conn.Open();
+                string checkSql = "SELECT COUNT(*) FROM EverCareClaims WHERE ClaimID = @ClaimID";
+                using (SqlCommand cmd = new SqlCommand(checkSql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@ClaimID", claimId);
+                    int count = Convert.ToInt32(cmd.ExecuteScalar());
+                    if (count > 0)
+                    {
+                        result = $"SuccessfulEverCareUpload.aspx?claimId={claimId}";
+                    }
+                }
+            }
+            return result;
+        }
 
         // Example method to submit new claim and insert default status
         public void SubmitNewClaim(string planName /* add more parameters as needed */)

@@ -21,17 +21,18 @@ namespace Singlife
             using (SqlConnection conn = new SqlConnection(connStr))
             {
                 string sql = @"
-                    SELECT 
-                        ec.PlanName, ec.AdmissionDate, ec.DischargeDate, ec.HospitalName,
-                        ec.WardType, ec.DidTestsBefore, ec.DidFollowUpAfter, ec.CpfUsed,
-                        ec.DeclarationConfirmed, ec.CreatedDate,
-                        ec.HospitalDocPath, ec.FollowupDocPath, ec.OtherFilesPath,
-                        se.Status, se.Comment, se.OutcomeFilePath,
-                        u.Name
-                    FROM EverCareClaims ec
-                    LEFT JOIN StaffEverClaims se ON ec.ClaimID = se.ClaimID
-                    LEFT JOIN Users u ON ec.AccountID = u.AccountID
-                    WHERE ec.ClaimID = @ClaimID";
+    SELECT 
+        ec.PlanName, ec.AdmissionDate, ec.DischargeDate, ec.HospitalName,
+        ec.WardType, ec.DidTestsBefore, ec.DidFollowUpAfter, ec.CpfUsed,
+        ec.DeclarationConfirmed, ec.CreatedDate,
+        ec.HospitalDocPath, ec.FollowupDocPath, ec.OtherFilesPath, ec.ReuploadFilePath,
+        se.Status, se.Comment, se.OutcomeFilePath,
+        u.Name
+    FROM EverCareClaims ec
+    LEFT JOIN StaffEverClaims se ON ec.ClaimID = se.ClaimID
+    LEFT JOIN Users u ON ec.AccountID = u.AccountID
+    WHERE ec.ClaimID = @ClaimID";
+
 
                 SqlCommand cmd = new SqlCommand(sql, conn);
                 cmd.Parameters.AddWithValue("@ClaimID", claimId);
@@ -72,7 +73,7 @@ namespace Singlife
                         html += BuildFileLink("Hospital Document", reader["HospitalDocPath"]);
                         html += BuildFileLink("Follow-up Document", reader["FollowupDocPath"]);
                         html += BuildFileLink("Other Files", reader["OtherFilesPath"]);
-                        html += BuildFileLink("Outcome File (Staff)", reader["OutcomeFilePath"]);
+                        html += BuildFileLink("Reuploaded File", reader["ReuploadFilePath"]);
 
                         html += "</div>";
                         litEverCareDetails.Text = html;
