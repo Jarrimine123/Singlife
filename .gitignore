@@ -272,20 +272,6 @@ UpgradeLog*.htm
 ServiceFabricBackup/
 *.rptproj.bak
 
-# SQL Server files
-*.mdf
-*.ldf
-*.ndf
-
-# Business Intelligence projects
-*.rdl.data
-*.bim.layout
-*.bim_*.settings
-*.rptproj.rsuser
-*- [Bb]ackup.rdl
-*- [Bb]ackup ([0-9]).rdl
-*- [Bb]ackup ([0-9][0-9]).rdl
-
 # Microsoft Fakes
 FakesAssemblies/
 
@@ -368,3 +354,37 @@ MigrationBackup/
 
 # Fody
 FodyWeavers.xsd
+
+# --------------------------
+# Added to ignore secrets and config files
+
+# Ignore secret config files
+*.config
+web.config
+appsettings.json
+*.secret
+*.key
+*.pfx
+*.pem
+
+# Ignore environment files with secrets
+.env
+.env.local
+.env.*.local
+
+# Ignore directories that might contain sensitive uploads or keys
+Uploads/
+Uploads/Reloads/
+
+# Ignore local secrets cache
+secrets/
+
+# Ignore any file that might contain api keys or tokens
+*secrets*
+*apikey*
+*api_key*
+*token*
+
+# Ignore local settings files
+*.local
+
